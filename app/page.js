@@ -12,22 +12,26 @@ const YELLOW = "#FFD101";
 const BLUE = "#0045B5";
 const DARK = "#080808";
 
-const BANDEIRAS = {
-  "México": "🇲🇽", "África do Sul": "🇿🇦", "Coreia do Sul": "🇰🇷", "Rep. Tcheca": "🇨🇿",
-  "Canadá": "🇨🇦", "Bósnia": "🇧🇦", "Qatar": "🇶🇦", "Suíça": "🇨🇭",
-  "Brasil": "🇧🇷", "Marrocos": "🇲🇦", "Haiti": "🇭🇹", "Escócia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
-  "Estados Unidos": "🇺🇸", "Paraguai": "🇵🇾", "Austrália": "🇦🇺", "Turquia": "🇹🇷",
-  "Alemanha": "🇩🇪", "Curaçao": "🇨🇼", "Costa do Marfim": "🇨🇮", "Equador": "🇪🇨",
-  "Holanda": "🇳🇱", "Japão": "🇯🇵", "Suécia": "🇸🇪", "Tunísia": "🇹🇳",
-  "Espanha": "🇪🇸", "Cabo Verde": "🇨🇻", "Arábia Saudita": "🇸🇦", "Uruguai": "🇺🇾",
-  "Bélgica": "🇧🇪", "Egito": "🇪🇬", "Irã": "🇮🇷", "Nova Zelândia": "🇳🇿",
-  "França": "🇫🇷", "Senegal": "🇸🇳", "Iraque": "🇮🇶", "Noruega": "🇳🇴",
-  "Argentina": "🇦🇷", "Argélia": "🇩🇿", "Áustria": "🇦🇹", "Jordânia": "🇯🇴",
-  "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbequistão": "🇺🇿", "Colômbia": "🇨🇴",
-  "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croácia": "🇭🇷", "Gana": "🇬🇭", "Panamá": "🇵🇦",
+const CODIGOS = {
+  "México": "mx", "África do Sul": "za", "Coreia do Sul": "kr", "Rep. Tcheca": "cz",
+  "Canadá": "ca", "Bósnia": "ba", "Qatar": "qa", "Suíça": "ch",
+  "Brasil": "br", "Marrocos": "ma", "Haiti": "ht", "Escócia": "gb-sct",
+  "Estados Unidos": "us", "Paraguai": "py", "Austrália": "au", "Turquia": "tr",
+  "Alemanha": "de", "Curaçao": "cw", "Costa do Marfim": "ci", "Equador": "ec",
+  "Holanda": "nl", "Japão": "jp", "Suécia": "se", "Tunísia": "tn",
+  "Espanha": "es", "Cabo Verde": "cv", "Arábia Saudita": "sa", "Uruguai": "uy",
+  "Bélgica": "be", "Egito": "eg", "Irã": "ir", "Nova Zelândia": "nz",
+  "França": "fr", "Senegal": "sn", "Iraque": "iq", "Noruega": "no",
+  "Argentina": "ar", "Argélia": "dz", "Áustria": "at", "Jordânia": "jo",
+  "Portugal": "pt", "RD Congo": "cd", "Uzbequistão": "uz", "Colômbia": "co",
+  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa",
 };
 
-function flag(time) { return BANDEIRAS[time] || "🏳️"; }
+function flag(time, size = 32) {
+  const cod = CODIGOS[time];
+  if (!cod) return <span style={{ fontSize: size * 0.8 }}>🏳</span>;
+  return <img src={`https://flagcdn.com/w${size}/${cod}.png`} width={size} height={size * 0.67} style={{ borderRadius: 3, objectFit: "cover" }} alt={time} />;
+}
 
 function calcPontos(g1, g2, rg1, rg2) {
   if (rg1 == null || rg2 == null) return null;
@@ -271,9 +275,9 @@ export default function App() {
             <span style={{ fontSize: 11, color: "#aaa" }}>{formatData(j.data_hora)}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontWeight: 500, flex: 1 }}>{flag(j.time1)} {j.time1}</span>
+            <span style={{ fontWeight: 500, flex: 1 }}>{flag(j.time1, 20)} {j.time1}</span>
             <ResultInput jogo={j} onSalvar={salvarResultado} />
-            <span style={{ fontWeight: 500, flex: 1, textAlign: "right" }}>{j.time2} {flag(j.time2)}</span>
+            <span style={{ fontWeight: 500, flex: 1, textAlign: "right" }}>{j.time2} {flag(j.time2, 20)}</span>
           </div>
         </div>
       ))}
@@ -295,7 +299,7 @@ export default function App() {
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
               <div style={{ flex: 1, textAlign: "left" }}>
-                <div style={{ fontSize: 26 }}>{flag(j.time1)}</div>
+                <div style={{ fontSize: 26 }}>{flag(j.time1, 48)}</div>
                 <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time1}</div>
               </div>
               <div style={{ textAlign: "center", flex: "0 0 auto" }}>
@@ -310,7 +314,7 @@ export default function App() {
                 )}
               </div>
               <div style={{ flex: 1, textAlign: "right" }}>
-                <div style={{ fontSize: 26 }}>{flag(j.time2)}</div>
+                <div style={{ fontSize: 26 }}>{flag(j.time2, 48)}</div>
                 <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time2}</div>
               </div>
             </div>

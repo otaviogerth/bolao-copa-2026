@@ -284,43 +284,7 @@ export default function App() {
 
       {tela === "ranking" && <RankingView ranking={ranking} myId={user?.id} />}
 
-      {tela === "jogos" && jogos.map(j => {
-        const p = palpites.find(x => x.jogo_id === j.id);
-        const passou = new Date(j.data_hora) < new Date();
-        const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
-        return (
-          <div key={j.id} style={{ ...s.card, borderLeft: j.time1 === "Brasil" || j.time2 === "Brasil" ? `4px solid ${YELLOW}` : "1px solid #e5e5e5" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-              <div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: DARK, borderRadius: 4, padding: "2px 7px", marginRight: 6, letterSpacing: 1 }}>GRP {j.grupo}</span>
-                <span style={{ fontSize: 11, color: "#aaa" }}>{formatData(j.data_hora)}</span>
-              </div>
-              {pts !== null && <span style={s.tag(pts)}>{pts === 3 ? "⭐ Placar exato +3" : pts === 1 ? "✓ Vencedor +1" : "✗ Errou"}</span>}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-              <div style={{ flex: 1, textAlign: "left" }}>
-                <div style={{ fontSize: 26 }}>{flag(j.time1, 48)}</div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time1}</div>
-              </div>
-              <div style={{ textAlign: "center", flex: "0 0 auto" }}>
-                {passou || j.encerrado ? (
-                  <div>
-                    {j.encerrado && <div style={{ fontSize: 22, fontWeight: 700, color: DARK }}>{j.resultado_g1} — {j.resultado_g2}</div>}
-                    {p ? <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>Palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 12, color: "#ccc" }}>Sem palpite</div>}
-                    {!j.encerrado && <div style={{ fontSize: 12, color: "#aaa" }}>Jogo iniciado</div>}
-                  </div>
-                ) : (
-                  <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={salvarPalpite} />
-                )}
-              </div>
-              <div style={{ flex: 1, textAlign: "right" }}>
-                <div style={{ fontSize: 26 }}>{flag(j.time2, 48)}</div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time2}</div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+      {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
     </div>
   );
 }
@@ -381,6 +345,114 @@ function RankingView({ ranking, myId }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function ListaJogos({ jogos, palpites, onSalvar }) {
+  const [rodada, setRodada] = useState("todas");
+
+  const RODADAS = [
+    { id: "todas", label: "Todos" },
+    { id: "1", label: "1ª Rodada", inicio: "2026-06-11", fim: "2026-06-17" },
+    { id: "2", label: "2ª Rodada", inicio: "2026-06-18", fim: "2026-06-23" },
+    { id: "3", label: "3ª Rodada", inicio: "2026-06-24", fim: "2026-06-28" },
+  ];
+
+  const jogosFiltrados = jogos.filter(j => {
+    if (rodada === "todas") return true;
+    const r = RODADAS.find(x => x.id === rodada);
+    const d = j.data_hora.slice(0, 10);
+    return d >= r.inicio && d <= r.fim;
+  });
+
+  // Agrupar por data
+  const grupos = {};
+  jogosFiltrados.forEach(j => {
+    const dia = j.data_hora.slice(0, 10);
+    if (!grupos[dia]) grupos[dia] = [];
+    grupos[dia].push(j);
+  });
+
+  function formatDia(iso) {
+    const d = new Date(iso + "T12:00:00");
+    return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
+  }
+
+  function formatHora(iso) {
+    const d = new Date(iso);
+    return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  return (
+    <div>
+      {/* Filtro de rodada */}
+      <div style={{ display: "flex", gap: 8, padding: "0 1rem 1.25rem", flexWrap: "wrap" }}>
+        {RODADAS.map(r => (
+          <button key={r.id} onClick={() => setRodada(r.id)} style={{
+            cursor: "pointer", padding: "5px 14px", borderRadius: 20,
+            border: `1px solid ${rodada === r.id ? RED : "#ddd"}`,
+            background: rodada === r.id ? RED : "#fff",
+            color: rodada === r.id ? "#fff" : "#555",
+            fontSize: 13, fontWeight: rodada === r.id ? 600 : 400,
+          }}>{r.label}</button>
+        ))}
+      </div>
+
+      {/* Jogos agrupados por data */}
+      {Object.keys(grupos).sort().map(dia => (
+        <div key={dia}>
+          {/* Separador de data */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.5rem 1rem 0.75rem" }}>
+            <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#555", textTransform: "capitalize", whiteSpace: "nowrap" }}>
+              {formatDia(dia)}
+            </span>
+            <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
+          </div>
+
+          {/* Cards do dia */}
+          {grupos[dia].map(j => {
+            const p = palpites.find(x => x.jogo_id === j.id);
+            const passou = new Date(j.data_hora) < new Date();
+            const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
+            return (
+              <div key={j.id} style={{ ...s.card, borderLeft: j.time1 === "Brasil" || j.time2 === "Brasil" ? `4px solid ${YELLOW}` : "1px solid #e5e5e5" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: DARK, borderRadius: 4, padding: "2px 7px", letterSpacing: 1 }}>GRP {j.grupo}</span>
+                    <span style={{ fontSize: 12, color: "#aaa" }}>{formatHora(j.data_hora)}</span>
+                  </div>
+                  {pts !== null && <span style={s.tag(pts)}>{pts === 3 ? "⭐ +3" : pts === 1 ? "✓ +1" : "✗ Errou"}</span>}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ flex: 1, textAlign: "left" }}>
+                    <div>{flag(j.time1, 48)}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginTop: 6 }}>{j.time1}</div>
+                  </div>
+                  <div style={{ textAlign: "center", flex: "0 0 auto" }}>
+                    {passou || j.encerrado ? (
+                      <div>
+                        {j.encerrado
+                          ? <div style={{ fontSize: 24, fontWeight: 700, color: DARK, letterSpacing: 2 }}>{j.resultado_g1} — {j.resultado_g2}</div>
+                          : <div style={{ fontSize: 13, color: "#aaa" }}>Em andamento</div>}
+                        {p ? <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>Palpite: {p.g1}×{p.g2}</div>
+                           : <div style={{ fontSize: 12, color: "#ccc", marginTop: 4 }}>Sem palpite</div>}
+                      </div>
+                    ) : (
+                      <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1, textAlign: "right" }}>
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>{flag(j.time2, 48)}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginTop: 6 }}>{j.time2}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }

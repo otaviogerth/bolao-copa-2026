@@ -30,7 +30,8 @@ const CODIGOS = {
 function flag(time, size = 32) {
   const cod = CODIGOS[time];
   if (!cod) return <span style={{ fontSize: size * 0.8 }}>🏳</span>;
-  return <img src={`https://flagcdn.com/w${size}/${cod}.png`} width={size} height={size * 0.67} style={{ borderRadius: 3, objectFit: "cover" }} alt={time} />;
+  const upper = cod.includes("-") ? cod.split("-")[0].toUpperCase() : cod.toUpperCase();
+  return <img src={`https://flagsapi.com/${upper}/flat/64.png`} width={size} height={size} style={{ borderRadius: 3, objectFit: "cover" }} alt={time} />;
 }
 
 function calcPontos(g1, g2, rg1, rg2) {

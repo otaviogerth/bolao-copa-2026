@@ -1,11 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
+
+const RED = "#D8091B";
+const YELLOW = "#FFD101";
+const BLUE = "#0045B5";
+const DARK = "#080808";
 
 function calcPontos(g1, g2, rg1, rg2) {
   if (rg1 == null || rg2 == null) return null;
@@ -28,6 +33,17 @@ function formatData(iso) {
     d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
+const s = {
+  btn: { cursor: "pointer", border: "1px solid #444", borderRadius: 8, padding: "6px 14px", fontSize: 13, background: "transparent", color: "#fff" },
+  btnP: { cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: RED, color: "#fff", fontWeight: 500 },
+  card: { background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, marginLeft: "1rem", marginRight: "1rem" },
+  inp: { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 },
+  num: { width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 },
+  nav: { display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap", padding: "0 1rem" },
+  navB: (a) => ({ cursor: "pointer", padding: "6px 14px", borderRadius: 8, border: `1px solid ${a ? RED : "#ddd"}`, fontSize: 13, background: a ? RED : "transparent", color: a ? "#fff" : "#333", fontWeight: a ? 500 : 400 }),
+  tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#fde8ec" : p === 1 ? "#fff8cc" : "#f5f5f5", color: p === 3 ? RED : p === 1 ? "#7a5800" : "#888" }),
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [tela, setTela] = useState("login");
@@ -43,17 +59,8 @@ export default function App() {
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
     const docLimpo = doc.replace(/\D/g, "") || doc;
-    const { data, error } = await supabase
-      .from("clientes")
-      .select("*")
-      .eq("doc", docLimpo)
-      .eq("senha", senha)
-      .eq("ativo", true)
-      .limit(1);
-    if (error || !data.length) {
-      setLoginErr("CPF/CNPJ ou senha incorretos.");
-      setLoading(false); return;
-    }
+    const { data, error } = await supabase.from("clientes").select("*").eq("doc", docLimpo).eq("senha", senha).eq("ativo", true).limit(1);
+    if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
     const u = data[0];
     setUser(u);
     await carregarJogos();
@@ -83,16 +90,14 @@ export default function App() {
   }
 
   function logout() { setUser(null); setTela("login"); setJogos([]); setPalpites([]); setClientes([]); }
-
   function flash(text, err = false) { setMsg({ text, err }); setTimeout(() => setMsg(""), 2500); }
 
   async function salvarPalpite(jogoId, g1, g2) {
     const exist = palpites.find(p => p.jogo_id === jogoId);
-    const payload = { cliente_id: user.id, jogo_id: jogoId, g1: parseInt(g1), g2: parseInt(g2) };
     if (exist) {
       await supabase.from("palpites").update({ g1: parseInt(g1), g2: parseInt(g2) }).eq("id", exist.id);
     } else {
-      await supabase.from("palpites").insert(payload);
+      await supabase.from("palpites").insert({ cliente_id: user.id, jogo_id: jogoId, g1: parseInt(g1), g2: parseInt(g2) });
     }
     await carregarPalpites(user.id);
     flash("Palpite salvo!");
@@ -130,48 +135,23 @@ export default function App() {
   const meuRank = user ? ranking.findIndex(r => r.id === user.id) + 1 : 0;
   const meusPts = user ? (ranking.find(r => r.id === user.id)?.pts || 0) : 0;
 
-  const RED = "#D8091B";
-  const YELLOW = "#FFD101";
-  const BLUE = "#0045B5";
-  const DARK = "#080808";
-
-  const s = {
-    wrap: { fontFamily: "sans-serif", maxWidth: 680, margin: "0 auto", padding: "0" },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0.75rem 1rem", borderBottom: `3px solid ${PRIMARY}`, background: DARK },
-    btn: { cursor: "pointer", border: "1px solid #444", borderRadius: 8, padding: "6px 14px", fontSize: 13, background: "transparent", color: "#fff" },
-    btnP: { cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: RED, color: "#fff", fontWeight: 500 },
-    card: { background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, margin: "0 1rem 12px" },
-    inp: { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 },
-    num: { width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 },
-    nav: { display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap", padding: "0 1rem" },
-    navB: (a) => ({ cursor: "pointer", padding: "6px 14px", borderRadius: 8, border: `1px solid ${a ? RED : "#ddd"}`, fontSize: 13, background: a ? RED : "transparent", color: a ? "#fff" : "#333", fontWeight: a ? 500 : 400 }),
-    tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#fde8ec" : p === 1 ? "#fff8cc" : "#f5f5f5", color: p === 3 ? RED : p === 1 ? "#7a5800" : "#888" }),
-    content: { padding: "1.25rem 0 0" },
-  };
-
   if (tela === "login") return (
-    <div style={{ ...s.wrap, background: "#f7f7f7", minHeight: "100vh" }}>
-      {/* Hero header */}
+    <div style={{ fontFamily: "sans-serif", background: "#f7f7f7", minHeight: "100vh" }}>
       <div style={{ background: DARK, padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
-        {/* Logos */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: "1.25rem", flexWrap: "wrap" }}>
-          <div style={{ color: "#fff", fontWeight: 700, fontSize: 20, letterSpacing: 1 }}>IPIRANGA</div>
-          <div style={{ width: 1, height: 32, background: "#444" }} />
-          <div style={{ color: PRIMARY, fontWeight: 900, fontSize: 22, letterSpacing: 2 }}>TEXACO</div>
-          <div style={{ width: 1, height: 32, background: "#444" }} />
-          <div style={{ color: BLUE, fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>BEL LUBE</div>
+          <div style={{ color: YELLOW, fontWeight: 900, fontSize: 18, letterSpacing: 1 }}>IPIRANGA</div>
+          <div style={{ width: 1, height: 28, background: "#444" }} />
+          <div style={{ color: RED, fontWeight: 900, fontSize: 18, letterSpacing: 2 }}>TEXACO</div>
+          <div style={{ width: 1, height: 28, background: "#444" }} />
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>BEL LUBE</div>
         </div>
-        {/* Título */}
-        <div style={{ color: PRIMARY, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>Campanha Copa do Mundo 2026</div>
+        <div style={{ color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>Campanha Copa do Mundo 2026</div>
         <div style={{ color: "#fff", fontSize: 28, fontWeight: 700, marginBottom: 4 }}>⚽ Bolão da Copa</div>
         <div style={{ color: "#aaa", fontSize: 13 }}>Faça seus palpites e concorra a prêmios</div>
-        {/* Barra vermelha decorativa */}
-        <div style={{ height: 3, background: `linear-gradient(90deg, ${BLUE}, ${PRIMARY})`, borderRadius: 2, marginTop: "1.5rem" }} />
+        <div style={{ height: 3, background: `linear-gradient(90deg, ${BLUE}, ${YELLOW}, ${RED})`, borderRadius: 2, marginTop: "1.5rem" }} />
       </div>
-
-      {/* Form */}
       <div style={{ maxWidth: 360, margin: "2rem auto", background: "#fff", borderRadius: 16, padding: "1.5rem", boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
-        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16, color: DARK }}>Acesse sua conta</div>
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Acesse sua conta</div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>CPF ou CNPJ</label>
           <input id="doc" style={s.inp} placeholder="Somente números" />
@@ -180,22 +160,18 @@ export default function App() {
           <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>Senha</label>
           <input id="senha" type="password" style={s.inp} placeholder="Sua senha" />
         </div>
-        {loginErr && <p style={{ color: PRIMARY, fontSize: 13, marginBottom: 12 }}>{loginErr}</p>}
+        {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{loginErr}</p>}
         <button style={{ ...s.btnP, width: "100%", opacity: loading ? 0.7 : 1, padding: "10px 20px", fontSize: 15 }}
           onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)}
           disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
       </div>
-
-      {/* Footer */}
-      <div style={{ textAlign: "center", padding: "1rem", color: "#bbb", fontSize: 12 }}>
-        Bel Lube Lubrificantes · Campanha Copa 2026
-      </div>
+      <div style={{ textAlign: "center", padding: "1rem", color: "#bbb", fontSize: 12 }}>Bel Lube Lubrificantes · Campanha Copa 2026</div>
     </div>
   );
 
   return (
-    <div style={{ ...s.wrap, background: "#f7f7f7", minHeight: "100vh" }}>
-      <div style={s.header}>
+    <div style={{ fontFamily: "sans-serif", background: "#f7f7f7", minHeight: "100vh" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", borderBottom: `3px solid ${RED}`, background: DARK, marginBottom: "1.25rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ color: RED, fontWeight: 900, fontSize: 16, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>
           <div style={{ width: 1, height: 20, background: "#444" }} />
@@ -206,9 +182,12 @@ export default function App() {
         </div>
         <button style={s.btn} onClick={logout}>Sair</button>
       </div>
-      <div style={s.content}>
 
-      {msg && <div style={{ marginBottom: 12, padding: "8px 14px", borderRadius: 8, background: msg.err ? "#fff0f0" : "#f0fff4", color: msg.err ? "#c00" : "#2d7a4f", fontSize: 13 }}>{msg.text}</div>}
+      {msg && (
+        <div style={{ margin: "0 1rem 1rem", padding: "8px 14px", borderRadius: 8, background: msg.err ? "#fde8ec" : "#f0fff4", color: msg.err ? RED : "#2d7a4f", fontSize: 13 }}>
+          {msg.text}
+        </div>
+      )}
 
       {!isAdmin && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.5rem", padding: "0 1rem" }}>
@@ -222,35 +201,38 @@ export default function App() {
       )}
 
       <div style={s.nav}>
-        {isAdmin ? (
-          [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
-            <button key={t} style={s.navB(tela === t)} onClick={async () => {
-              setTela(t);
-              if (t === "clientes") await carregarClientes();
-              if (t === "resultados") await carregarJogos();
-              if (t === "ranking") { await carregarJogos(); await carregarClientes(); await carregarTodosPalpites(); }
-            }}>{l}</button>
-          ))
-        ) : (
-          [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
-            <button key={t} style={s.navB(tela === t)} onClick={async () => {
-              setTela(t);
-              if (t === "ranking") { await carregarClientes(); await carregarTodosPalpites(); }
-            }}>{l}</button>
-          ))
-        )}
+        {isAdmin
+          ? [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
+              <button key={t} style={s.navB(tela === t)} onClick={async () => {
+                setTela(t);
+                if (t === "clientes") await carregarClientes();
+                if (t === "resultados") await carregarJogos();
+                if (t === "ranking") { await carregarJogos(); await carregarClientes(); await carregarTodosPalpites(); }
+              }}>{l}</button>
+            ))
+          : [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
+              <button key={t} style={s.navB(tela === t)} onClick={async () => {
+                setTela(t);
+                if (t === "ranking") { await carregarClientes(); await carregarTodosPalpites(); }
+              }}>{l}</button>
+            ))
+        }
       </div>
 
-      {tela === "admin" && <div style={s.card}><p style={{ margin: 0, fontSize: 14, color: "#555" }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p></div>}
+      {tela === "admin" && (
+        <div style={s.card}>
+          <p style={{ margin: 0, fontSize: 14, color: "#555" }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+        </div>
+      )}
 
-      {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} s={s} />}
+      {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
 
       {tela === "resultados" && jogos.map(j => (
         <div key={j.id} style={s.card}>
           <div style={{ fontSize: 12, color: "#888", marginBottom: 6 }}>Grupo {j.grupo} · {formatData(j.data_hora)}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontWeight: 500, flex: 1 }}>{j.time1}</span>
-            <ResultInput jogo={j} onSalvar={salvarResultado} s={s} />
+            <ResultInput jogo={j} onSalvar={salvarResultado} />
             <span style={{ fontWeight: 500, flex: 1, textAlign: "right" }}>{j.time2}</span>
           </div>
         </div>
@@ -277,7 +259,7 @@ export default function App() {
         </div>
       )}
 
-      {tela === "jogos" && <div style={{ padding: "0 0 1rem" }}>{jogos.map(j => {
+      {tela === "jogos" && jogos.map(j => {
         const p = palpites.find(x => x.jogo_id === j.id);
         const passou = new Date(j.data_hora) < new Date();
         const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
@@ -295,7 +277,7 @@ export default function App() {
                   {p ? <div style={{ fontSize: 13 }}>Seu palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 13, color: "#aaa" }}>Sem palpite</div>}
                 </div>
               ) : (
-                <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={salvarPalpite} s={s} />
+                <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={salvarPalpite} />
               )}
               <span style={{ fontWeight: 500, fontSize: 15 }}>{j.time2}</span>
             </div>
@@ -306,7 +288,7 @@ export default function App() {
   );
 }
 
-function AdminClientes({ clientes, onAdd, onToggle, s }) {
+function AdminClientes({ clientes, onAdd, onToggle }) {
   const [doc, setDoc] = useState(""); const [nome, setNome] = useState(""); const [senha, setSenha] = useState("");
   return (
     <div>
@@ -319,21 +301,21 @@ function AdminClientes({ clientes, onAdd, onToggle, s }) {
           <button style={s.btnP} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
         </div>
       </div>
-      <div style={{ fontSize: 13, color: "#888", marginBottom: 8 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
+      <div style={{ fontSize: 13, color: "#888", marginBottom: 8, padding: "0 1rem" }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
       {clientes.filter(c => c.doc !== "admin").map(c => (
         <div key={c.id} style={{ ...s.card, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.5 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 14 }}>{c.nome}</div>
-            <div style={{ fontSize: 12, color: "#888" }}>{formatDoc(c.doc)}</div>
+            <div style={{ fontSize: 12, color: "#888" }}>{c.doc}</div>
           </div>
-          <button style={{ ...s.btn, fontSize: 12 }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
+          <button style={{ ...s.btn, fontSize: 12, color: "#333", border: "1px solid #ddd" }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
         </div>
       ))}
     </div>
   );
 }
 
-function ResultInput({ jogo, onSalvar, s }) {
+function ResultInput({ jogo, onSalvar }) {
   const [g1, setG1] = useState(jogo.resultado_g1 ?? ""); const [g2, setG2] = useState(jogo.resultado_g2 ?? "");
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -350,7 +332,7 @@ function ResultInput({ jogo, onSalvar, s }) {
   );
 }
 
-function PalpiteInput({ jogoId, palpiteAtual, onSalvar, s }) {
+function PalpiteInput({ jogoId, palpiteAtual, onSalvar }) {
   const [g1, setG1] = useState(palpiteAtual?.g1 ?? ""); const [g2, setG2] = useState(palpiteAtual?.g2 ?? "");
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -359,7 +341,7 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, s }) {
         <span style={{ color: "#888" }}>×</span>
         <input style={s.num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button style={{ ...s.btnP, fontSize: 12, padding: "4px 12px", background: palpiteAtual ? "#0F6E56" : "#1D9E75" }}
+      <button style={{ ...s.btnP, fontSize: 12, padding: "4px 12px", background: palpiteAtual ? "#a00614" : RED }}
         onClick={() => onSalvar(jogoId, g1, g2)} disabled={g1 === "" || g2 === ""}>
         {palpiteAtual ? "Atualizar" : "Salvar palpite"}
       </button>

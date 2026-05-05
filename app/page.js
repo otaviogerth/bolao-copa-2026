@@ -130,26 +130,48 @@ export default function App() {
   const meuRank = user ? ranking.findIndex(r => r.id === user.id) + 1 : 0;
   const meusPts = user ? (ranking.find(r => r.id === user.id)?.pts || 0) : 0;
 
+  const RED = "#D8091B";
+  const YELLOW = "#FFD101";
+  const BLUE = "#0045B5";
+  const DARK = "#080808";
+
   const s = {
-    wrap: { fontFamily: "sans-serif", maxWidth: 680, margin: "0 auto", padding: "1rem" },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", borderBottom: "1px solid #eee", paddingBottom: "0.75rem" },
-    btn: { cursor: "pointer", border: "1px solid #ddd", borderRadius: 8, padding: "6px 14px", fontSize: 13, background: "transparent" },
-    btnP: { cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: "#1D9E75", color: "#fff", fontWeight: 500 },
-    card: { background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 },
+    wrap: { fontFamily: "sans-serif", maxWidth: 680, margin: "0 auto", padding: "0" },
+    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0.75rem 1rem", borderBottom: `3px solid ${PRIMARY}`, background: DARK },
+    btn: { cursor: "pointer", border: "1px solid #444", borderRadius: 8, padding: "6px 14px", fontSize: 13, background: "transparent", color: "#fff" },
+    btnP: { cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: RED, color: "#fff", fontWeight: 500 },
+    card: { background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, margin: "0 1rem 12px" },
     inp: { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 },
     num: { width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 },
-    nav: { display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap" },
-    navB: (a) => ({ cursor: "pointer", padding: "6px 14px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13, background: a ? "#1D9E75" : "transparent", color: a ? "#fff" : "#333", fontWeight: a ? 500 : 400 }),
-    tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#EAF3DE" : p === 1 ? "#FAEEDA" : "#f5f5f5", color: p === 3 ? "#3B6D11" : p === 1 ? "#854F0B" : "#888" }),
+    nav: { display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap", padding: "0 1rem" },
+    navB: (a) => ({ cursor: "pointer", padding: "6px 14px", borderRadius: 8, border: `1px solid ${a ? RED : "#ddd"}`, fontSize: 13, background: a ? RED : "transparent", color: a ? "#fff" : "#333", fontWeight: a ? 500 : 400 }),
+    tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#fde8ec" : p === 1 ? "#fff8cc" : "#f5f5f5", color: p === 3 ? RED : p === 1 ? "#7a5800" : "#888" }),
+    content: { padding: "1.25rem 0 0" },
   };
 
   if (tela === "login") return (
-    <div style={s.wrap}>
-      <div style={{ textAlign: "center", marginBottom: "2rem", paddingTop: "2rem" }}>
-        <div style={{ fontSize: 13, color: "#888", marginBottom: 4 }}>Campanha Copa 2026</div>
-        <div style={{ fontSize: 24, fontWeight: 500 }}>Bolão Ipiranga & Texaco</div>
+    <div style={{ ...s.wrap, background: "#f7f7f7", minHeight: "100vh" }}>
+      {/* Hero header */}
+      <div style={{ background: DARK, padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
+        {/* Logos */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: "1.25rem", flexWrap: "wrap" }}>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: 20, letterSpacing: 1 }}>IPIRANGA</div>
+          <div style={{ width: 1, height: 32, background: "#444" }} />
+          <div style={{ color: PRIMARY, fontWeight: 900, fontSize: 22, letterSpacing: 2 }}>TEXACO</div>
+          <div style={{ width: 1, height: 32, background: "#444" }} />
+          <div style={{ color: BLUE, fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>BEL LUBE</div>
+        </div>
+        {/* Título */}
+        <div style={{ color: PRIMARY, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>Campanha Copa do Mundo 2026</div>
+        <div style={{ color: "#fff", fontSize: 28, fontWeight: 700, marginBottom: 4 }}>⚽ Bolão da Copa</div>
+        <div style={{ color: "#aaa", fontSize: 13 }}>Faça seus palpites e concorra a prêmios</div>
+        {/* Barra vermelha decorativa */}
+        <div style={{ height: 3, background: `linear-gradient(90deg, ${BLUE}, ${PRIMARY})`, borderRadius: 2, marginTop: "1.5rem" }} />
       </div>
-      <div style={{ ...s.card, maxWidth: 360, margin: "0 auto" }}>
+
+      {/* Form */}
+      <div style={{ maxWidth: 360, margin: "2rem auto", background: "#fff", borderRadius: 16, padding: "1.5rem", boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16, color: DARK }}>Acesse sua conta</div>
         <div style={{ marginBottom: 12 }}>
           <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>CPF ou CNPJ</label>
           <input id="doc" style={s.inp} placeholder="Somente números" />
@@ -158,30 +180,40 @@ export default function App() {
           <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>Senha</label>
           <input id="senha" type="password" style={s.inp} placeholder="Sua senha" />
         </div>
-        {loginErr && <p style={{ color: "red", fontSize: 13, marginBottom: 12 }}>{loginErr}</p>}
-        <button style={{ ...s.btnP, width: "100%", opacity: loading ? 0.7 : 1 }}
+        {loginErr && <p style={{ color: PRIMARY, fontSize: 13, marginBottom: 12 }}>{loginErr}</p>}
+        <button style={{ ...s.btnP, width: "100%", opacity: loading ? 0.7 : 1, padding: "10px 20px", fontSize: 15 }}
           onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)}
           disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
+      </div>
+
+      {/* Footer */}
+      <div style={{ textAlign: "center", padding: "1rem", color: "#bbb", fontSize: 12 }}>
+        Bel Lube Lubrificantes · Campanha Copa 2026
       </div>
     </div>
   );
 
   return (
-    <div style={s.wrap}>
+    <div style={{ ...s.wrap, background: "#f7f7f7", minHeight: "100vh" }}>
       <div style={s.header}>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 500 }}>{isAdmin ? "Painel Admin" : user?.nome}</div>
-          {!isAdmin && <div style={{ fontSize: 12, color: "#888" }}>{formatDoc(user?.doc || "")}</div>}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ color: RED, fontWeight: 900, fontSize: 16, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>
+          <div style={{ width: 1, height: 20, background: "#444" }} />
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>{isAdmin ? "Painel Admin" : user?.nome}</div>
+            {!isAdmin && <div style={{ fontSize: 11, color: "#aaa" }}>{formatDoc(user?.doc || "")}</div>}
+          </div>
         </div>
         <button style={s.btn} onClick={logout}>Sair</button>
       </div>
+      <div style={s.content}>
 
       {msg && <div style={{ marginBottom: 12, padding: "8px 14px", borderRadius: 8, background: msg.err ? "#fff0f0" : "#f0fff4", color: msg.err ? "#c00" : "#2d7a4f", fontSize: 13 }}>{msg.text}</div>}
 
       {!isAdmin && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.5rem", padding: "0 1rem" }}>
           {[["Seus pontos", meusPts], ["Posição", meuRank > 0 ? `${meuRank}º` : "—"]].map(([l, v]) => (
-            <div key={l} style={{ background: "#f9f9f9", borderRadius: 8, padding: "0.75rem 1rem" }}>
+            <div key={l} style={{ background: "#fff", borderRadius: 8, padding: "0.75rem 1rem", borderLeft: `4px solid ${RED}`, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ fontSize: 12, color: "#888" }}>{l}</div>
               <div style={{ fontSize: 24, fontWeight: 500 }}>{v}</div>
             </div>
@@ -226,9 +258,9 @@ export default function App() {
 
       {tela === "ranking" && (
         <div>
-          {ranking.length === 0 && <p style={{ fontSize: 14, color: "#888" }}>Nenhum palpite ainda.</p>}
+          {ranking.length === 0 && <p style={{ fontSize: 14, color: "#888", padding: "0 1rem" }}>Nenhum palpite ainda.</p>}
           {ranking.map((c, i) => (
-            <div key={c.id} style={{ ...s.card, borderColor: c.id === user?.id ? "#1D9E75" : "#eee", borderWidth: c.id === user?.id ? 2 : 1 }}>
+            <div key={c.id} style={{ ...s.card, borderColor: c.id === user?.id ? RED : "#e5e5e5", borderWidth: c.id === user?.id ? 2 : 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ fontSize: 18, minWidth: 28 }}>{["🥇","🥈","🥉"][i] || `${i+1}º`}</span>
                 <div style={{ flex: 1 }}>
@@ -245,7 +277,7 @@ export default function App() {
         </div>
       )}
 
-      {tela === "jogos" && jogos.map(j => {
+      {tela === "jogos" && <div style={{ padding: "0 0 1rem" }}>{jogos.map(j => {
         const p = palpites.find(x => x.jogo_id === j.id);
         const passou = new Date(j.data_hora) < new Date();
         const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;

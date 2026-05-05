@@ -12,6 +12,23 @@ const YELLOW = "#FFD101";
 const BLUE = "#0045B5";
 const DARK = "#080808";
 
+const BANDEIRAS = {
+  "México": "🇲🇽", "África do Sul": "🇿🇦", "Coreia do Sul": "🇰🇷", "Rep. Tcheca": "🇨🇿",
+  "Canadá": "🇨🇦", "Bósnia": "🇧🇦", "Qatar": "🇶🇦", "Suíça": "🇨🇭",
+  "Brasil": "🇧🇷", "Marrocos": "🇲🇦", "Haiti": "🇭🇹", "Escócia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  "Estados Unidos": "🇺🇸", "Paraguai": "🇵🇾", "Austrália": "🇦🇺", "Turquia": "🇹🇷",
+  "Alemanha": "🇩🇪", "Curaçao": "🇨🇼", "Costa do Marfim": "🇨🇮", "Equador": "🇪🇨",
+  "Holanda": "🇳🇱", "Japão": "🇯🇵", "Suécia": "🇸🇪", "Tunísia": "🇹🇳",
+  "Espanha": "🇪🇸", "Cabo Verde": "🇨🇻", "Arábia Saudita": "🇸🇦", "Uruguai": "🇺🇾",
+  "Bélgica": "🇧🇪", "Egito": "🇪🇬", "Irã": "🇮🇷", "Nova Zelândia": "🇳🇿",
+  "França": "🇫🇷", "Senegal": "🇸🇳", "Iraque": "🇮🇶", "Noruega": "🇳🇴",
+  "Argentina": "🇦🇷", "Argélia": "🇩🇿", "Áustria": "🇦🇹", "Jordânia": "🇯🇴",
+  "Portugal": "🇵🇹", "RD Congo": "🇨🇩", "Uzbequistão": "🇺🇿", "Colômbia": "🇨🇴",
+  "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croácia": "🇭🇷", "Gana": "🇬🇭", "Panamá": "🇵🇦",
+};
+
+function flag(time) { return BANDEIRAS[time] || "🏳️"; }
+
 function calcPontos(g1, g2, rg1, rg2) {
   if (rg1 == null || rg2 == null) return null;
   if (g1 === rg1 && g2 === rg2) return 3;
@@ -29,7 +46,7 @@ function formatDoc(doc) {
 
 function formatData(iso) {
   const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }) + " " +
+  return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" }) + " · " +
     d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
@@ -53,6 +70,7 @@ export default function App() {
   const [palpites, setPalpites] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [msg, setMsg] = useState("");
+  const [boasVindas, setBoasVindas] = useState(true);
 
   const isAdmin = user?.doc === "admin";
 
@@ -63,9 +81,10 @@ export default function App() {
     if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
     const u = data[0];
     setUser(u);
+    setBoasVindas(true);
     await carregarJogos();
     if (u.doc === "admin") { await carregarClientes(); setTela("admin"); }
-    else { await carregarPalpites(u.id); setTela("jogos"); }
+    else { await carregarPalpites(u.id); setTela("boasvindas"); }
     setLoading(false);
   }
 
@@ -73,17 +92,14 @@ export default function App() {
     const { data } = await supabase.from("jogos").select("*").order("data_hora");
     setJogos(data || []);
   }
-
   async function carregarPalpites(clienteId) {
     const { data } = await supabase.from("palpites").select("*").eq("cliente_id", clienteId);
     setPalpites(data || []);
   }
-
   async function carregarClientes() {
     const { data } = await supabase.from("clientes").select("*").order("nome");
     setClientes(data || []);
   }
-
   async function carregarTodosPalpites() {
     const { data } = await supabase.from("palpites").select("*");
     setPalpites(data || []);
@@ -135,6 +151,7 @@ export default function App() {
   const meuRank = user ? ranking.findIndex(r => r.id === user.id) + 1 : 0;
   const meusPts = user ? (ranking.find(r => r.id === user.id)?.pts || 0) : 0;
 
+  // ── LOGIN ──
   if (tela === "login") return (
     <div style={{ fontFamily: "sans-serif", background: "#f7f7f7", minHeight: "100vh" }}>
       <div style={{ background: DARK, padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
@@ -169,6 +186,26 @@ export default function App() {
     </div>
   );
 
+  // ── BOAS-VINDAS ──
+  if (tela === "boasvindas") return (
+    <div style={{ fontFamily: "sans-serif", background: DARK, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem 1rem", textAlign: "center" }}>
+      <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
+      <div style={{ color: YELLOW, fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>Bem-vindo ao Bolão da Copa 2026</div>
+      <div style={{ color: "#fff", fontSize: 26, fontWeight: 700, marginBottom: 8 }}>Olá, {user?.nome.split(" ")[0]}!</div>
+      <div style={{ color: "#aaa", fontSize: 14, maxWidth: 320, lineHeight: 1.6, marginBottom: 32 }}>
+        Faça seus palpites antes de cada jogo e acumule pontos.<br />
+        <span style={{ color: YELLOW }}>3 pontos</span> pelo placar exato · <span style={{ color: "#fff" }}>1 ponto</span> pelo vencedor
+      </div>
+      <div style={{ height: 2, width: 60, background: RED, borderRadius: 2, marginBottom: 32 }} />
+      <button style={{ ...s.btnP, fontSize: 16, padding: "12px 36px", borderRadius: 12 }}
+        onClick={() => setTela("jogos")}>Ver os jogos →</button>
+      <div style={{ marginTop: "3rem", display: "flex", gap: 24, color: "#555", fontSize: 12 }}>
+        <span>IPIRANGA</span><span>·</span><span>TEXACO</span><span>·</span><span>BEL LUBE</span>
+      </div>
+    </div>
+  );
+
+  // ── APP PRINCIPAL ──
   return (
     <div style={{ fontFamily: "sans-serif", background: "#f7f7f7", minHeight: "100vh" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", borderBottom: `3px solid ${RED}`, background: DARK, marginBottom: "1.25rem" }}>
@@ -229,61 +266,117 @@ export default function App() {
 
       {tela === "resultados" && jogos.map(j => (
         <div key={j.id} style={s.card}>
-          <div style={{ fontSize: 12, color: "#888", marginBottom: 6 }}>Grupo {j.grupo} · {formatData(j.data_hora)}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1 }}>Grupo {j.grupo}</span>
+            <span style={{ fontSize: 11, color: "#aaa" }}>{formatData(j.data_hora)}</span>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontWeight: 500, flex: 1 }}>{j.time1}</span>
+            <span style={{ fontWeight: 500, flex: 1 }}>{flag(j.time1)} {j.time1}</span>
             <ResultInput jogo={j} onSalvar={salvarResultado} />
-            <span style={{ fontWeight: 500, flex: 1, textAlign: "right" }}>{j.time2}</span>
+            <span style={{ fontWeight: 500, flex: 1, textAlign: "right" }}>{j.time2} {flag(j.time2)}</span>
           </div>
         </div>
       ))}
 
-      {tela === "ranking" && (
-        <div>
-          {ranking.length === 0 && <p style={{ fontSize: 14, color: "#888", padding: "0 1rem" }}>Nenhum palpite ainda.</p>}
-          {ranking.map((c, i) => (
-            <div key={c.id} style={{ ...s.card, borderColor: c.id === user?.id ? RED : "#e5e5e5", borderWidth: c.id === user?.id ? 2 : 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 18, minWidth: 28 }}>{["🥇","🥈","🥉"][i] || `${i+1}º`}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 500, fontSize: 14 }}>{c.nome}</div>
-                  <div style={{ fontSize: 12, color: "#888" }}>{c.acertos} placar(es) exato(s)</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: 500, fontSize: 18 }}>{c.pts}</div>
-                  <div style={{ fontSize: 11, color: "#888" }}>pts</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {tela === "ranking" && <RankingView ranking={ranking} myId={user?.id} />}
 
       {tela === "jogos" && jogos.map(j => {
         const p = palpites.find(x => x.jogo_id === j.id);
         const passou = new Date(j.data_hora) < new Date();
         const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
         return (
-          <div key={j.id} style={s.card}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: "#888" }}>Grupo {j.grupo} · {formatData(j.data_hora)}</span>
-              {pts !== null && <span style={s.tag(pts)}>{pts === 3 ? "Placar exato +3" : pts === 1 ? "Vencedor +1" : "Errou"}</span>}
+          <div key={j.id} style={{ ...s.card, borderLeft: j.time1 === "Brasil" || j.time2 === "Brasil" ? `4px solid ${YELLOW}` : "1px solid #e5e5e5" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: DARK, borderRadius: 4, padding: "2px 7px", marginRight: 6, letterSpacing: 1 }}>GRP {j.grupo}</span>
+                <span style={{ fontSize: 11, color: "#aaa" }}>{formatData(j.data_hora)}</span>
+              </div>
+              {pts !== null && <span style={s.tag(pts)}>{pts === 3 ? "⭐ Placar exato +3" : pts === 1 ? "✓ Vencedor +1" : "✗ Errou"}</span>}
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-              <span style={{ fontWeight: 500, fontSize: 15 }}>{j.time1}</span>
-              {passou || j.encerrado ? (
-                <div style={{ textAlign: "center" }}>
-                  {j.encerrado && <div style={{ fontSize: 13, color: "#888" }}>Resultado: {j.resultado_g1}×{j.resultado_g2}</div>}
-                  {p ? <div style={{ fontSize: 13 }}>Seu palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 13, color: "#aaa" }}>Sem palpite</div>}
-                </div>
-              ) : (
-                <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={salvarPalpite} />
-              )}
-              <span style={{ fontWeight: 500, fontSize: 15 }}>{j.time2}</span>
+              <div style={{ flex: 1, textAlign: "left" }}>
+                <div style={{ fontSize: 26 }}>{flag(j.time1)}</div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time1}</div>
+              </div>
+              <div style={{ textAlign: "center", flex: "0 0 auto" }}>
+                {passou || j.encerrado ? (
+                  <div>
+                    {j.encerrado && <div style={{ fontSize: 22, fontWeight: 700, color: DARK }}>{j.resultado_g1} — {j.resultado_g2}</div>}
+                    {p ? <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>Palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 12, color: "#ccc" }}>Sem palpite</div>}
+                    {!j.encerrado && <div style={{ fontSize: 12, color: "#aaa" }}>Jogo iniciado</div>}
+                  </div>
+                ) : (
+                  <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={salvarPalpite} />
+                )}
+              </div>
+              <div style={{ flex: 1, textAlign: "right" }}>
+                <div style={{ fontSize: 26 }}>{flag(j.time2)}</div>
+                <div style={{ fontWeight: 600, fontSize: 13, marginTop: 4 }}>{j.time2}</div>
+              </div>
             </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ── Ranking com Pódio ──
+function RankingView({ ranking, myId }) {
+  const podio = ranking.slice(0, 3);
+  const resto = ranking.slice(3);
+  const podioConfig = [
+    { pos: 1, cor: "#FFD101", altura: 110, emoji: "🥇" },
+    { pos: 0, cor: "#C0C0C0", altura: 80,  emoji: "🥈" },
+    { pos: 2, cor: "#CD7F32", altura: 70,  emoji: "🥉" },
+  ];
+  const ordem = [1, 0, 2]; // exibe: 2º, 1º, 3º
+
+  return (
+    <div>
+      {ranking.length === 0 && <p style={{ fontSize: 14, color: "#888", padding: "0 1rem" }}>Nenhum palpite ainda.</p>}
+
+      {podio.length >= 1 && (
+        <div style={{ background: DARK, borderRadius: 16, margin: "0 1rem 1rem", padding: "1.5rem 1rem 0", overflow: "hidden" }}>
+          <div style={{ textAlign: "center", color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, marginBottom: "1.25rem" }}>PÓDIO</div>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 8 }}>
+            {ordem.map(idx => {
+              const c = podio[idx];
+              if (!c) return <div key={idx} style={{ flex: 1 }} />;
+              const cfg = podioConfig[idx];
+              return (
+                <div key={c.id} style={{ flex: 1, textAlign: "center" }}>
+                  <div style={{ fontSize: 11, color: "#aaa", marginBottom: 4 }}>{c.nome.split(" ")[0]}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: cfg.cor, marginBottom: 2 }}>{c.pts}pts</div>
+                  <div style={{ background: cfg.cor, borderRadius: "8px 8px 0 0", height: cfg.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ fontSize: 28 }}>{cfg.emoji}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: DARK, marginTop: 4 }}>{idx === 0 ? "1º" : idx === 1 ? "2º" : "3º"}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {resto.length > 0 && (
+        <div style={{ margin: "0 1rem 1rem" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#aaa", letterSpacing: 2, padding: "0.75rem 0 0.5rem" }}>CLASSIFICAÇÃO GERAL</div>
+          {resto.map((c, i) => (
+            <div key={c.id} style={{ background: "#fff", border: `1px solid ${c.id === myId ? RED : "#e5e5e5"}`, borderWidth: c.id === myId ? 2 : 1, borderRadius: 10, padding: "0.75rem 1rem", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "#aaa", minWidth: 28 }}>{i + 4}º</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 500, fontSize: 14 }}>{c.nome}</div>
+                <div style={{ fontSize: 12, color: "#aaa" }}>{c.acertos} placar(es) exato(s)</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontWeight: 700, fontSize: 18 }}>{c.pts}</div>
+                <div style={{ fontSize: 11, color: "#aaa" }}>pts</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -327,7 +420,7 @@ function ResultInput({ jogo, onSalvar }) {
       <button style={{ ...s.btnP, fontSize: 12, padding: "4px 12px" }} onClick={() => onSalvar(jogo.id, g1, g2)}>
         {jogo.encerrado ? "Atualizar" : "Confirmar"}
       </button>
-      {jogo.encerrado && <span style={{ fontSize: 11, color: "#2d7a4f" }}>Salvo: {jogo.resultado_g1}×{jogo.resultado_g2}</span>}
+      {jogo.encerrado && <span style={{ fontSize: 11, color: "#2d7a4f" }}>✓ {jogo.resultado_g1}×{jogo.resultado_g2}</span>}
     </div>
   );
 }

@@ -69,11 +69,11 @@ const s = {
 
 function Banner() {
   return (
-    <div style={{ width: "100%", maxHeight: "25vh", overflow: "hidden", lineHeight: 0, background: DARK, display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div style={{ width: "100%", lineHeight: 0 }}>
       <img
-        src={SUPA + "/Banner%20bet%20lube%202.png"}
+        src={SUPA + "/Banner%20bet%20lube%203.png"}
         alt="Banner Bet Lube Copa 2026"
-        style={{ width: "100%", maxHeight: "25vh", objectFit: "contain", display: "block" }}
+        style={{ width: "100%", height: "auto", display: "block" }}
       />
     </div>
   );

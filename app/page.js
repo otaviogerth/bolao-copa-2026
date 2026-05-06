@@ -332,6 +332,7 @@ export default function App() {
 
       {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
     </div>
+    </div>
   );
 }
 

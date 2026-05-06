@@ -158,36 +158,94 @@ export default function App() {
 
   // ── LOGIN ──
   if (tela === "login") return (
-    <div style={{ fontFamily: "sans-serif", background: "#f7f7f7", minHeight: "100vh" }}>
-      <div style={{ background: DARK, padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: "1.25rem", flexWrap: "wrap" }}>
-          <div style={{ color: YELLOW, fontWeight: 900, fontSize: 18, letterSpacing: 1 }}>IPIRANGA</div>
-          <div style={{ width: 1, height: 28, background: "#444" }} />
-          <div style={{ color: RED, fontWeight: 900, fontSize: 18, letterSpacing: 2 }}>TEXACO</div>
-          <div style={{ width: 1, height: 28, background: "#444" }} />
-          <div style={{ color: "#fff", fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>BEL LUBE</div>
+    <div style={{ fontFamily: "Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
+      {/* Header preto com logo e listras laterais */}
+      <div style={{ background: DARK, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
+        {/* Listras laterais esquerda */}
+        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, display: "flex", flexDirection: "column", width: 18 }}>
+          {[BLUE, RED, YELLOW, RED, BLUE, RED, YELLOW].map((c, i) => (
+            <div key={i} style={{ flex: 1, background: c }} />
+          ))}
         </div>
-        <div style={{ color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>Campanha Copa do Mundo 2026</div>
-        <div style={{ color: "#fff", fontSize: 28, fontWeight: 700, marginBottom: 4 }}>⚽ Bolão da Copa</div>
-        <div style={{ color: "#aaa", fontSize: 13 }}>Faça seus palpites e concorra a prêmios</div>
-        <div style={{ height: 3, background: `linear-gradient(90deg, ${BLUE}, ${YELLOW}, ${RED})`, borderRadius: 2, marginTop: "1.5rem" }} />
+        {/* Logo central */}
+        <div style={{ textAlign: "center", zIndex: 1, padding: "1.5rem 3rem" }}>
+          <img
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-campanha.png"
+            alt="Bet Lube 26"
+            style={{ maxWidth: 160, maxHeight: 160, objectFit: "contain" }}
+            onError={e => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "block";
+            }}
+          />
+          {/* Fallback se imagem não carregar */}
+          <div style={{ display: "none", color: "#fff" }}>
+            <div style={{ fontSize: 80, fontWeight: 900, lineHeight: 1, color: "#fff", letterSpacing: -4 }}>26</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>BET LUBE</div>
+          </div>
+        </div>
+        {/* Listras laterais direita */}
+        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, display: "flex", flexDirection: "column", width: 28 }}>
+          <div style={{ flex: 2, background: RED }} />
+          <div style={{ flex: 2, background: BLUE }} />
+          <div style={{ flex: 3, background: YELLOW }} />
+        </div>
       </div>
-      <div style={{ maxWidth: 360, margin: "2rem auto", background: "#fff", borderRadius: 16, padding: "1.5rem", boxShadow: "0 2px 16px rgba(0,0,0,0.08)" }}>
-        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Acesse sua conta</div>
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>CPF ou CNPJ</label>
-          <input id="doc" style={s.inp} placeholder="Somente números" />
+
+      {/* Corpo branco */}
+      <div style={{ flex: 1, padding: "2rem 2rem 1rem" }}>
+        {/* Título LOGIN */}
+        <div style={{ fontSize: 42, fontWeight: 900, color: "#999", letterSpacing: 2, marginBottom: "2rem", fontFamily: "Arial Black, sans-serif" }}>LOGIN</div>
+
+        {/* Campo CNPJ/CPF */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <div style={{ fontSize: 15, color: "#aaa", marginBottom: 8 }}>CNPJ ou CPF</div>
+          <input
+            id="doc"
+            style={{ width: "100%", border: "none", borderBottom: `1.5px solid #333`, outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box" }}
+            placeholder=""
+          />
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 4 }}>Senha</label>
-          <input id="senha" type="password" style={s.inp} placeholder="Sua senha" />
+
+        {/* Campo Senha */}
+        <div style={{ marginBottom: "2.5rem" }}>
+          <div style={{ fontSize: 15, color: "#aaa", marginBottom: 8 }}>Senha</div>
+          <input
+            id="senha"
+            type="password"
+            style={{ width: "100%", border: "none", borderBottom: `1.5px solid #333`, outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box" }}
+            placeholder=""
+            onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)}
+          />
         </div>
-        {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{loginErr}</p>}
-        <button style={{ ...s.btnP, width: "100%", opacity: loading ? 0.7 : 1, padding: "10px 20px", fontSize: 15 }}
+
+        {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{loginErr}</p>}
+
+        {/* Botão entrar */}
+        <button
+          style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "14px", fontSize: 16, fontWeight: 700, letterSpacing: 2, cursor: "pointer", opacity: loading ? 0.7 : 1 }}
           onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)}
-          disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button>
+          disabled={loading}
+        >{loading ? "ENTRANDO..." : "ENTRAR"}</button>
       </div>
-      <div style={{ textAlign: "center", padding: "1rem", color: "#bbb", fontSize: 12 }}>Bel Lube Lubrificantes · Campanha Copa 2026</div>
+
+      {/* Logos rodapé */}
+      <div style={{ padding: "1.5rem 2rem", textAlign: "center" }}>
+        {/* Logo Bel Lube Distribuidor */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-bel-lube.png" alt="Bel Lube Distribuidor" style={{ maxHeight: 80, objectFit: "contain" }}
+            onError={e => { e.target.style.display = "none"; }} />
+        </div>
+        {/* Ipiranga + Texaco */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-ipiranga.png" alt="Ipiranga Lubrificantes" style={{ maxHeight: 40, objectFit: "contain" }}
+            onError={e => { e.target.parentNode.children[0].style.display = "none"; }} />
+          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-texaco.png" alt="Texaco" style={{ maxHeight: 40, objectFit: "contain" }}
+            onError={e => { e.target.style.display = "none"; }} />
+        </div>
+        <div style={{ fontSize: 12, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
+      </div>
     </div>
   );
 

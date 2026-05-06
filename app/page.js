@@ -167,8 +167,8 @@ export default function App() {
   const meuRank = user ? ranking.findIndex(r => r.id === user.id) + 1 : 0;
   const meusPts = user ? (ranking.find(r => r.id === user.id) || {}).pts || 0 : 0;
 
-  const wrap = { fontFamily: "Arial, sans-serif", background: "#888", minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "flex-start" };
-  const inner = { background: "#fff", width: "100%", maxWidth: 430, minHeight: "100vh", display: "flex", flexDirection: "column" };
+  const wrap = { fontFamily: "Arial, sans-serif", minHeight: "100vh" };
+  const inner = { background: "#fff", width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" };
 
   // LOGIN
   if (tela === "login") {

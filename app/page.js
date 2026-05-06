@@ -69,15 +69,13 @@ const s = {
 
 function Banner() {
   return (
-    <div style={{
-      width: "100%",
-      height: 120,
-      backgroundImage: `url("${SUPA}/Banner%20bet%20lube%202.png")`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      backgroundColor: DARK,
-    }} />
+    <div style={{ width: "100%", maxHeight: "25vh", overflow: "hidden", lineHeight: 0, background: DARK, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <img
+        src={SUPA + "/Banner%20bet%20lube%202.png"}
+        alt="Banner Bet Lube Copa 2026"
+        style={{ width: "100%", maxHeight: "25vh", objectFit: "contain", display: "block" }}
+      />
+    </div>
   );
 }
 

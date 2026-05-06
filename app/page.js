@@ -160,21 +160,13 @@ export default function App() {
   if (tela === "login") return (
     <div style={{ fontFamily: "Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
-      {/* Header — Banner + Logo sobrepostos */}
-      <div style={{ width: "100%", position: "relative", lineHeight: 0, maxHeight: 220, overflow: "hidden" }}>
+      {/* Header — Banner */}
+      <div style={{ width: "100%", lineHeight: 0 }}>
         <img
           src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png"
           alt="Banner Bet Lube Copa 2026"
           style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }}
         />
-        {/* Logo centralizada sobre o banner */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <img
-            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Logo%20bet%20lube%20fundo%20preto.jpg"
-            alt="Bet Lube 26"
-            style={{ height: 180, objectFit: "contain" }}
-          />
-        </div>
       </div>
 
       {/* Corpo branco */}

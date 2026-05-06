@@ -169,21 +169,12 @@ export default function App() {
           ))}
         </div>
         {/* Logo central */}
-        <div style={{ textAlign: "center", zIndex: 1, padding: "1.5rem 3rem" }}>
+        <div style={{ textAlign: "center", zIndex: 1, padding: "1rem 3rem" }}>
           <img
-            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-campanha.png"
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Logo%20bet%20lube%20fundo%20preto.jpg"
             alt="Bet Lube 26"
-            style={{ maxWidth: 160, maxHeight: 160, objectFit: "contain" }}
-            onError={e => {
-              e.target.style.display = "none";
-              e.target.nextSibling.style.display = "block";
-            }}
+            style={{ maxWidth: 180, maxHeight: 180, objectFit: "contain" }}
           />
-          {/* Fallback se imagem não carregar */}
-          <div style={{ display: "none", color: "#fff" }}>
-            <div style={{ fontSize: 80, fontWeight: 900, lineHeight: 1, color: "#fff", letterSpacing: -4 }}>26</div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>BET LUBE</div>
-          </div>
         </div>
         {/* Listras laterais direita */}
         <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, display: "flex", flexDirection: "column", width: 28 }}>
@@ -232,17 +223,34 @@ export default function App() {
 
       {/* Logos rodapé */}
       <div style={{ padding: "1.5rem 2rem", textAlign: "center" }}>
-        {/* Logo Bel Lube Distribuidor */}
+        {/* Banner */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-bel-lube.png" alt="Bel Lube Distribuidor" style={{ maxHeight: 80, objectFit: "contain" }}
-            onError={e => { e.target.style.display = "none"; }} />
+          <img
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png"
+            alt="Banner Bet Lube"
+            style={{ width: "100%", objectFit: "contain" }}
+          />
+        </div>
+        {/* Logo Bel Lube */}
+        <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+          <img
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/bel%20lube%20logo.png"
+            alt="Bel Lube Distribuidor"
+            style={{ maxHeight: 80, objectFit: "contain" }}
+          />
         </div>
         {/* Ipiranga + Texaco */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-ipiranga.png" alt="Ipiranga Lubrificantes" style={{ maxHeight: 40, objectFit: "contain" }}
-            onError={e => { e.target.parentNode.children[0].style.display = "none"; }} />
-          <img src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/logo-texaco.png" alt="Texaco" style={{ maxHeight: 40, objectFit: "contain" }}
-            onError={e => { e.target.style.display = "none"; }} />
+          <img
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/ipiranga%20logo.png"
+            alt="Ipiranga Lubrificantes"
+            style={{ maxHeight: 40, objectFit: "contain" }}
+          />
+          <img
+            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/texaco%20logo.png"
+            alt="Texaco"
+            style={{ maxHeight: 40, objectFit: "contain" }}
+          />
         </div>
         <div style={{ fontSize: 12, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
       </div>

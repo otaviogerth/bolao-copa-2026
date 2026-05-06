@@ -67,6 +67,18 @@ const s = {
   tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#fde8ec" : p === 1 ? "#fff8cc" : "#f5f5f5", color: p === 3 ? RED : p === 1 ? "#7a5800" : "#888" }),
 };
 
+function Banner() {
+  return (
+    <div style={{ width: "100%", lineHeight: 0 }}>
+      <img
+        src={SUPA + "/Banner%20bet%20lube%202.png"}
+        alt="Banner Bet Lube Copa 2026"
+        style={{ width: "100%", height: "auto", display: "block" }}
+      />
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [tela, setTela] = useState("login");
@@ -163,9 +175,7 @@ export default function App() {
     return (
       <div style={wrap}>
         <div style={inner}>
-          <div style={{ width: "100%", lineHeight: 0 }}>
-            <img src={SUPA + "/Banner%20bet%20lube%202.png"} alt="Banner" style={{ width: "100%", height: "auto", display: "block" }} />
-          </div>
+          <Banner />
           <div style={{ flex: 1, padding: "2rem 2rem 1rem" }}>
             <div style={{ fontSize: 42, fontWeight: 900, color: "#999", letterSpacing: 2, marginBottom: "2rem", fontFamily: "Arial Black, sans-serif" }}>LOGIN</div>
             <div style={{ marginBottom: "1.5rem" }}>
@@ -202,7 +212,9 @@ export default function App() {
   if (tela === "boasvindas") {
     return (
       <div style={wrap}>
-        <div style={{ ...inner, background: DARK, alignItems: "center", justifyContent: "center", textAlign: "center", padding: "2rem 1rem" }}>
+        <div style={{ ...inner, background: DARK }}>
+          <Banner />
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "2rem 1rem" }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
           <div style={{ color: YELLOW, fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>Bem-vindo ao Bolão da Copa 2026</div>
           <div style={{ color: "#fff", fontSize: 26, fontWeight: 700, marginBottom: 8 }}>Olá, {user.nome.split(" ")[0]}!</div>
@@ -223,6 +235,7 @@ export default function App() {
           <button style={{ ...s.btnP, fontSize: 16, padding: "12px 36px", borderRadius: 12 }} onClick={() => setTela("jogos")}>
             Ver os jogos →
           </button>
+          </div>
         </div>
       </div>
     );
@@ -232,6 +245,7 @@ export default function App() {
   return (
     <div style={wrap}>
       <div style={inner}>
+        <Banner />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", borderBottom: "3px solid " + RED, background: DARK }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ color: RED, fontWeight: 900, fontSize: 14, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>

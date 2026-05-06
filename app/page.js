@@ -160,28 +160,13 @@ export default function App() {
   if (tela === "login") return (
     <div style={{ fontFamily: "Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
-      {/* Header preto com logo e listras laterais */}
-      <div style={{ background: DARK, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
-        {/* Listras laterais esquerda */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, display: "flex", flexDirection: "column", width: 18 }}>
-          {[BLUE, RED, YELLOW, RED, BLUE, RED, YELLOW].map((c, i) => (
-            <div key={i} style={{ flex: 1, background: c }} />
-          ))}
-        </div>
-        {/* Logo central */}
-        <div style={{ textAlign: "center", zIndex: 1, padding: "1rem 3rem" }}>
-          <img
-            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Logo%20bet%20lube%20fundo%20preto.jpg"
-            alt="Bet Lube 26"
-            style={{ maxWidth: 180, maxHeight: 180, objectFit: "contain" }}
-          />
-        </div>
-        {/* Listras laterais direita */}
-        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, display: "flex", flexDirection: "column", width: 28 }}>
-          <div style={{ flex: 2, background: RED }} />
-          <div style={{ flex: 2, background: BLUE }} />
-          <div style={{ flex: 3, background: YELLOW }} />
-        </div>
+      {/* Header — Banner completo */}
+      <div style={{ width: "100%", lineHeight: 0 }}>
+        <img
+          src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png"
+          alt="Banner Bet Lube Copa 2026"
+          style={{ width: "100%", objectFit: "cover", display: "block" }}
+        />
       </div>
 
       {/* Corpo branco */}
@@ -223,14 +208,7 @@ export default function App() {
 
       {/* Logos rodapé */}
       <div style={{ padding: "1.5rem 2rem", textAlign: "center" }}>
-        {/* Banner */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <img
-            src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png"
-            alt="Banner Bet Lube"
-            style={{ width: "100%", objectFit: "contain" }}
-          />
-        </div>
+        {/* Banner removido daqui — está no header */}
         {/* Logo Bel Lube */}
         <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
           <img
@@ -240,16 +218,16 @@ export default function App() {
           />
         </div>
         {/* Ipiranga + Texaco */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginBottom: "1.5rem" }}>
           <img
             src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/ipiranga%20logo.png"
             alt="Ipiranga Lubrificantes"
-            style={{ maxHeight: 40, objectFit: "contain" }}
+            style={{ maxHeight: 36, maxWidth: "60%", objectFit: "contain" }}
           />
           <img
             src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/texaco%20logo.png"
             alt="Texaco"
-            style={{ maxHeight: 40, objectFit: "contain" }}
+            style={{ maxHeight: 36, maxWidth: "60%", objectFit: "contain" }}
           />
         </div>
         <div style={{ fontSize: 12, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>

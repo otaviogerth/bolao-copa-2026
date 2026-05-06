@@ -163,7 +163,7 @@ export default function App() {
       {/* Header — Banner */}
       <div style={{ width: "100%", lineHeight: 0, maxHeight: 300, overflow: "hidden" }}>
         <img
-          src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png?v=2"
+          src="https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube%202.png"
           alt="Banner Bet Lube Copa 2026"
           style={{ width: "100%", height: "auto", display: "block", objectFit: "cover", objectPosition: "center" }}
         />

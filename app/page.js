@@ -161,9 +161,9 @@ export default function App() {
     <div style={{ fontFamily: "Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* Header — Banner */}
-      <div style={{ width: "100%", lineHeight: 0 }}>
+      <div style={{ width: "100%", lineHeight: 0, maxWidth: 480, margin: "0 auto" }}>
         <img
-          src={`https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png?t=${Date.now()}`}
+          src={`https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/Banner%20bet%20lube.png?v=2`}
           alt="Banner Bet Lube Copa 2026"
           style={{ width: "100%", height: "auto", display: "block" }}
         />

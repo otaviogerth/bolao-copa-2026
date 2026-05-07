@@ -266,9 +266,12 @@ export default function App() {
       },
       {
         visual: (
-          <div style={{ textAlign: "center", padding: "1rem 0" }}>
-            <div style={{ fontSize: 48 }}>⚽</div>
-            <div style={{ color: YELLOW, fontSize: 13, fontWeight: 700, letterSpacing: 2, marginTop: 8, fontFamily: "Arial Black, sans-serif" }}>COPA BET LUBE 2026</div>
+          <div style={{ textAlign: "center", padding: "1rem 0", background: DARK, width: "100%" }}>
+            <img
+              src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
+              alt="Bet Lube Copa 2026"
+              style={{ height: 140, width: "auto", objectFit: "contain" }}
+            />
           </div>
         ),
         titulo: "É só isso!",

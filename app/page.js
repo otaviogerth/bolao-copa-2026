@@ -277,7 +277,7 @@ export default function App() {
       },
     ];
 
-    return <Carrossel slides={slides} onFim={() => setTela("jogos")} banner={<Banner />} />;
+    return <Carrossel slides={slides} onFim={() => setTela("jogos")} />;
   }
 
   // APP PRINCIPAL
@@ -362,58 +362,53 @@ export default function App() {
   );
 }
 
-function Carrossel({ slides, onFim, banner }) {
+function Carrossel({ slides, onFim }) {
   const [atual, setAtual] = useState(0);
   const slide = slides[atual];
   const isUltimo = atual === slides.length - 1;
 
   return (
-    <div style={{ fontFamily: "Inter, sans-serif", background: DARK, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {banner}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "1.5rem 1.25rem" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
+      {/* Overlay escuro */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.75)" }} onClick={onFim} />
+
+      {/* Card */}
+      <div style={{ position: "relative", background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
+        {/* Botão fechar */}
+        <button onClick={onFim} style={{ position: "absolute", top: 12, right: 12, background: "rgba(0,0,0,0.15)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 16, color: "#555", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
 
         {/* Visual do slide */}
-        <div style={{ background: "#111", borderRadius: 16, marginBottom: "1.25rem", overflow: "hidden", minHeight: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ background: "#0a0a1a", minHeight: 180, display: "flex", alignItems: "center", justifyContent: "center" }}>
           {slide.visual}
         </div>
 
         {/* Texto */}
-        <div style={{ flex: 1 }}>
-          <div style={{ color: "#fff", fontSize: 20, fontWeight: 900, marginBottom: 10, fontFamily: "Arial Black, sans-serif", textTransform: "uppercase", letterSpacing: 0.5 }}>
+        <div style={{ padding: "1.25rem 1.5rem 1rem" }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: DARK, marginBottom: 8, fontFamily: "Arial Black, sans-serif" }}>
             {slide.titulo}
           </div>
-          <div style={{ color: "#888", fontSize: 14, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>
             {slide.texto}
           </div>
         </div>
 
         {/* Dots + navegação */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2rem" }}>
-          {/* Dots */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1.5rem 1.25rem" }}>
           <div style={{ display: "flex", gap: 6 }}>
             {slides.map((_, i) => (
-              <div key={i} onClick={() => setAtual(i)} style={{ width: i === atual ? 24 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#333", cursor: "pointer", transition: "width 0.2s" }} />
+              <div key={i} onClick={() => setAtual(i)} style={{ width: i === atual ? 24 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#ddd", cursor: "pointer", transition: "width 0.2s" }} />
             ))}
           </div>
-
-          {/* Botão próximo ou começar */}
           {isUltimo ? (
-            <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "12px 24px", borderRadius: 8, fontSize: 14, fontWeight: 900, cursor: "pointer", letterSpacing: 1, fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>
+            <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 900, cursor: "pointer", letterSpacing: 1, fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>
               Fazer palpite →
             </button>
           ) : (
-            <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 44, height: 44, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
               →
             </button>
           )}
         </div>
-
-        {/* Pular */}
-        {!isUltimo && (
-          <div style={{ textAlign: "center", marginTop: 16 }}>
-            <span onClick={onFim} style={{ color: "#444", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Pular introdução</span>
-          </div>
-        )}
       </div>
     </div>
   );

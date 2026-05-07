@@ -74,7 +74,7 @@ function Banner() {
       <img
         src={SUPA + "/listras%20esquerda.png"}
         alt=""
-        style={{ height: 110, width: "auto", objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }}
+        style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }}
       />
       {/* Logo central */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>

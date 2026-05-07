@@ -223,91 +223,61 @@ export default function App() {
     );
   }
 
-  // BOAS-VINDAS
+  // BOAS-VINDAS — Carrossel estilo FIFA
   if (tela === "boasvindas") {
-    return (
-      <div style={{ fontFamily: "Inter, sans-serif", background: DARK, minHeight: "100vh" }}>
-        <Banner />
-        <div style={{ padding: "1.5rem 1.25rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-
-          {/* Saudação */}
-          <div>
-            <div style={{ color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6, fontFamily: "Inter, sans-serif" }}>Copa Bet Lube 2026</div>
-            <div style={{ color: "#fff", fontSize: 26, fontWeight: 900, lineHeight: 1.2, fontFamily: "Helvetica Neue, Arial Black, sans-serif", textTransform: "uppercase" }}>
-              Olá, {user.nome.split(" ")[0]}!<br />
-              <span style={{ color: YELLOW }}>Hora de cravar</span> seus palpites.
-            </div>
-            <div style={{ color: "#888", fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
-              Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Cada palpite é uma chance de subir no ranking — e de conquistar prêmios exclusivos.
-            </div>
-          </div>
-
-          {/* Pontuação */}
-          <div style={{ background: "#111", borderRadius: 12, padding: "1rem 1.25rem", border: "1px solid #222" }}>
-            <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>Como pontuar</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <div style={{ background: YELLOW, color: DARK, fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>3 PTS</div>
-                <div>
-                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Placar Exato</div>
-                  <div style={{ color: "#666", fontSize: 12 }}>Acertou em cheio — ex: apostou 2×1 e terminou 2×1</div>
-                </div>
+    const slides = [
+      {
+        visual: <div style={{ fontSize: 64, textAlign: "center", padding: "1rem 0" }}>🏆</div>,
+        titulo: `Bem-vindo, ${user.nome.split(" ")[0]}!`,
+        texto: "Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos.",
+      },
+      {
+        visual: (
+          <div style={{ display: "flex", justifyContent: "center", gap: 12, padding: "1rem 0" }}>
+            {[["3", YELLOW, DARK, "Placar Exato"], ["1", "#fff", DARK, "Vencedor"], ["0", RED, "#fff", "Errou"]].map(([pts, bg, color, label]) => (
+              <div key={pts} style={{ textAlign: "center" }}>
+                <div style={{ background: bg, color, width: 52, height: 52, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 900, margin: "0 auto 6px", fontFamily: "Arial Black, sans-serif" }}>{pts}</div>
+                <div style={{ fontSize: 10, color: "#aaa" }}>{label}</div>
               </div>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <div style={{ background: "#fff", color: DARK, fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>1 PT</div>
-                <div>
-                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Resultado Certo</div>
-                  <div style={{ color: "#666", fontSize: 12 }}>Acertou o vencedor ou empate, mas errou os gols</div>
-                </div>
+            ))}
+          </div>
+        ),
+        titulo: "Como pontuar?",
+        texto: "3 pontos pelo placar exato, 1 ponto por acertar o vencedor ou empate. Quanto mais precisão, mais pontos — e mais perto do prêmio.",
+      },
+      {
+        visual: (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: 16, padding: "1rem 0" }}>
+            {[["🥈", "2º", "#C0C0C0", 44], ["🥇", "1º", YELLOW, 60], ["🥉", "3º", "#CD7F32", 34]].map(([emoji, pos, cor, h]) => (
+              <div key={pos} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 28 }}>{emoji}</div>
+                <div style={{ background: cor, color: DARK, fontWeight: 900, fontSize: 11, width: 44, height: h, borderRadius: "6px 6px 0 0", display: "flex", alignItems: "center", justifyContent: "center", margin: "4px auto 0", fontFamily: "Arial Black, sans-serif" }}>{pos}</div>
               </div>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                <div style={{ background: RED, color: "#fff", fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>0 PT</div>
-                <div>
-                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Errou</div>
-                  <div style={{ color: "#666", fontSize: 12 }}>Previsão de vencedor ou empate incorreta</div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-
-          {/* Premiação */}
-          <div style={{ background: "#111", borderRadius: 12, padding: "1rem 1.25rem", border: "1px solid #222" }}>
-            <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>🏆 Premiação — Top 10</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { pos: "🥇 1º Lugar", premio: "A definir", cor: YELLOW },
-                { pos: "🥈 2º Lugar", premio: "A definir", cor: "#C0C0C0" },
-                { pos: "🥉 3º Lugar", premio: "A definir", cor: "#CD7F32" },
-                { pos: "4º ao 5º", premio: "A definir", cor: "#555" },
-                { pos: "6º ao 10º", premio: "A definir", cor: "#555" },
-              ].map(({ pos, premio, cor }) => (
-                <div key={pos} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1a1a1a", paddingBottom: 8 }}>
-                  <span style={{ color: cor, fontSize: 13, fontWeight: 600 }}>{pos}</span>
-                  <span style={{ color: "#555", fontSize: 12 }}>{premio}</span>
-                </div>
-              ))}
-            </div>
+        ),
+        titulo: "Disputando o Top 10",
+        texto: "Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco.",
+      },
+      {
+        visual: <div style={{ fontSize: 56, textAlign: "center", padding: "1rem 0" }}>⚠️</div>,
+        titulo: "Atenção!",
+        texto: "Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance de pontos.",
+      },
+      {
+        visual: (
+          <div style={{ textAlign: "center", padding: "1rem 0" }}>
+            <div style={{ fontSize: 48 }}>⚽</div>
+            <div style={{ color: YELLOW, fontSize: 13, fontWeight: 700, letterSpacing: 2, marginTop: 8, fontFamily: "Arial Black, sans-serif" }}>COPA BET LUBE 2026</div>
           </div>
+        ),
+        titulo: "É só isso!",
+        texto: "Você está pronto para jogar. Boa sorte — que vençam os melhores palpites!",
+        botao: true,
+      },
+    ];
 
-          {/* Aviso */}
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#1a1a1a", borderRadius: 10, padding: "0.75rem 1rem", borderLeft: "3px solid " + RED }}>
-            <span style={{ fontSize: 16 }}>⚠️</span>
-            <div style={{ color: "#aaa", fontSize: 12, lineHeight: 1.6 }}>
-              <strong style={{ color: "#fff" }}>Não deixe para a última hora!</strong> Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções.
-            </div>
-          </div>
-
-          {/* Botão */}
-          <button
-            style={{ width: "100%", background: RED, color: "#fff", border: "none", padding: "16px", fontSize: 15, fontWeight: 900, letterSpacing: 2, cursor: "pointer", borderRadius: 8, textTransform: "uppercase", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}
-            onClick={() => setTela("jogos")}>
-            Fazer meu palpite agora →
-          </button>
-
-          <div style={{ textAlign: "center", color: "#444", fontSize: 11, paddingBottom: "1rem" }}>Boa sorte! Que vençam os melhores palpites. 🏆</div>
-        </div>
-      </div>
-    );
+    return <Carrossel slides={slides} onFim={() => setTela("jogos")} banner={<Banner />} />;
   }
 
   // APP PRINCIPAL
@@ -387,6 +357,63 @@ export default function App() {
 
         {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
         {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
+      </div>
+    </div>
+  );
+}
+
+function Carrossel({ slides, onFim, banner }) {
+  const [atual, setAtual] = useState(0);
+  const slide = slides[atual];
+  const isUltimo = atual === slides.length - 1;
+
+  return (
+    <div style={{ fontFamily: "Inter, sans-serif", background: DARK, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {banner}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "1.5rem 1.25rem" }}>
+
+        {/* Visual do slide */}
+        <div style={{ background: "#111", borderRadius: 16, marginBottom: "1.25rem", overflow: "hidden", minHeight: 140, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {slide.visual}
+        </div>
+
+        {/* Texto */}
+        <div style={{ flex: 1 }}>
+          <div style={{ color: "#fff", fontSize: 20, fontWeight: 900, marginBottom: 10, fontFamily: "Arial Black, sans-serif", textTransform: "uppercase", letterSpacing: 0.5 }}>
+            {slide.titulo}
+          </div>
+          <div style={{ color: "#888", fontSize: 14, lineHeight: 1.7 }}>
+            {slide.texto}
+          </div>
+        </div>
+
+        {/* Dots + navegação */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2rem" }}>
+          {/* Dots */}
+          <div style={{ display: "flex", gap: 6 }}>
+            {slides.map((_, i) => (
+              <div key={i} onClick={() => setAtual(i)} style={{ width: i === atual ? 24 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#333", cursor: "pointer", transition: "width 0.2s" }} />
+            ))}
+          </div>
+
+          {/* Botão próximo ou começar */}
+          {isUltimo ? (
+            <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "12px 24px", borderRadius: 8, fontSize: 14, fontWeight: 900, cursor: "pointer", letterSpacing: 1, fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>
+              Fazer palpite →
+            </button>
+          ) : (
+            <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 44, height: 44, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              →
+            </button>
+          )}
+        </div>
+
+        {/* Pular */}
+        {!isUltimo && (
+          <div style={{ textAlign: "center", marginTop: 16 }}>
+            <span onClick={onFim} style={{ color: "#444", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Pular introdução</span>
+          </div>
+        )}
       </div>
     </div>
   );

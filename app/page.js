@@ -70,12 +70,14 @@ const s = {
 function Banner() {
   return (
     <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
-      {/* Listras esquerda — maior que o header para não cortar */}
-      <img
-        src={SUPA + "/listras%20esquerda.png"}
-        alt=""
-        style={{ height: 140, width: 60, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }}
-      />
+      {/* Listras esquerda — altura maior que o container */}
+      <div style={{ width: 60, flexShrink: 0, overflow: "hidden", alignSelf: "stretch" }}>
+        <img
+          src={SUPA + "/listras%20esquerda.png"}
+          alt=""
+          style={{ height: "100%", width: "100%", objectFit: "fill", display: "block" }}
+        />
+      </div>
       {/* Logo central */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img

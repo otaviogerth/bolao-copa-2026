@@ -226,31 +226,85 @@ export default function App() {
   // BOAS-VINDAS
   if (tela === "boasvindas") {
     return (
-      <div style={wrap}>
-        <div style={{ ...inner, background: DARK }}>
-          <Banner />
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "2rem 1rem" }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
-          <div style={{ color: YELLOW, fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 }}>Bem-vindo ao Bolão da Copa 2026</div>
-          <div style={{ color: "#fff", fontSize: 26, fontWeight: 700, marginBottom: 8 }}>Olá, {user.nome.split(" ")[0]}!</div>
-          <div style={{ color: "#aaa", fontSize: 14, maxWidth: 300, lineHeight: 1.6, marginBottom: 32 }}>
-            Faça seus palpites antes de cada jogo e acumule pontos.
-          </div>
-          <div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ color: YELLOW, fontSize: 22, fontWeight: 700 }}>3pts</div>
-              <div style={{ color: "#666", fontSize: 12 }}>Placar exato</div>
+      <div style={{ fontFamily: "Inter, sans-serif", background: DARK, minHeight: "100vh" }}>
+        <Banner />
+        <div style={{ padding: "1.5rem 1.25rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+
+          {/* Saudação */}
+          <div>
+            <div style={{ color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6, fontFamily: "Inter, sans-serif" }}>Copa Bet Lube 2026</div>
+            <div style={{ color: "#fff", fontSize: 26, fontWeight: 900, lineHeight: 1.2, fontFamily: "Helvetica Neue, Arial Black, sans-serif", textTransform: "uppercase" }}>
+              Olá, {user.nome.split(" ")[0]}!<br />
+              <span style={{ color: YELLOW }}>Hora de cravar</span> seus palpites.
             </div>
-            <div style={{ width: 1, background: "#333" }} />
-            <div style={{ textAlign: "center" }}>
-              <div style={{ color: "#fff", fontSize: 22, fontWeight: 700 }}>1pt</div>
-              <div style={{ color: "#666", fontSize: 12 }}>Vencedor</div>
+            <div style={{ color: "#888", fontSize: 13, marginTop: 8, lineHeight: 1.6 }}>
+              Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Cada palpite é uma chance de subir no ranking — e de conquistar prêmios exclusivos.
             </div>
           </div>
-          <button style={{ ...s.btnP, fontSize: 16, padding: "12px 36px", borderRadius: 12 }} onClick={() => setTela("jogos")}>
-            Ver os jogos →
+
+          {/* Pontuação */}
+          <div style={{ background: "#111", borderRadius: 12, padding: "1rem 1.25rem", border: "1px solid #222" }}>
+            <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>Como pontuar</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ background: YELLOW, color: DARK, fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>3 PTS</div>
+                <div>
+                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Placar Exato</div>
+                  <div style={{ color: "#666", fontSize: 12 }}>Acertou em cheio — ex: apostou 2×1 e terminou 2×1</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ background: "#fff", color: DARK, fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>1 PT</div>
+                <div>
+                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Resultado Certo</div>
+                  <div style={{ color: "#666", fontSize: 12 }}>Acertou o vencedor ou empate, mas errou os gols</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{ background: RED, color: "#fff", fontWeight: 900, fontSize: 13, borderRadius: 6, padding: "4px 8px", whiteSpace: "nowrap", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>0 PT</div>
+                <div>
+                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Errou</div>
+                  <div style={{ color: "#666", fontSize: 12 }}>Previsão de vencedor ou empate incorreta</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Premiação */}
+          <div style={{ background: "#111", borderRadius: 12, padding: "1rem 1.25rem", border: "1px solid #222" }}>
+            <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 12, fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}>🏆 Premiação — Top 10</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { pos: "🥇 1º Lugar", premio: "A definir", cor: YELLOW },
+                { pos: "🥈 2º Lugar", premio: "A definir", cor: "#C0C0C0" },
+                { pos: "🥉 3º Lugar", premio: "A definir", cor: "#CD7F32" },
+                { pos: "4º ao 5º", premio: "A definir", cor: "#555" },
+                { pos: "6º ao 10º", premio: "A definir", cor: "#555" },
+              ].map(({ pos, premio, cor }) => (
+                <div key={pos} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1a1a1a", paddingBottom: 8 }}>
+                  <span style={{ color: cor, fontSize: 13, fontWeight: 600 }}>{pos}</span>
+                  <span style={{ color: "#555", fontSize: 12 }}>{premio}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Aviso */}
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#1a1a1a", borderRadius: 10, padding: "0.75rem 1rem", borderLeft: "3px solid " + RED }}>
+            <span style={{ fontSize: 16 }}>⚠️</span>
+            <div style={{ color: "#aaa", fontSize: 12, lineHeight: 1.6 }}>
+              <strong style={{ color: "#fff" }}>Não deixe para a última hora!</strong> Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções.
+            </div>
+          </div>
+
+          {/* Botão */}
+          <button
+            style={{ width: "100%", background: RED, color: "#fff", border: "none", padding: "16px", fontSize: 15, fontWeight: 900, letterSpacing: 2, cursor: "pointer", borderRadius: 8, textTransform: "uppercase", fontFamily: "Helvetica Neue, Arial Black, sans-serif" }}
+            onClick={() => setTela("jogos")}>
+            Fazer meu palpite agora →
           </button>
-          </div>
+
+          <div style={{ textAlign: "center", color: "#444", fontSize: 11, paddingBottom: "1rem" }}>Boa sorte! Que vençam os melhores palpites. 🏆</div>
         </div>
       </div>
     );

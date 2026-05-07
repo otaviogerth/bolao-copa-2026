@@ -69,15 +69,25 @@ const s = {
 
 function Banner() {
   return (
-    <div style={{ width: "100%", lineHeight: 0 }}>
-      <picture>
-        <source media="(min-width: 768px)" srcSet={SUPA + "/Banner%20bet%20lube%203.png"} />
-        <img
-          src={SUPA + "/Banner%20bet%20lube%202.png"}
-          alt="Banner Bet Lube Copa 2026"
-          style={{ width: "100%", height: "auto", display: "block" }}
-        />
-      </picture>
+    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", position: "relative", minHeight: 100 }}>
+      {/* Listras esquerda */}
+      <img
+        src={SUPA + "/listras-esquerda.png"}
+        alt=""
+        style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
+      />
+      {/* Logo central */}
+      <img
+        src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
+        alt="Bet Lube Copa 2026"
+        style={{ height: 80, width: "auto", objectFit: "contain", flex: 1, maxWidth: 200 }}
+      />
+      {/* Listras direita */}
+      <img
+        src={SUPA + "/listras-direita.png"}
+        alt=""
+        style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
+      />
     </div>
   );
 }

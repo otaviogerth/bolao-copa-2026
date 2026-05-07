@@ -72,7 +72,7 @@ function Banner() {
     <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", position: "relative", minHeight: 100 }}>
       {/* Listras esquerda */}
       <img
-        src={SUPA + "/listras-esquerda.png"}
+        src={SUPA + "/listras%20esquerda.png"}
         alt=""
         style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
       />
@@ -84,7 +84,7 @@ function Banner() {
       />
       {/* Listras direita */}
       <img
-        src={SUPA + "/listras-direita.png"}
+        src={SUPA + "/listras%20direita.png"}
         alt=""
         style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
       />

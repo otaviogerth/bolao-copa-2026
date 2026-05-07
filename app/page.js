@@ -69,24 +69,26 @@ const s = {
 
 function Banner() {
   return (
-    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", position: "relative", minHeight: 100 }}>
+    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 140 }}>
       {/* Listras esquerda */}
       <img
         src={SUPA + "/listras%20esquerda.png"}
         alt=""
-        style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
+        style={{ height: "auto", width: 60, objectFit: "fill", display: "block", flexShrink: 0 }}
       />
       {/* Logo central */}
-      <img
-        src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
-        alt="Bet Lube Copa 2026"
-        style={{ height: 80, width: "auto", objectFit: "contain", flex: 1, maxWidth: 200 }}
-      />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <img
+          src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
+          alt="Bet Lube Copa 2026"
+          style={{ height: 120, width: "auto", objectFit: "contain" }}
+        />
+      </div>
       {/* Listras direita */}
       <img
         src={SUPA + "/listras%20direita.png"}
         alt=""
-        style={{ height: 100, width: "auto", display: "block", flexShrink: 0 }}
+        style={{ height: "auto", width: 80, objectFit: "fill", display: "block", flexShrink: 0 }}
       />
     </div>
   );
@@ -207,12 +209,12 @@ export default function App() {
             </button>
           </div>
           <div style={{ padding: "1.5rem 2rem", textAlign: "center" }}>
-            <div style={{ marginBottom: "1.5rem" }}>
-              <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 80, objectFit: "contain" }} />
+            <div style={{ marginBottom: "1rem" }}>
+              <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginBottom: "1.5rem" }}>
-              <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 36, maxWidth: "60%", objectFit: "contain" }} />
-              <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 36, maxWidth: "60%", objectFit: "contain" }} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
+              <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
+              <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
             </div>
             <div style={{ fontSize: 12, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
           </div>

@@ -69,26 +69,26 @@ const s = {
 
 function Banner() {
   return (
-    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 140 }}>
-      {/* Listras esquerda */}
+    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
+      {/* Listras esquerda — maior que o header para não cortar */}
       <img
         src={SUPA + "/listras%20esquerda.png"}
         alt=""
-        style={{ height: "auto", width: 60, objectFit: "fill", display: "block", flexShrink: 0 }}
+        style={{ height: 140, width: 60, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }}
       />
       {/* Logo central */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <img
           src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
           alt="Bet Lube Copa 2026"
-          style={{ height: 120, width: "auto", objectFit: "contain" }}
+          style={{ height: 100, width: "auto", objectFit: "contain" }}
         />
       </div>
       {/* Listras direita */}
       <img
         src={SUPA + "/listras%20direita.png"}
         alt=""
-        style={{ height: "auto", width: 80, objectFit: "fill", display: "block", flexShrink: 0 }}
+        style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }}
       />
     </div>
   );

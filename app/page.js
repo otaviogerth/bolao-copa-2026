@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -11,9 +11,16 @@ const RED = "#D8091B";
 const YELLOW = "#FFD101";
 const BLUE = "#0045B5";
 const DARK = "#080808";
-const CARD = "#111111";
-const BORDER = "#222222";
+const CARD = "#0F0F0F";
+const CARD_HOVER = "#161616";
+const BORDER = "#1F1F1F";
+const TEXT_DIM = "#666";
+const TEXT_MUTE = "#888";
 const SUPA = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
+
+// Tipografia: títulos em Bebas/Oswald (similar ao Helvetica Now Black), corpo em Inter
+const FONT_DISPLAY = "'Bebas Neue', 'Oswald', 'Helvetica Neue', Impact, sans-serif";
+const FONT_BODY = "'Inter', -apple-system, system-ui, sans-serif";
 
 const CODIGOS = {
   "México": "mx", "África do Sul": "za", "Coreia do Sul": "kr", "Rep. Tcheca": "cz",
@@ -32,7 +39,7 @@ const CODIGOS = {
 
 function Flag({ time, size = 32 }) {
   const cod = CODIGOS[time];
-  if (!cod) return <span style={{ fontSize: size * 0.8, color: "#fff" }}>🏳</span>;
+  if (!cod) return null;
   const upper = cod.includes("-") ? cod.split("-")[0].toUpperCase() : cod.toUpperCase();
   return <img src={`https://flagsapi.com/${upper}/flat/64.png`} width={size} height={size} style={{ borderRadius: 4, objectFit: "cover", display: "block" }} alt={time} />;
 }
@@ -52,12 +59,52 @@ function formatDoc(doc) {
   return doc;
 }
 
+// CSS global com fontes e animações
+function GlobalStyles() {
+  return (
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap');
+      * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .scale-in { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .stagger > * { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+      .stagger > *:nth-child(2) { animation-delay: 0.1s; }
+      .stagger > *:nth-child(3) { animation-delay: 0.15s; }
+      .stagger > *:nth-child(4) { animation-delay: 0.2s; }
+      .stagger > *:nth-child(5) { animation-delay: 0.25s; }
+      .stagger > *:nth-child(6) { animation-delay: 0.3s; }
+      .stagger > *:nth-child(7) { animation-delay: 0.35s; }
+      .stagger > *:nth-child(n+8) { animation-delay: 0.4s; }
+      .card-hover { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+      .card-hover:hover { background: ${CARD_HOVER}; border-color: #2a2a2a; transform: translateY(-1px); }
+      .btn-press { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+      .btn-press:hover { filter: brightness(1.1); }
+      .btn-press:active { transform: scale(0.97); }
+      .pill { transition: all 0.2s ease; }
+      .pill:hover { background: ${CARD_HOVER}; }
+      .dot { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+      input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+      input[type="number"] { -moz-appearance: textfield; }
+      input:focus, button:focus { outline: none; }
+      input { transition: border-color 0.2s ease; font-family: ${FONT_BODY}; }
+      input:focus { border-color: ${RED} !important; }
+      ::selection { background: ${RED}; color: white; }
+    `}</style>
+  );
+}
+
 function Banner() {
   return (
     <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
       <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }} />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube Copa 2026" style={{ height: 100, width: "auto", objectFit: "contain" }} />
+        <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 100, width: "auto", objectFit: "contain" }} />
       </div>
       <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }} />
     </div>
@@ -117,20 +164,20 @@ export default function App() {
       await supabase.from("palpites").insert({ cliente_id: user.id, jogo_id: jogoId, g1: parseInt(g1), g2: parseInt(g2) });
     }
     await carregarPalpites(user.id);
-    flash("Palpite salvo!");
+    flash("Palpite salvo");
   }
 
   async function salvarResultado(jogoId, g1, g2) {
     await supabase.from("jogos").update({ resultado_g1: parseInt(g1), resultado_g2: parseInt(g2), encerrado: true }).eq("id", jogoId);
     await carregarJogos();
-    flash("Resultado salvo!");
+    flash("Resultado salvo");
   }
 
   async function addCliente(doc, nome, senha) {
     const { error } = await supabase.from("clientes").insert({ doc: doc.replace(/\D/g, ""), nome, senha, ativo: true });
-    if (error) { flash("Erro: CPF/CNPJ já cadastrado.", true); return; }
+    if (error) { flash("Erro: CPF/CNPJ já cadastrado", true); return; }
     await carregarClientes();
-    flash("Cliente adicionado!");
+    flash("Cliente adicionado");
   }
 
   async function toggleCliente(id, ativo) {
@@ -155,42 +202,42 @@ export default function App() {
   // LOGIN
   if (tela === "login") {
     return (
-      <div style={{ fontFamily: "Inter, Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
-          <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }} />
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 100, width: "auto", objectFit: "contain" }} />
+      <>
+        <GlobalStyles />
+        <div style={{ fontFamily: FONT_BODY, background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          <div className="fade-in"><Banner /></div>
+          <div style={{ flex: 1, padding: "2rem 2rem 1rem", maxWidth: 480, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
+            <div className="slide-up" style={{ fontSize: 56, fontWeight: 400, color: "#1a1a1a", letterSpacing: 1, marginBottom: "2rem", fontFamily: FONT_DISPLAY, lineHeight: 1 }}>LOGIN</div>
+            <div className="slide-up" style={{ marginBottom: "1.5rem", animationDelay: "0.1s" }}>
+              <div style={{ fontSize: 12, color: TEXT_MUTE, marginBottom: 8, fontWeight: 500, letterSpacing: 0.5, textTransform: "uppercase" }}>CNPJ ou CPF</div>
+              <input id="doc" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #1a1a1a", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", boxSizing: "border-box", color: "#1a1a1a", fontWeight: 500 }} />
+            </div>
+            <div className="slide-up" style={{ marginBottom: "2.5rem", animationDelay: "0.15s" }}>
+              <div style={{ fontSize: 12, color: TEXT_MUTE, marginBottom: 8, fontWeight: 500, letterSpacing: 0.5, textTransform: "uppercase" }}>Senha</div>
+              <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #1a1a1a", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", boxSizing: "border-box", color: "#1a1a1a", fontWeight: 500 }}
+                onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)} />
+            </div>
+            {loginErr && <p className="fade-in" style={{ color: RED, fontSize: 13, marginBottom: 16, fontWeight: 500 }}>{loginErr}</p>}
+            <button className="btn-press slide-up" style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "16px", fontSize: 14, fontWeight: 600, letterSpacing: 3, cursor: "pointer", opacity: loading ? 0.6 : 1, fontFamily: FONT_BODY, animationDelay: "0.2s" }}
+              onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)} disabled={loading}>
+              {loading ? "ENTRANDO" : "ENTRAR"}
+            </button>
           </div>
-          <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }} />
+          <div className="fade-in" style={{ padding: "1.5rem 2rem 0.75rem", textAlign: "center", animationDelay: "0.3s" }}>
+            <div style={{ fontSize: 10, color: "#aaa", letterSpacing: 2, marginBottom: 16, fontWeight: 500, textTransform: "uppercase" }}>Parceiros</div>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: "1.5rem" }}>
+              <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 26, maxWidth: "50%", objectFit: "contain" }} />
+              <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 26, maxWidth: "50%", objectFit: "contain" }} />
+            </div>
+          </div>
+          <div style={{ textAlign: "center", padding: "0.75rem", fontSize: 9, color: "#ccc", letterSpacing: 1, fontWeight: 400 }}>
+            Desenvolvido por <span style={{ fontWeight: 600, color: "#999" }}>Gerth Consultoria</span>
+          </div>
         </div>
-        <div style={{ flex: 1, padding: "2rem 2rem 1rem" }}>
-          <div style={{ fontSize: 42, fontWeight: 900, color: "#ccc", letterSpacing: 2, marginBottom: "2rem", fontFamily: "Arial Black, sans-serif" }}>LOGIN</div>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 8 }}>CNPJ ou CPF</div>
-            <input id="doc" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box", color: DARK }} />
-          </div>
-          <div style={{ marginBottom: "2rem" }}>
-            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 8 }}>Senha</div>
-            <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box", color: DARK }}
-              onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)} />
-          </div>
-          {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{loginErr}</p>}
-          <button style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "14px", fontSize: 15, fontWeight: 700, letterSpacing: 2, cursor: "pointer", opacity: loading ? 0.7 : 1, borderRadius: 4 }}
-            onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)} disabled={loading}>
-            {loading ? "ENTRANDO..." : "ENTRAR"}
-          </button>
-        </div>
-        <div style={{ padding: "1rem 2rem 1.5rem", textAlign: "center" }}>
-          <div style={{ marginBottom: "1rem" }}>
-            <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
-            <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
-            <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
-          </div>
-          <div style={{ fontSize: 11, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
-        </div>
-      </div>
+      </>
     );
   }
 
@@ -198,138 +245,192 @@ export default function App() {
   if (tela === "boasvindas") {
     const slides = [
       {
-        visual: <div style={{ fontSize: 64, textAlign: "center", padding: "1.5rem 0" }}>🏆</div>,
-        titulo: `Bem-vindo, ${user.nome.split(" ")[0]}!`,
+        visual: <Visual1 />,
+        titulo: `Bem-vindo, ${user.nome.split(" ")[0]}`,
         texto: "Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos.",
       },
       {
-        visual: (
-          <div style={{ display: "flex", justifyContent: "center", gap: 20, padding: "1.5rem 0" }}>
-            {[["3", YELLOW, DARK, "Placar Exato"], ["1", "#fff", DARK, "Vencedor"], ["0", RED, "#fff", "Errou"]].map(([pts, bg, color, label]) => (
-              <div key={pts} style={{ textAlign: "center" }}>
-                <div style={{ background: bg, color, width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900, margin: "0 auto 8px" }}>{pts}</div>
-                <div style={{ fontSize: 11, color: "#aaa" }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        ),
-        titulo: "Como pontuar?",
+        visual: <Visual2 />,
+        titulo: "Como pontuar",
         texto: "3 pontos pelo placar exato, 1 ponto por acertar o vencedor ou empate. Quanto mais precisão, mais pontos — e mais perto do prêmio.",
       },
       {
-        visual: (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: 16, padding: "1rem 0" }}>
-            {[["🥈", "2º", "#C0C0C0", 44], ["🥇", "1º", YELLOW, 64], ["🥉", "3º", "#CD7F32", 34]].map(([emoji, pos, cor, h]) => (
-              <div key={pos} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 28 }}>{emoji}</div>
-                <div style={{ background: cor, color: DARK, fontWeight: 900, fontSize: 11, width: 48, height: h, borderRadius: "6px 6px 0 0", display: "flex", alignItems: "center", justifyContent: "center", margin: "4px auto 0" }}>{pos}</div>
-              </div>
-            ))}
-          </div>
-        ),
+        visual: <Visual3 />,
         titulo: "Disputando o Top 10",
         texto: "Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco.",
       },
       {
-        visual: <div style={{ fontSize: 56, textAlign: "center", padding: "1.5rem 0" }}>⚠️</div>,
-        titulo: "Atenção!",
-        texto: "Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance de pontos.",
+        visual: <Visual4 />,
+        titulo: "Atenção",
+        texto: "Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance.",
       },
       {
-        visual: (
-          <div style={{ textAlign: "center", padding: "1rem 0", width: "100%" }}>
-            <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 140, width: "auto", objectFit: "contain" }} />
-          </div>
-        ),
-        titulo: "É só isso!",
-        texto: "Você está pronto para jogar. Boa sorte — que vençam os melhores palpites!",
+        visual: <Visual5 />,
+        titulo: "Tudo pronto",
+        texto: "Você está pronto para jogar. Boa sorte — que vençam os melhores palpites.",
       },
     ];
 
     return (
-      <div style={{ position: "relative", fontFamily: "Inter, Arial, sans-serif", minHeight: "100vh", overflow: "hidden", background: DARK }}>
-        <div style={{ pointerEvents: "none", userSelect: "none", opacity: 0.3 }}>
-          <Banner />
-          <div style={{ padding: "1rem" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
-              <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
-              <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
+      <>
+        <GlobalStyles />
+        <div style={{ position: "relative", fontFamily: FONT_BODY, minHeight: "100vh", overflow: "hidden", background: DARK }}>
+          <div style={{ pointerEvents: "none", userSelect: "none", opacity: 0.25, filter: "blur(2px)" }}>
+            <Banner />
+            <div style={{ padding: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+                <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
+                <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
+              </div>
+              {[1,2,3].map(i => <div key={i} style={{ height: 100, background: CARD, borderRadius: 12, border: "0.5px solid " + BORDER, marginBottom: 10 }} />)}
             </div>
-            {[1,2,3].map(i => <div key={i} style={{ height: 100, background: CARD, borderRadius: 12, border: "0.5px solid " + BORDER, marginBottom: 10 }} />)}
+          </div>
+          <div className="fade-in" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", background: "rgba(0,0,0,0.85)", backdropFilter: "blur(4px)" }}>
+            <Carrossel slides={slides} onFim={() => setTela("jogos")} />
           </div>
         </div>
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", background: "rgba(0,0,0,0.7)" }}>
-          <Carrossel slides={slides} onFim={() => setTela("jogos")} />
-        </div>
-      </div>
+      </>
     );
   }
 
   // APP PRINCIPAL
   return (
-    <div style={{ fontFamily: "Inter, Arial, sans-serif", background: DARK, minHeight: "100vh" }}>
-      <Banner />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: "2px solid " + RED, background: DARK }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ color: RED, fontWeight: 900, fontSize: 13, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>
-          <div style={{ width: 1, height: 16, background: "#333" }} />
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: "#fff" }}>{isAdmin ? "Admin" : user.nome}</div>
-            {!isAdmin && <div style={{ fontSize: 10, color: "#555" }}>{formatDoc(user.doc)}</div>}
+    <>
+      <GlobalStyles />
+      <div style={{ fontFamily: FONT_BODY, background: DARK, minHeight: "100vh", color: "#fff" }}>
+        <Banner />
+        <div className="fade-in" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: "2px solid " + RED, background: DARK }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ color: RED, fontWeight: 400, fontSize: 18, letterSpacing: 2, fontFamily: FONT_DISPLAY }}>BET LUBE</div>
+            <div style={{ width: 1, height: 18, background: "#2a2a2a" }} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{isAdmin ? "Admin" : user.nome}</div>
+              {!isAdmin && <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 2 }}>{formatDoc(user.doc)}</div>}
+            </div>
+          </div>
+          <button className="btn-press" style={{ cursor: "pointer", border: "0.5px solid #2a2a2a", borderRadius: 6, padding: "6px 14px", fontSize: 12, background: "transparent", color: TEXT_MUTE, fontWeight: 500 }} onClick={logout}>Sair</button>
+        </div>
+
+        {msg && (
+          <div className="fade-in" style={{ margin: "12px 14px 0", padding: "10px 14px", borderRadius: 8, background: msg.err ? "#1a0303" : "#031a0a", color: msg.err ? "#ff6b6b" : "#4ade80", fontSize: 13, border: "0.5px solid " + (msg.err ? "#3a0a0a" : "#0a3a1a"), fontWeight: 500 }}>
+            {msg.text}
+          </div>
+        )}
+
+        {!isAdmin && (
+          <div className="stagger" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "14px 14px 0" }}>
+            {[["Seus pontos", meusPts, YELLOW], ["Posição", meuRank > 0 ? meuRank + "º" : "—", "#fff"]].map(([l, v, cor]) => (
+              <div key={l} className="card-hover" style={{ background: CARD, borderRadius: 12, padding: "14px 16px", border: "0.5px solid " + BORDER }}>
+                <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 6, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 600 }}>{l}</div>
+                <div style={{ fontSize: 32, fontWeight: 400, color: cor, lineHeight: 1, fontFamily: FONT_DISPLAY, letterSpacing: 1 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="fade-in" style={{ display: "flex", gap: 6, padding: "14px 14px 0", flexWrap: "wrap" }}>
+          {isAdmin
+            ? [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
+                <button key={t} className="pill btn-press" style={{ cursor: "pointer", padding: "6px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#2a2a2a"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : TEXT_MUTE, fontWeight: tela === t ? 600 : 500, fontFamily: FONT_BODY }}
+                  onClick={async () => {
+                    setTela(t);
+                    if (t === "clientes") await carregarClientes();
+                    if (t === "resultados") await carregarJogos();
+                    if (t === "ranking") { await carregarJogos(); await carregarClientes(); await carregarTodosPalpites(); }
+                  }}>{l}</button>
+              ))
+            : [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
+                <button key={t} className="pill btn-press" style={{ cursor: "pointer", padding: "6px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#2a2a2a"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : TEXT_MUTE, fontWeight: tela === t ? 600 : 500, fontFamily: FONT_BODY }}
+                  onClick={async () => {
+                    setTela(t);
+                    if (t === "ranking") { await carregarClientes(); await carregarTodosPalpites(); }
+                  }}>{l}</button>
+              ))
+          }
+        </div>
+
+        {tela === "admin" && (
+          <div className="fade-in" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1.25rem", margin: "14px" }}>
+            <p style={{ margin: 0, fontSize: 14, color: TEXT_MUTE, lineHeight: 1.6 }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+          </div>
+        )}
+
+        {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
+        {tela === "resultados" && <AdminResultados jogos={jogos} onSalvar={salvarResultado} />}
+        {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
+        {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
+
+        {/* Rodapé minimalista */}
+        <div style={{ padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 24, marginBottom: 14, opacity: 0.4 }}>
+            <img src={SUPA + "/ipiranga%20logo.png"} alt="" style={{ height: 18, filter: "brightness(0) invert(1)" }} />
+            <img src={SUPA + "/texaco%20logo.png"} alt="" style={{ height: 18, filter: "brightness(0) invert(1)" }} />
+            <img src={SUPA + "/bel%20lube%20logo.png"} alt="" style={{ height: 22, filter: "brightness(0) invert(1)" }} />
+          </div>
+          <div style={{ fontSize: 9, color: "#333", letterSpacing: 1, fontWeight: 400 }}>
+            by <span style={{ color: "#555", fontWeight: 600 }}>Gerth Consultoria</span>
           </div>
         </div>
-        <button style={{ cursor: "pointer", border: "0.5px solid #333", borderRadius: 8, padding: "5px 12px", fontSize: 12, background: "transparent", color: "#888" }} onClick={logout}>Sair</button>
       </div>
+    </>
+  );
+}
 
-      {msg && (
-        <div style={{ margin: "10px 12px", padding: "8px 14px", borderRadius: 8, background: msg.err ? "#2a0000" : "#002a0a", color: msg.err ? RED : "#2d7a4f", fontSize: 13, border: "0.5px solid " + (msg.err ? RED : "#2d7a4f") }}>
-          {msg.text}
+// Visuais ilustrativos para o carrossel (sem emojis)
+function Visual1() {
+  return (
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="none" stroke={YELLOW} strokeWidth="2" strokeDasharray="4 6" opacity="0.4">
+        <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="20s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="60" cy="60" r="32" fill={YELLOW} />
+      <path d="M52 50 L52 72 L72 61 Z" fill={DARK} />
+    </svg>
+  );
+}
+
+function Visual2() {
+  return (
+    <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+      {[["3", YELLOW, "PTS"], ["1", "#fff", "PT"], ["0", "#444", "PTS"]].map(([n, bg, l], i) => (
+        <div key={i} className="scale-in" style={{ textAlign: "center", animationDelay: `${0.1 + i * 0.1}s` }}>
+          <div style={{ background: bg, color: bg === "#444" ? "#888" : DARK, width: 60, height: 60, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 400, fontFamily: FONT_DISPLAY }}>{n}</div>
+          <div style={{ fontSize: 9, color: "#888", marginTop: 6, letterSpacing: 1, fontWeight: 600 }}>{l}</div>
         </div>
-      )}
-
-      {!isAdmin && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "10px 12px 0" }}>
-          {[["Seus pontos", meusPts, YELLOW], ["Posição", meuRank > 0 ? meuRank + "º" : "—", "#fff"]].map(([l, v, cor]) => (
-            <div key={l} style={{ background: CARD, borderRadius: 10, padding: "10px 14px", border: "0.5px solid " + BORDER }}>
-              <div style={{ fontSize: 9, color: "#555", marginBottom: 4, letterSpacing: 1, textTransform: "uppercase" }}>{l}</div>
-              <div style={{ fontSize: 24, fontWeight: 900, color: cor, lineHeight: 1 }}>{v}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 6, padding: "10px 12px 0", flexWrap: "wrap" }}>
-        {isAdmin
-          ? [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
-              <button key={t} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#333"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : "#888", fontWeight: tela === t ? 700 : 400 }}
-                onClick={async () => {
-                  setTela(t);
-                  if (t === "clientes") await carregarClientes();
-                  if (t === "resultados") await carregarJogos();
-                  if (t === "ranking") { await carregarJogos(); await carregarClientes(); await carregarTodosPalpites(); }
-                }}>{l}</button>
-            ))
-          : [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
-              <button key={t} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#333"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : "#888", fontWeight: tela === t ? 700 : 400 }}
-                onClick={async () => {
-                  setTela(t);
-                  if (t === "ranking") { await carregarClientes(); await carregarTodosPalpites(); }
-                }}>{l}</button>
-            ))
-        }
-      </div>
-
-      {tela === "admin" && (
-        <div style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1rem 1.25rem", margin: "12px" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "#888" }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
-        </div>
-      )}
-
-      {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
-      {tela === "resultados" && <AdminResultados jogos={jogos} onSalvar={salvarResultado} />}
-      {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
-      {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
+      ))}
     </div>
+  );
+}
+
+function Visual3() {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 6 }}>
+      {[
+        { h: 50, cor: "#C0C0C0", pos: "2" },
+        { h: 75, cor: YELLOW, pos: "1" },
+        { h: 38, cor: "#CD7F32", pos: "3" },
+      ].map((b, i) => (
+        <div key={i} className="scale-in" style={{ animationDelay: `${0.1 + i * 0.1}s` }}>
+          <div style={{ background: b.cor, width: 48, height: b.h, borderRadius: "8px 8px 0 0", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT_DISPLAY, fontSize: 24, color: DARK, fontWeight: 400 }}>{b.pos}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Visual4() {
+  return (
+    <svg width="100" height="100" viewBox="0 0 100 100" className="scale-in">
+      <circle cx="50" cy="50" r="44" fill="none" stroke={RED} strokeWidth="2.5" />
+      <rect x="46" y="28" width="8" height="34" rx="2" fill={RED} />
+      <circle cx="50" cy="72" r="4" fill={RED} />
+    </svg>
+  );
+}
+
+function Visual5() {
+  return (
+    <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 130, width: "auto", objectFit: "contain" }} className="scale-in" />
   );
 }
 
@@ -339,31 +440,31 @@ function Carrossel({ slides, onFim }) {
   const isUltimo = atual === slides.length - 1;
   const isPrimeiro = atual === 0;
   return (
-    <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
-      <div style={{ background: "#0a0a1a", minHeight: 180, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        <button onClick={onFim} style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-        {slide.visual}
+    <div className="scale-in" style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 460, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.7)" }}>
+      <div style={{ background: "#0a0a14", minHeight: 200, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <button className="btn-press" onClick={onFim} style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>×</button>
+        <div key={atual} className="fade-in">{slide.visual}</div>
       </div>
-      <div style={{ padding: "1.25rem 1.5rem 0.75rem" }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: DARK, marginBottom: 8, fontFamily: "Arial Black, sans-serif" }}>{slide.titulo}</div>
-        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>{slide.texto}</div>
+      <div style={{ padding: "1.5rem 1.75rem 1rem" }}>
+        <div key={"t-" + atual} className="fade-in" style={{ fontSize: 24, fontWeight: 400, color: DARK, marginBottom: 10, fontFamily: FONT_DISPLAY, letterSpacing: 1, lineHeight: 1.1 }}>{slide.titulo}</div>
+        <div key={"d-" + atual} className="fade-in" style={{ fontSize: 14, color: "#555", lineHeight: 1.7, animationDelay: "0.05s" }}>{slide.texto}</div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1.5rem 1rem" }}>
-        <button onClick={() => setAtual(atual - 1)} disabled={isPrimeiro} style={{ background: isPrimeiro ? "#f0f0f0" : "#f0f0f0", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: isPrimeiro ? "default" : "pointer", color: isPrimeiro ? "#ccc" : "#333", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 1.75rem 1rem" }}>
+        <button className="btn-press" onClick={() => setAtual(atual - 1)} disabled={isPrimeiro} style={{ background: "transparent", border: "1px solid " + (isPrimeiro ? "#eee" : "#ddd"), width: 40, height: 40, borderRadius: "50%", cursor: isPrimeiro ? "default" : "pointer", color: isPrimeiro ? "#ddd" : "#333", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, opacity: isPrimeiro ? 0.4 : 1 }}>←</button>
         <div style={{ display: "flex", gap: 6 }}>
           {slides.map((_, i) => (
-            <div key={i} onClick={() => setAtual(i)} style={{ width: i === atual ? 24 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#ddd", cursor: "pointer", transition: "width 0.2s" }} />
+            <div key={i} className="dot" onClick={() => setAtual(i)} style={{ width: i === atual ? 28 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#ddd", cursor: "pointer" }} />
           ))}
         </div>
         {isUltimo ? (
-          <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "10px 16px", borderRadius: 8, fontSize: 12, fontWeight: 900, cursor: "pointer", fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>Palpitar →</button>
+          <button className="btn-press" onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "11px 18px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", letterSpacing: 2, fontFamily: FONT_BODY, textTransform: "uppercase" }}>Palpitar →</button>
         ) : (
-          <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
+          <button className="btn-press" onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
         )}
       </div>
       {!isUltimo && (
-        <div style={{ textAlign: "center", paddingBottom: 16 }}>
-          <span onClick={onFim} style={{ color: "#aaa", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Pular introdução</span>
+        <div style={{ textAlign: "center", paddingBottom: 18 }}>
+          <span onClick={onFim} style={{ color: "#bbb", fontSize: 11, cursor: "pointer", textDecoration: "underline", letterSpacing: 0.5 }}>Pular introdução</span>
         </div>
       )}
     </div>
@@ -374,29 +475,28 @@ function RankingView({ ranking, myId }) {
   const podio = ranking.slice(0, 3);
   const resto = ranking.slice(3);
   const cfg = [
-    { cor: "#FFD101", altura: 110, emoji: "🥇", pos: "1º" },
-    { cor: "#C0C0C0", altura: 80, emoji: "🥈", pos: "2º" },
-    { cor: "#CD7F32", altura: 70, emoji: "🥉", pos: "3º" },
+    { cor: YELLOW, altura: 110, pos: "1º" },
+    { cor: "#C0C0C0", altura: 80, pos: "2º" },
+    { cor: "#CD7F32", altura: 70, pos: "3º" },
   ];
   const ordem = [1, 0, 2];
   return (
-    <div style={{ padding: "12px" }}>
-      {ranking.length === 0 && <p style={{ fontSize: 14, color: "#555" }}>Nenhum palpite ainda.</p>}
+    <div style={{ padding: "14px" }}>
+      {ranking.length === 0 && <p style={{ fontSize: 14, color: TEXT_DIM, padding: "1rem" }}>Nenhum palpite ainda.</p>}
       {podio.length >= 1 && (
-        <div style={{ background: CARD, borderRadius: 14, padding: "1.25rem 1rem 0", marginBottom: 12, overflow: "hidden", border: "0.5px solid " + BORDER }}>
-          <div style={{ textAlign: "center", color: YELLOW, fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 12, textTransform: "uppercase" }}>Pódio</div>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 8 }}>
-            {ordem.map(idx => {
+        <div className="scale-in" style={{ background: CARD, borderRadius: 14, padding: "1.5rem 1rem 0", marginBottom: 16, overflow: "hidden", border: "0.5px solid " + BORDER }}>
+          <div style={{ textAlign: "center", color: YELLOW, fontSize: 11, fontWeight: 600, letterSpacing: 4, marginBottom: 16, textTransform: "uppercase" }}>Pódio</div>
+          <div className="stagger" style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 10 }}>
+            {ordem.map((idx, i) => {
               const c = podio[idx];
               if (!c) return <div key={idx} style={{ flex: 1 }} />;
               const conf = cfg[idx];
               return (
                 <div key={c.id} style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: "#555", marginBottom: 2, fontWeight: 500 }}>{c.nome.split(" ")[0]}</div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: conf.cor, marginBottom: 3 }}>{c.pts}pts</div>
-                  <div style={{ background: conf.cor, borderRadius: "6px 6px 0 0", height: conf.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                    <div style={{ fontSize: 22 }}>{conf.emoji}</div>
-                    <div style={{ fontSize: 10, fontWeight: 900, color: DARK }}>{conf.pos}</div>
+                  <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 4, fontWeight: 500 }}>{c.nome.split(" ")[0]}</div>
+                  <div style={{ fontSize: 18, fontWeight: 400, color: conf.cor, marginBottom: 6, fontFamily: FONT_DISPLAY, letterSpacing: 0.5 }}>{c.pts}<span style={{ fontSize: 10, opacity: 0.7 }}>PTS</span></div>
+                  <div style={{ background: conf.cor, borderRadius: "8px 8px 0 0", height: conf.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 400, color: DARK, fontFamily: FONT_DISPLAY }}>{conf.pos}</div>
                   </div>
                 </div>
               );
@@ -405,19 +505,19 @@ function RankingView({ ranking, myId }) {
         </div>
       )}
       {resto.length > 0 && (
-        <div>
-          <div style={{ fontSize: 9, fontWeight: 700, color: "#555", letterSpacing: 2, padding: "4px 0 8px", textTransform: "uppercase" }}>Classificação geral</div>
+        <div className="stagger">
+          <div style={{ fontSize: 10, fontWeight: 600, color: TEXT_DIM, letterSpacing: 2, padding: "0.5rem 0 0.75rem", textTransform: "uppercase" }}>Classificação geral</div>
           {resto.map((c, i) => (
-            <div key={c.id} style={{ background: c.id === myId ? "#1a0000" : CARD, border: "0.5px solid " + (c.id === myId ? RED : BORDER), borderRadius: 10, padding: "10px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#555", minWidth: 24 }}>{i + 4}º</span>
+            <div key={c.id} className="card-hover" style={{ background: c.id === myId ? "#1a0303" : CARD, border: "0.5px solid " + (c.id === myId ? RED : BORDER), borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
+              <span style={{ fontSize: 16, fontWeight: 400, color: TEXT_DIM, minWidth: 28, fontFamily: FONT_DISPLAY }}>{i + 4}º</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
-                <div style={{ fontSize: 11, color: "#555" }}>{c.acertos} placar(es) exato(s)</div>
+                <div style={{ fontWeight: 500, fontSize: 14, color: "#fff" }}>{c.nome}</div>
+                <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.acertos} placar(es) exato(s)</div>
               </div>
-              {c.id === myId && <span style={{ fontSize: 9, color: RED, fontWeight: 700, marginRight: 4 }}>VOCÊ</span>}
+              {c.id === myId && <span style={{ fontSize: 9, color: RED, fontWeight: 700, letterSpacing: 1 }}>VOCÊ</span>}
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 900, fontSize: 18, color: "#fff" }}>{c.pts}</div>
-                <div style={{ fontSize: 10, color: "#555" }}>pts</div>
+                <div style={{ fontWeight: 400, fontSize: 22, color: "#fff", fontFamily: FONT_DISPLAY, letterSpacing: 0.5 }}>{c.pts}</div>
+                <div style={{ fontSize: 9, color: TEXT_DIM, letterSpacing: 1, textTransform: "uppercase" }}>pts</div>
               </div>
             </div>
           ))}
@@ -455,17 +555,18 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
     return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
   return (
-    <div style={{ padding: "10px 0" }}>
-      <div style={{ display: "flex", gap: 6, padding: "0 12px 10px", flexWrap: "wrap" }}>
+    <div style={{ padding: "14px 0" }}>
+      <div className="fade-in" style={{ display: "flex", gap: 6, padding: "0 14px 14px", flexWrap: "wrap" }}>
         {RODADAS.map(r => (
-          <button key={r.id} onClick={() => setRodada(r.id)} style={{ cursor: "pointer", padding: "4px 12px", borderRadius: 20, border: "0.5px solid " + (rodada === r.id ? RED : "#333"), background: rodada === r.id ? RED : "transparent", color: rodada === r.id ? "#fff" : "#888", fontSize: 12, fontWeight: rodada === r.id ? 700 : 400 }}>{r.label}</button>
+          <button key={r.id} className="pill btn-press" onClick={() => setRodada(r.id)} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (rodada === r.id ? RED : "#2a2a2a"), background: rodada === r.id ? RED : "transparent", color: rodada === r.id ? "#fff" : TEXT_MUTE, fontSize: 12, fontWeight: rodada === r.id ? 600 : 500 }}>{r.label}</button>
         ))}
       </div>
+      <div className="stagger">
       {Object.keys(grupos).sort().map(dia => (
         <div key={dia}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px 12px" }}>
             <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
-            <span style={{ fontSize: 10, color: "#555", fontWeight: 600, textTransform: "capitalize", whiteSpace: "nowrap" }}>{formatDia(dia)}</span>
+            <span style={{ fontSize: 10, color: TEXT_DIM, fontWeight: 600, textTransform: "uppercase", whiteSpace: "nowrap", letterSpacing: 1 }}>{formatDia(dia)}</span>
             <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
           </div>
           {grupos[dia].map(j => {
@@ -474,29 +575,29 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
             const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
             const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
             return (
-              <div key={j.id} style={{ background: CARD, borderRadius: 12, padding: "10px 12px", marginBottom: 8, marginLeft: 12, marginRight: 12, borderLeft: isBrasil ? "3px solid " + YELLOW : "0.5px solid " + BORDER, borderTop: "0.5px solid " + BORDER, borderRight: "0.5px solid " + BORDER, borderBottom: "0.5px solid " + BORDER }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <div style={{ background: isBrasil ? "#1a1400" : "#1a1a1a", color: isBrasil ? YELLOW : "#666", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4, letterSpacing: 1 }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
-                  {pts !== null && <span style={{ fontSize: 10, borderRadius: 6, padding: "2px 8px", background: pts === 3 ? "#1a0a00" : pts === 1 ? "#1a1500" : "#1a1a1a", color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#555" }}>{pts === 3 ? "⭐ +3" : pts === 1 ? "✓ +1" : "✗ Errou"}</span>}
+              <div key={j.id} className="card-hover" style={{ background: CARD, borderRadius: 12, padding: "12px 14px", marginBottom: 10, marginLeft: 14, marginRight: 14, borderLeft: isBrasil ? "3px solid " + YELLOW : "0.5px solid " + BORDER, borderTop: "0.5px solid " + BORDER, borderRight: "0.5px solid " + BORDER, borderBottom: "0.5px solid " + BORDER }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ background: isBrasil ? "rgba(255,209,1,0.1)" : "#181818", color: isBrasil ? YELLOW : TEXT_DIM, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 4, letterSpacing: 1 }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
+                  {pts !== null && <span style={{ fontSize: 10, borderRadius: 6, padding: "3px 10px", background: pts === 3 ? "rgba(255,209,1,0.15)" : pts === 1 ? "rgba(255,255,255,0.08)" : "rgba(216,9,27,0.1)", color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#888", fontWeight: 600, letterSpacing: 0.5 }}>{pts === 3 ? "+3 EXATO" : pts === 1 ? "+1 VENCEDOR" : "ERROU"}</span>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <Flag time={j.time1} size={40} />
-                    <div style={{ fontWeight: 600, fontSize: 11, marginTop: 5, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff" }}>{j.time1}</div>
+                    <Flag time={j.time1} size={42} />
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 6, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3 }}>{j.time1}</div>
                   </div>
                   <div style={{ textAlign: "center", flex: "0 0 auto" }}>
                     {passou || j.encerrado ? (
                       <div>
-                        {j.encerrado ? <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>{j.resultado_g1} — {j.resultado_g2}</div> : <div style={{ fontSize: 12, color: "#555" }}>Em andamento</div>}
-                        {p ? <div style={{ fontSize: 11, color: "#555", marginTop: 4 }}>Palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 11, color: "#333", marginTop: 4 }}>Sem palpite</div>}
+                        {j.encerrado ? <div style={{ fontSize: 26, fontWeight: 400, color: "#fff", letterSpacing: 3, fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{j.resultado_g1} : {j.resultado_g2}</div> : <div style={{ fontSize: 11, color: TEXT_DIM, fontStyle: "italic" }}>Em andamento</div>}
+                        {p ? <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 5, letterSpacing: 0.5 }}>Palpite {p.g1}—{p.g2}</div> : <div style={{ fontSize: 11, color: "#333", marginTop: 5 }}>Sem palpite</div>}
                       </div>
                     ) : (
                       <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBrasil} />
                     )}
                   </div>
                   <div style={{ flex: 1, textAlign: "right" }}>
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={40} /></div>
-                    <div style={{ fontWeight: 600, fontSize: 11, marginTop: 5, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff" }}>{j.time2}</div>
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={42} /></div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 6, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3 }}>{j.time2}</div>
                   </div>
                 </div>
               </div>
@@ -504,34 +605,37 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
           })}
         </div>
       ))}
+      </div>
     </div>
   );
 }
 
 function AdminClientes({ clientes, onAdd, onToggle }) {
   const [doc, setDoc] = useState(""); const [nome, setNome] = useState(""); const [senha, setSenha] = useState("");
-  const inp = { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#1a1a1a", color: "#fff" };
+  const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#161616", color: "#fff" };
   return (
-    <div style={{ padding: "12px" }}>
-      <div style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1rem", marginBottom: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#fff", marginBottom: 12 }}>Novo cliente</div>
-        <div style={{ display: "grid", gap: 8 }}>
+    <div style={{ padding: "14px" }}>
+      <div className="scale-in" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1.25rem", marginBottom: 14 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 14 }}>Novo cliente</div>
+        <div style={{ display: "grid", gap: 10 }}>
           <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e => setDoc(e.target.value)} />
           <input style={inp} placeholder="Nome / Razão social" value={nome} onChange={e => setNome(e.target.value)} />
           <input style={inp} placeholder="Senha inicial" value={senha} onChange={e => setSenha(e.target.value)} />
-          <button style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "10px", fontSize: 13, background: RED, color: "#fff", fontWeight: 700 }} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
+          <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, background: RED, color: "#fff", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
         </div>
       </div>
-      <div style={{ fontSize: 11, color: "#555", marginBottom: 8 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
+      <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
+      <div className="stagger">
       {clientes.filter(c => c.doc !== "admin").map(c => (
-        <div key={c.id} style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 10, padding: "10px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4 }}>
+        <div key={c.id} className="card-hover" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4 }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
-            <div style={{ fontSize: 11, color: "#555" }}>{c.doc}</div>
+            <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.doc}</div>
           </div>
-          <button style={{ cursor: "pointer", border: "0.5px solid #333", borderRadius: 6, padding: "4px 10px", fontSize: 11, background: "transparent", color: "#888" }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
+          <button className="btn-press" style={{ cursor: "pointer", border: "0.5px solid #2a2a2a", borderRadius: 6, padding: "5px 12px", fontSize: 11, background: "transparent", color: TEXT_MUTE, fontWeight: 500 }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
         </div>
       ))}
+      </div>
     </div>
   );
 }
@@ -542,17 +646,17 @@ function AdminResultados({ jogos, onSalvar }) {
     return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" }) + " · " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
   return (
-    <div style={{ padding: "12px" }}>
+    <div className="stagger" style={{ padding: "14px" }}>
       {jogos.map(j => (
-        <div key={j.id} style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 1 }}>Grupo {j.grupo}</span>
-            <span style={{ fontSize: 10, color: "#444" }}>{formatData(j.data_hora)}</span>
+        <div key={j.id} className="card-hover" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "12px 14px", marginBottom: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+            <span style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Grupo {j.grupo}</span>
+            <span style={{ fontSize: 10, color: TEXT_DIM }}>{formatData(j.data_hora)}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontWeight: 500, flex: 1, display: "flex", alignItems: "center", gap: 6, color: "#fff", fontSize: 12 }}><Flag time={j.time1} size={18} />{j.time1}</span>
+            <span style={{ fontWeight: 500, flex: 1, display: "flex", alignItems: "center", gap: 8, color: "#fff", fontSize: 12 }}><Flag time={j.time1} size={20} />{j.time1}</span>
             <ResultInput jogo={j} onSalvar={onSalvar} />
-            <span style={{ fontWeight: 500, flex: 1, textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, color: "#fff", fontSize: 12 }}>{j.time2}<Flag time={j.time2} size={18} /></span>
+            <span style={{ fontWeight: 500, flex: 1, textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, color: "#fff", fontSize: 12 }}>{j.time2}<Flag time={j.time2} size={20} /></span>
           </div>
         </div>
       ))}
@@ -563,18 +667,18 @@ function AdminResultados({ jogos, onSalvar }) {
 function ResultInput({ jogo, onSalvar }) {
   const [g1, setG1] = useState(jogo.resultado_g1 != null ? jogo.resultado_g1 : "");
   const [g2, setG2] = useState(jogo.resultado_g2 != null ? jogo.resultado_g2 : "");
-  const num = { width: 44, textAlign: "center", padding: "5px 2px", borderRadius: 6, border: "0.5px solid " + BORDER, fontSize: 16, fontWeight: 700, background: "#1a1a1a", color: "#fff" };
+  const num = { width: 44, textAlign: "center", padding: "6px 2px", borderRadius: 6, border: "0.5px solid " + BORDER, fontSize: 16, fontWeight: 600, background: "#161616", color: "#fff", fontFamily: FONT_DISPLAY };
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <input style={num} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
-        <span style={{ color: "#444" }}>×</span>
+        <span style={{ color: "#333", fontSize: 12 }}>×</span>
         <input style={num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button style={{ cursor: "pointer", border: "none", borderRadius: 6, padding: "3px 10px", fontSize: 11, background: RED, color: "#fff", fontWeight: 700 }} onClick={() => onSalvar(jogo.id, g1, g2)}>
-        {jogo.encerrado ? "Atualizar" : "Confirmar"}
+      <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 6, padding: "4px 12px", fontSize: 10, background: RED, color: "#fff", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }} onClick={() => onSalvar(jogo.id, g1, g2)}>
+        {jogo.encerrado ? "Atualizar" : "Salvar"}
       </button>
-      {jogo.encerrado && <span style={{ fontSize: 10, color: "#2d7a4f" }}>✓ {jogo.resultado_g1}×{jogo.resultado_g2}</span>}
+      {jogo.encerrado && <span style={{ fontSize: 10, color: "#4ade80", letterSpacing: 0.5 }}>{jogo.resultado_g1}—{jogo.resultado_g2}</span>}
     </div>
   );
 }
@@ -583,15 +687,15 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
   const [g1, setG1] = useState(palpiteAtual ? palpiteAtual.g1 : "");
   const [g2, setG2] = useState(palpiteAtual ? palpiteAtual.g2 : "");
   const borderColor = isBrasil ? YELLOW : BORDER;
-  const num = { width: 44, textAlign: "center", padding: "5px 2px", borderRadius: 6, border: "0.5px solid " + borderColor, fontSize: 16, fontWeight: 700, background: "#1a1a1a", color: "#fff" };
+  const num = { width: 46, textAlign: "center", padding: "7px 2px", borderRadius: 6, border: "0.5px solid " + borderColor, fontSize: 18, fontWeight: 400, background: "#161616", color: "#fff", fontFamily: FONT_DISPLAY };
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <input style={num} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
-        <span style={{ color: "#444" }}>×</span>
+        <span style={{ color: "#333", fontSize: 14 }}>×</span>
         <input style={num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button style={{ cursor: "pointer", border: "none", borderRadius: 20, padding: "4px 12px", fontSize: 10, background: palpiteAtual ? "#a00614" : RED, color: "#fff", fontWeight: 700 }}
+      <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 20, padding: "5px 14px", fontSize: 10, background: palpiteAtual ? "#7a0410" : RED, color: "#fff", fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" }}
         onClick={() => onSalvar(jogoId, g1, g2)} disabled={g1 === "" || g2 === ""}>
         {palpiteAtual ? "Atualizar" : "Salvar"}
       </button>

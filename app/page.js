@@ -11,6 +11,8 @@ const RED = "#D8091B";
 const YELLOW = "#FFD101";
 const BLUE = "#0045B5";
 const DARK = "#080808";
+const CARD = "#111111";
+const BORDER = "#222222";
 const SUPA = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
 
 const CODIGOS = {
@@ -30,9 +32,9 @@ const CODIGOS = {
 
 function Flag({ time, size = 32 }) {
   const cod = CODIGOS[time];
-  if (!cod) return <span style={{ fontSize: size * 0.8 }}>🏳</span>;
+  if (!cod) return <span style={{ fontSize: size * 0.8, color: "#fff" }}>🏳</span>;
   const upper = cod.includes("-") ? cod.split("-")[0].toUpperCase() : cod.toUpperCase();
-  return <img src={`https://flagsapi.com/${upper}/flat/64.png`} width={size} height={size} style={{ borderRadius: 3, objectFit: "cover" }} alt={time} />;
+  return <img src={`https://flagsapi.com/${upper}/flat/64.png`} width={size} height={size} style={{ borderRadius: 4, objectFit: "cover", display: "block" }} alt={time} />;
 }
 
 function calcPontos(g1, g2, rg1, rg2) {
@@ -50,46 +52,14 @@ function formatDoc(doc) {
   return doc;
 }
 
-function formatData(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" }) + " · " +
-    d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-}
-
-const s = {
-  btn: { cursor: "pointer", border: "1px solid #444", borderRadius: 8, padding: "6px 14px", fontSize: 13, background: "transparent", color: "#fff" },
-  btnP: { cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: RED, color: "#fff", fontWeight: 500 },
-  card: { background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, marginLeft: "1rem", marginRight: "1rem" },
-  inp: { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 },
-  num: { width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 },
-  nav: { display: "flex", gap: 8, marginBottom: "1.5rem", flexWrap: "wrap", padding: "0 1rem" },
-  navB: (a) => ({ cursor: "pointer", padding: "6px 14px", borderRadius: 8, border: "1px solid " + (a ? RED : "#ddd"), fontSize: 13, background: a ? RED : "transparent", color: a ? "#fff" : "#333", fontWeight: a ? 500 : 400 }),
-  tag: (p) => ({ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: p === 3 ? "#fde8ec" : p === 1 ? "#fff8cc" : "#f5f5f5", color: p === 3 ? RED : p === 1 ? "#7a5800" : "#888" }),
-};
-
 function Banner() {
   return (
     <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
-      {/* Listras esquerda */}
-      <img
-        src={SUPA + "/listras%20esquerda.png"}
-        alt=""
-        style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }}
-      />
-      {/* Logo central */}
+      <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }} />
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <img
-          src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
-          alt="Bet Lube Copa 2026"
-          style={{ height: 100, width: "auto", objectFit: "contain" }}
-        />
+        <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube Copa 2026" style={{ height: 100, width: "auto", objectFit: "contain" }} />
       </div>
-      {/* Listras direita */}
-      <img
-        src={SUPA + "/listras%20direita.png"}
-        alt=""
-        style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }}
-      />
+      <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }} />
     </div>
   );
 }
@@ -182,52 +152,53 @@ export default function App() {
   const meuRank = user ? ranking.findIndex(r => r.id === user.id) + 1 : 0;
   const meusPts = user ? (ranking.find(r => r.id === user.id) || {}).pts || 0 : 0;
 
-  const wrap = { fontFamily: "Arial, sans-serif", minHeight: "100vh" };
-  const inner = { background: "#fff", width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" };
-
   // LOGIN
   if (tela === "login") {
     return (
-      <div style={wrap}>
-        <div style={inner}>
-          <Banner />
-          <div style={{ flex: 1, padding: "2rem 2rem 1rem" }}>
-            <div style={{ fontSize: 42, fontWeight: 900, color: "#999", letterSpacing: 2, marginBottom: "2rem", fontFamily: "Arial Black, sans-serif" }}>LOGIN</div>
-            <div style={{ marginBottom: "1.5rem" }}>
-              <div style={{ fontSize: 15, color: "#aaa", marginBottom: 8 }}>CNPJ ou CPF</div>
-              <input id="doc" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box" }} />
-            </div>
-            <div style={{ marginBottom: "2rem" }}>
-              <div style={{ fontSize: 15, color: "#aaa", marginBottom: 8 }}>Senha</div>
-              <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box" }}
-                onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)} />
-            </div>
-            {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{loginErr}</p>}
-            <button style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "14px", fontSize: 16, fontWeight: 700, letterSpacing: 2, cursor: "pointer", opacity: loading ? 0.7 : 1 }}
-              onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)} disabled={loading}>
-              {loading ? "ENTRANDO..." : "ENTRAR"}
-            </button>
+      <div style={{ fontFamily: "Inter, Arial, sans-serif", background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
+          <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }} />
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 100, width: "auto", objectFit: "contain" }} />
           </div>
-          <div style={{ padding: "1.5rem 2rem", textAlign: "center" }}>
-            <div style={{ marginBottom: "1rem" }}>
-              <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
-              <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
-              <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
-            </div>
-            <div style={{ fontSize: 12, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
+          <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }} />
+        </div>
+        <div style={{ flex: 1, padding: "2rem 2rem 1rem" }}>
+          <div style={{ fontSize: 42, fontWeight: 900, color: "#ccc", letterSpacing: 2, marginBottom: "2rem", fontFamily: "Arial Black, sans-serif" }}>LOGIN</div>
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 8 }}>CNPJ ou CPF</div>
+            <input id="doc" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box", color: DARK }} />
           </div>
+          <div style={{ marginBottom: "2rem" }}>
+            <div style={{ fontSize: 14, color: "#aaa", marginBottom: 8 }}>Senha</div>
+            <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #333", outline: "none", fontSize: 16, padding: "8px 0", background: "transparent", boxSizing: "border-box", color: DARK }}
+              onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)} />
+          </div>
+          {loginErr && <p style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{loginErr}</p>}
+          <button style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "14px", fontSize: 15, fontWeight: 700, letterSpacing: 2, cursor: "pointer", opacity: loading ? 0.7 : 1, borderRadius: 4 }}
+            onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)} disabled={loading}>
+            {loading ? "ENTRANDO..." : "ENTRAR"}
+          </button>
+        </div>
+        <div style={{ padding: "1rem 2rem 1.5rem", textAlign: "center" }}>
+          <div style={{ marginBottom: "1rem" }}>
+            <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginBottom: "1rem" }}>
+            <img src={SUPA + "/ipiranga%20logo.png"} alt="Ipiranga" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
+            <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 24, maxWidth: "50%", objectFit: "contain" }} />
+          </div>
+          <div style={{ fontSize: 11, color: "#bbb" }}>Criado e desenvolvido por Gerth Consultoria</div>
         </div>
       </div>
     );
   }
 
-  // BOAS-VINDAS — abre a tela de jogos com modal por cima
+  // BOAS-VINDAS
   if (tela === "boasvindas") {
     const slides = [
       {
-        visual: <div style={{ fontSize: 64, textAlign: "center", padding: "1rem 0" }}>🏆</div>,
+        visual: <div style={{ fontSize: 64, textAlign: "center", padding: "1.5rem 0" }}>🏆</div>,
         titulo: `Bem-vindo, ${user.nome.split(" ")[0]}!`,
         texto: "Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos.",
       },
@@ -236,7 +207,7 @@ export default function App() {
           <div style={{ display: "flex", justifyContent: "center", gap: 20, padding: "1.5rem 0" }}>
             {[["3", YELLOW, DARK, "Placar Exato"], ["1", "#fff", DARK, "Vencedor"], ["0", RED, "#fff", "Errou"]].map(([pts, bg, color, label]) => (
               <div key={pts} style={{ textAlign: "center" }}>
-                <div style={{ background: bg, color, width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900, margin: "0 auto 8px", fontFamily: "Arial Black, sans-serif" }}>{pts}</div>
+                <div style={{ background: bg, color, width: 56, height: 56, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, fontWeight: 900, margin: "0 auto 8px" }}>{pts}</div>
                 <div style={{ fontSize: 11, color: "#aaa" }}>{label}</div>
               </div>
             ))}
@@ -260,43 +231,34 @@ export default function App() {
         texto: "Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco.",
       },
       {
-        visual: <div style={{ fontSize: 56, textAlign: "center", padding: "1.25rem 0" }}>⚠️</div>,
+        visual: <div style={{ fontSize: 56, textAlign: "center", padding: "1.5rem 0" }}>⚠️</div>,
         titulo: "Atenção!",
         texto: "Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance de pontos.",
       },
       {
         visual: (
-          <div style={{ textAlign: "center", padding: "1rem 0", background: DARK, width: "100%" }}>
-            <img
-              src={SUPA + "/Logo%20branca%20sem%20fundo.png"}
-              alt="Bet Lube Copa 2026"
-              style={{ height: 140, width: "auto", objectFit: "contain" }}
-            />
+          <div style={{ textAlign: "center", padding: "1rem 0", width: "100%" }}>
+            <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 140, width: "auto", objectFit: "contain" }} />
           </div>
         ),
         titulo: "É só isso!",
         texto: "Você está pronto para jogar. Boa sorte — que vençam os melhores palpites!",
-        botao: true,
       },
     ];
 
     return (
-      <div style={{ position: "relative", fontFamily: "Inter, sans-serif", minHeight: "100vh", overflow: "hidden" }}>
-        {/* Tela de palpites de fundo — não interativa */}
-        <div style={{ pointerEvents: "none", userSelect: "none", filter: "blur(1px)", opacity: 0.4 }}>
+      <div style={{ position: "relative", fontFamily: "Inter, Arial, sans-serif", minHeight: "100vh", overflow: "hidden", background: DARK }}>
+        <div style={{ pointerEvents: "none", userSelect: "none", opacity: 0.3 }}>
           <Banner />
-          <div style={{ background: "#f7f7f7", minHeight: "100vh", padding: "1rem" }}>
-            <div style={{ height: 60, background: DARK, borderRadius: 8, marginBottom: 12 }} />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
-              <div style={{ height: 70, background: "#fff", borderRadius: 8, border: "1px solid #eee" }} />
-              <div style={{ height: 70, background: "#fff", borderRadius: 8, border: "1px solid #eee" }} />
+          <div style={{ padding: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+              <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
+              <div style={{ height: 70, background: CARD, borderRadius: 10, border: "0.5px solid " + BORDER }} />
             </div>
-            {[1,2,3].map(i => <div key={i} style={{ height: 100, background: "#fff", borderRadius: 12, border: "1px solid #eee", marginBottom: 12 }} />)}
+            {[1,2,3].map(i => <div key={i} style={{ height: 100, background: CARD, borderRadius: 12, border: "0.5px solid " + BORDER, marginBottom: 10 }} />)}
           </div>
         </div>
-
-        {/* Modal por cima */}
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", background: "rgba(0,0,0,0.6)" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", background: "rgba(0,0,0,0.7)" }}>
           <Carrossel slides={slides} onFim={() => setTela("jogos")} />
         </div>
       </div>
@@ -305,82 +267,68 @@ export default function App() {
 
   // APP PRINCIPAL
   return (
-    <div style={wrap}>
-      <div style={inner}>
-        <Banner />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", borderBottom: "3px solid " + RED, background: DARK }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ color: RED, fontWeight: 900, fontSize: 14, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>
-            <div style={{ width: 1, height: 16, background: "#444" }} />
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: "#fff" }}>{isAdmin ? "Admin" : user.nome}</div>
-              {!isAdmin && <div style={{ fontSize: 10, color: "#aaa" }}>{formatDoc(user.doc)}</div>}
-            </div>
+    <div style={{ fontFamily: "Inter, Arial, sans-serif", background: DARK, minHeight: "100vh" }}>
+      <Banner />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: "2px solid " + RED, background: DARK }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ color: RED, fontWeight: 900, fontSize: 13, letterSpacing: 1 }}>⚽ BOLÃO COPA 2026</div>
+          <div style={{ width: 1, height: 16, background: "#333" }} />
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 500, color: "#fff" }}>{isAdmin ? "Admin" : user.nome}</div>
+            {!isAdmin && <div style={{ fontSize: 10, color: "#555" }}>{formatDoc(user.doc)}</div>}
           </div>
-          <button style={s.btn} onClick={logout}>Sair</button>
         </div>
+        <button style={{ cursor: "pointer", border: "0.5px solid #333", borderRadius: 8, padding: "5px 12px", fontSize: 12, background: "transparent", color: "#888" }} onClick={logout}>Sair</button>
+      </div>
 
-        {msg && (
-          <div style={{ margin: "0 1rem 1rem", padding: "8px 14px", borderRadius: 8, background: msg.err ? "#fde8ec" : "#f0fff4", color: msg.err ? RED : "#2d7a4f", fontSize: 13 }}>
-            {msg.text}
-          </div>
-        )}
+      {msg && (
+        <div style={{ margin: "10px 12px", padding: "8px 14px", borderRadius: 8, background: msg.err ? "#2a0000" : "#002a0a", color: msg.err ? RED : "#2d7a4f", fontSize: 13, border: "0.5px solid " + (msg.err ? RED : "#2d7a4f") }}>
+          {msg.text}
+        </div>
+      )}
 
-        {!isAdmin && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, margin: "1rem 1rem 0" }}>
-            {[["Seus pontos", meusPts], ["Posição", meuRank > 0 ? meuRank + "º" : "—"]].map(([l, v]) => (
-              <div key={l} style={{ background: "#fff", borderRadius: 8, padding: "0.75rem 1rem", borderLeft: "4px solid " + RED, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize: 12, color: "#888" }}>{l}</div>
-                <div style={{ fontSize: 24, fontWeight: 500 }}>{v}</div>
-              </div>
-            ))}
-          </div>
-        )}
+      {!isAdmin && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "10px 12px 0" }}>
+          {[["Seus pontos", meusPts, YELLOW], ["Posição", meuRank > 0 ? meuRank + "º" : "—", "#fff"]].map(([l, v, cor]) => (
+            <div key={l} style={{ background: CARD, borderRadius: 10, padding: "10px 14px", border: "0.5px solid " + BORDER }}>
+              <div style={{ fontSize: 9, color: "#555", marginBottom: 4, letterSpacing: 1, textTransform: "uppercase" }}>{l}</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: cor, lineHeight: 1 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <div style={{ ...s.nav, marginTop: "1rem" }}>
-          {isAdmin
-            ? [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
-                <button key={t} style={s.navB(tela === t)} onClick={async () => {
+      <div style={{ display: "flex", gap: 6, padding: "10px 12px 0", flexWrap: "wrap" }}>
+        {isAdmin
+          ? [["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]].map(([t, l]) => (
+              <button key={t} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#333"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : "#888", fontWeight: tela === t ? 700 : 400 }}
+                onClick={async () => {
                   setTela(t);
                   if (t === "clientes") await carregarClientes();
                   if (t === "resultados") await carregarJogos();
                   if (t === "ranking") { await carregarJogos(); await carregarClientes(); await carregarTodosPalpites(); }
                 }}>{l}</button>
-              ))
-            : [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
-                <button key={t} style={s.navB(tela === t)} onClick={async () => {
+            ))
+          : [["jogos","Palpites"],["ranking","Ranking"]].map(([t, l]) => (
+              <button key={t} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (tela === t ? RED : "#333"), fontSize: 12, background: tela === t ? RED : "transparent", color: tela === t ? "#fff" : "#888", fontWeight: tela === t ? 700 : 400 }}
+                onClick={async () => {
                   setTela(t);
                   if (t === "ranking") { await carregarClientes(); await carregarTodosPalpites(); }
                 }}>{l}</button>
-              ))
-          }
-        </div>
-
-        {tela === "admin" && (
-          <div style={s.card}>
-            <p style={{ margin: 0, fontSize: 14, color: "#555" }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
-          </div>
-        )}
-
-        {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
-
-        {tela === "resultados" && jogos.map(j => (
-          <div key={j.id} style={s.card}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: 1 }}>Grupo {j.grupo}</span>
-              <span style={{ fontSize: 11, color: "#aaa" }}>{formatData(j.data_hora)}</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontWeight: 500, flex: 1, display: "flex", alignItems: "center", gap: 6 }}><Flag time={j.time1} size={20} /> {j.time1}</span>
-              <ResultInput jogo={j} onSalvar={salvarResultado} />
-              <span style={{ fontWeight: 500, flex: 1, textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6 }}>{j.time2} <Flag time={j.time2} size={20} /></span>
-            </div>
-          </div>
-        ))}
-
-        {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
-        {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
+            ))
+        }
       </div>
+
+      {tela === "admin" && (
+        <div style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1rem 1.25rem", margin: "12px" }}>
+          <p style={{ margin: 0, fontSize: 14, color: "#888" }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+        </div>
+      )}
+
+      {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
+      {tela === "resultados" && <AdminResultados jogos={jogos} onSalvar={salvarResultado} />}
+      {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
+      {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
     </div>
   );
 }
@@ -390,56 +338,29 @@ function Carrossel({ slides, onFim }) {
   const slide = slides[atual];
   const isUltimo = atual === slides.length - 1;
   const isPrimeiro = atual === 0;
-
   return (
-    <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
-      {/* Visual do slide */}
+    <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
       <div style={{ background: "#0a0a1a", minHeight: 180, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        {/* Botão fechar */}
-        <button onClick={onFim} style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+        <button onClick={onFim} style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
         {slide.visual}
       </div>
-
-      {/* Texto */}
       <div style={{ padding: "1.25rem 1.5rem 0.75rem" }}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: DARK, marginBottom: 8, fontFamily: "Arial Black, sans-serif" }}>
-          {slide.titulo}
-        </div>
-        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>
-          {slide.texto}
-        </div>
+        <div style={{ fontSize: 18, fontWeight: 900, color: DARK, marginBottom: 8, fontFamily: "Arial Black, sans-serif" }}>{slide.titulo}</div>
+        <div style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>{slide.texto}</div>
       </div>
-
-      {/* Navegação */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1.5rem 1rem" }}>
-        {/* Voltar */}
-        <button
-          onClick={() => setAtual(atual - 1)}
-          disabled={isPrimeiro}
-          style={{ background: isPrimeiro ? "#eee" : "#f0f0f0", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: isPrimeiro ? "default" : "pointer", color: isPrimeiro ? "#ccc" : "#333", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          ←
-        </button>
-
-        {/* Dots */}
+        <button onClick={() => setAtual(atual - 1)} disabled={isPrimeiro} style={{ background: isPrimeiro ? "#f0f0f0" : "#f0f0f0", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: isPrimeiro ? "default" : "pointer", color: isPrimeiro ? "#ccc" : "#333", display: "flex", alignItems: "center", justifyContent: "center" }}>←</button>
         <div style={{ display: "flex", gap: 6 }}>
           {slides.map((_, i) => (
             <div key={i} onClick={() => setAtual(i)} style={{ width: i === atual ? 24 : 8, height: 8, borderRadius: 4, background: i === atual ? RED : "#ddd", cursor: "pointer", transition: "width 0.2s" }} />
           ))}
         </div>
-
-        {/* Avançar ou Começar */}
         {isUltimo ? (
-          <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "10px 16px", borderRadius: 8, fontSize: 12, fontWeight: 900, cursor: "pointer", fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>
-            Palpitar →
-          </button>
+          <button onClick={onFim} style={{ background: RED, color: "#fff", border: "none", padding: "10px 16px", borderRadius: 8, fontSize: 12, fontWeight: 900, cursor: "pointer", fontFamily: "Arial Black, sans-serif", textTransform: "uppercase" }}>Palpitar →</button>
         ) : (
-          <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            →
-          </button>
+          <button onClick={() => setAtual(atual + 1)} style={{ background: RED, color: "#fff", border: "none", width: 40, height: 40, borderRadius: "50%", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>→</button>
         )}
       </div>
-
-      {/* Pular */}
       {!isUltimo && (
         <div style={{ textAlign: "center", paddingBottom: 16 }}>
           <span onClick={onFim} style={{ color: "#aaa", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Pular introdução</span>
@@ -459,11 +380,11 @@ function RankingView({ ranking, myId }) {
   ];
   const ordem = [1, 0, 2];
   return (
-    <div>
-      {ranking.length === 0 && <p style={{ fontSize: 14, color: "#888", padding: "0 1rem" }}>Nenhum palpite ainda.</p>}
+    <div style={{ padding: "12px" }}>
+      {ranking.length === 0 && <p style={{ fontSize: 14, color: "#555" }}>Nenhum palpite ainda.</p>}
       {podio.length >= 1 && (
-        <div style={{ background: DARK, borderRadius: 16, margin: "0 1rem 1rem", padding: "1.5rem 1rem 0", overflow: "hidden" }}>
-          <div style={{ textAlign: "center", color: YELLOW, fontSize: 11, fontWeight: 700, letterSpacing: 3, marginBottom: "1.25rem" }}>PÓDIO</div>
+        <div style={{ background: CARD, borderRadius: 14, padding: "1.25rem 1rem 0", marginBottom: 12, overflow: "hidden", border: "0.5px solid " + BORDER }}>
+          <div style={{ textAlign: "center", color: YELLOW, fontSize: 9, fontWeight: 700, letterSpacing: 3, marginBottom: 12, textTransform: "uppercase" }}>Pódio</div>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 8 }}>
             {ordem.map(idx => {
               const c = podio[idx];
@@ -471,11 +392,11 @@ function RankingView({ ranking, myId }) {
               const conf = cfg[idx];
               return (
                 <div key={c.id} style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: "#aaa", marginBottom: 4 }}>{c.nome.split(" ")[0]}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: conf.cor, marginBottom: 2 }}>{c.pts}pts</div>
-                  <div style={{ background: conf.cor, borderRadius: "8px 8px 0 0", height: conf.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ fontSize: 24 }}>{conf.emoji}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: DARK, marginTop: 4 }}>{conf.pos}</div>
+                  <div style={{ fontSize: 11, color: "#555", marginBottom: 2, fontWeight: 500 }}>{c.nome.split(" ")[0]}</div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: conf.cor, marginBottom: 3 }}>{c.pts}pts</div>
+                  <div style={{ background: conf.cor, borderRadius: "6px 6px 0 0", height: conf.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
+                    <div style={{ fontSize: 22 }}>{conf.emoji}</div>
+                    <div style={{ fontSize: 10, fontWeight: 900, color: DARK }}>{conf.pos}</div>
                   </div>
                 </div>
               );
@@ -484,18 +405,19 @@ function RankingView({ ranking, myId }) {
         </div>
       )}
       {resto.length > 0 && (
-        <div style={{ margin: "0 1rem 1rem" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#aaa", letterSpacing: 2, padding: "0.75rem 0 0.5rem" }}>CLASSIFICAÇÃO GERAL</div>
+        <div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: "#555", letterSpacing: 2, padding: "4px 0 8px", textTransform: "uppercase" }}>Classificação geral</div>
           {resto.map((c, i) => (
-            <div key={c.id} style={{ background: "#fff", border: "1px solid " + (c.id === myId ? RED : "#e5e5e5"), borderWidth: c.id === myId ? 2 : 1, borderRadius: 10, padding: "0.75rem 1rem", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#aaa", minWidth: 28 }}>{i + 4}º</span>
+            <div key={c.id} style={{ background: c.id === myId ? "#1a0000" : CARD, border: "0.5px solid " + (c.id === myId ? RED : BORDER), borderRadius: 10, padding: "10px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#555", minWidth: 24 }}>{i + 4}º</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, fontSize: 14 }}>{c.nome}</div>
-                <div style={{ fontSize: 12, color: "#aaa" }}>{c.acertos} placar(es) exato(s)</div>
+                <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
+                <div style={{ fontSize: 11, color: "#555" }}>{c.acertos} placar(es) exato(s)</div>
               </div>
+              {c.id === myId && <span style={{ fontSize: 9, color: RED, fontWeight: 700, marginRight: 4 }}>VOCÊ</span>}
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>{c.pts}</div>
-                <div style={{ fontSize: 11, color: "#aaa" }}>pts</div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: "#fff" }}>{c.pts}</div>
+                <div style={{ fontSize: 10, color: "#555" }}>pts</div>
               </div>
             </div>
           ))}
@@ -530,22 +452,21 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
     return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
   }
   function formatHora(iso) {
-    const d = new Date(iso);
-    return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
   return (
-    <div>
-      <div style={{ display: "flex", gap: 8, padding: "0 1rem 1.25rem", flexWrap: "wrap" }}>
+    <div style={{ padding: "10px 0" }}>
+      <div style={{ display: "flex", gap: 6, padding: "0 12px 10px", flexWrap: "wrap" }}>
         {RODADAS.map(r => (
-          <button key={r.id} onClick={() => setRodada(r.id)} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "1px solid " + (rodada === r.id ? RED : "#ddd"), background: rodada === r.id ? RED : "#fff", color: rodada === r.id ? "#fff" : "#555", fontSize: 13, fontWeight: rodada === r.id ? 600 : 400 }}>{r.label}</button>
+          <button key={r.id} onClick={() => setRodada(r.id)} style={{ cursor: "pointer", padding: "4px 12px", borderRadius: 20, border: "0.5px solid " + (rodada === r.id ? RED : "#333"), background: rodada === r.id ? RED : "transparent", color: rodada === r.id ? "#fff" : "#888", fontSize: 12, fontWeight: rodada === r.id ? 700 : 400 }}>{r.label}</button>
         ))}
       </div>
       {Object.keys(grupos).sort().map(dia => (
         <div key={dia}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0.5rem 1rem 0.75rem" }}>
-            <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#555", textTransform: "capitalize", whiteSpace: "nowrap" }}>{formatDia(dia)}</span>
-            <div style={{ flex: 1, height: 1, background: "#e5e5e5" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 12px 10px" }}>
+            <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
+            <span style={{ fontSize: 10, color: "#555", fontWeight: 600, textTransform: "capitalize", whiteSpace: "nowrap" }}>{formatDia(dia)}</span>
+            <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
           </div>
           {grupos[dia].map(j => {
             const p = palpites.find(x => x.jogo_id === j.id);
@@ -553,32 +474,29 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
             const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
             const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
             return (
-              <div key={j.id} style={{ background: "#fff", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, marginLeft: "1rem", marginRight: "1rem", borderLeft: isBrasil ? "4px solid " + YELLOW : "1px solid #e5e5e5", borderTop: "1px solid #e5e5e5", borderRight: "1px solid #e5e5e5", borderBottom: "1px solid #e5e5e5" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#fff", background: DARK, borderRadius: 4, padding: "2px 7px", letterSpacing: 1 }}>GRP {j.grupo}</span>
-                    <span style={{ fontSize: 12, color: "#aaa" }}>{formatHora(j.data_hora)}</span>
-                  </div>
-                  {pts !== null && <span style={{ fontSize: 11, borderRadius: 6, padding: "2px 8px", background: pts === 3 ? "#fde8ec" : pts === 1 ? "#fff8cc" : "#f5f5f5", color: pts === 3 ? RED : pts === 1 ? "#7a5800" : "#888" }}>{pts === 3 ? "⭐ +3" : pts === 1 ? "✓ +1" : "✗ Errou"}</span>}
+              <div key={j.id} style={{ background: CARD, borderRadius: 12, padding: "10px 12px", marginBottom: 8, marginLeft: 12, marginRight: 12, borderLeft: isBrasil ? "3px solid " + YELLOW : "0.5px solid " + BORDER, borderTop: "0.5px solid " + BORDER, borderRight: "0.5px solid " + BORDER, borderBottom: "0.5px solid " + BORDER }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <div style={{ background: isBrasil ? "#1a1400" : "#1a1a1a", color: isBrasil ? YELLOW : "#666", fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4, letterSpacing: 1 }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
+                  {pts !== null && <span style={{ fontSize: 10, borderRadius: 6, padding: "2px 8px", background: pts === 3 ? "#1a0a00" : pts === 1 ? "#1a1500" : "#1a1a1a", color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#555" }}>{pts === 3 ? "⭐ +3" : pts === 1 ? "✓ +1" : "✗ Errou"}</span>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <Flag time={j.time1} size={48} />
-                    <div style={{ fontWeight: 600, fontSize: 13, marginTop: 6 }}>{j.time1}</div>
+                    <Flag time={j.time1} size={40} />
+                    <div style={{ fontWeight: 600, fontSize: 11, marginTop: 5, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff" }}>{j.time1}</div>
                   </div>
                   <div style={{ textAlign: "center", flex: "0 0 auto" }}>
                     {passou || j.encerrado ? (
                       <div>
-                        {j.encerrado ? <div style={{ fontSize: 24, fontWeight: 700, color: DARK, letterSpacing: 2 }}>{j.resultado_g1} — {j.resultado_g2}</div> : <div style={{ fontSize: 13, color: "#aaa" }}>Em andamento</div>}
-                        {p ? <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>Palpite: {p.g1}x{p.g2}</div> : <div style={{ fontSize: 12, color: "#ccc", marginTop: 4 }}>Sem palpite</div>}
+                        {j.encerrado ? <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: 2 }}>{j.resultado_g1} — {j.resultado_g2}</div> : <div style={{ fontSize: 12, color: "#555" }}>Em andamento</div>}
+                        {p ? <div style={{ fontSize: 11, color: "#555", marginTop: 4 }}>Palpite: {p.g1}×{p.g2}</div> : <div style={{ fontSize: 11, color: "#333", marginTop: 4 }}>Sem palpite</div>}
                       </div>
                     ) : (
-                      <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} />
+                      <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBrasil} />
                     )}
                   </div>
                   <div style={{ flex: 1, textAlign: "right" }}>
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={48} /></div>
-                    <div style={{ fontWeight: 600, fontSize: 13, marginTop: 6 }}>{j.time2}</div>
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={40} /></div>
+                    <div style={{ fontWeight: 600, fontSize: 11, marginTop: 5, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff" }}>{j.time2}</div>
                   </div>
                 </div>
               </div>
@@ -592,25 +510,50 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
 
 function AdminClientes({ clientes, onAdd, onToggle }) {
   const [doc, setDoc] = useState(""); const [nome, setNome] = useState(""); const [senha, setSenha] = useState("");
+  const inp = { width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#1a1a1a", color: "#fff" };
   return (
-    <div>
-      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, marginLeft: "1rem", marginRight: "1rem" }}>
-        <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>Novo cliente</div>
+    <div style={{ padding: "12px" }}>
+      <div style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1rem", marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "#fff", marginBottom: 12 }}>Novo cliente</div>
         <div style={{ display: "grid", gap: 8 }}>
-          <input style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 }} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e => setDoc(e.target.value)} />
-          <input style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 }} placeholder="Nome / Razão social" value={nome} onChange={e => setNome(e.target.value)} />
-          <input style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 14 }} placeholder="Senha inicial" value={senha} onChange={e => setSenha(e.target.value)} />
-          <button style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "8px 20px", fontSize: 14, background: RED, color: "#fff", fontWeight: 500 }} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
+          <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e => setDoc(e.target.value)} />
+          <input style={inp} placeholder="Nome / Razão social" value={nome} onChange={e => setNome(e.target.value)} />
+          <input style={inp} placeholder="Senha inicial" value={senha} onChange={e => setSenha(e.target.value)} />
+          <button style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "10px", fontSize: 13, background: RED, color: "#fff", fontWeight: 700 }} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
         </div>
       </div>
-      <div style={{ fontSize: 13, color: "#888", marginBottom: 8, padding: "0 1rem" }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
+      <div style={{ fontSize: 11, color: "#555", marginBottom: 8 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
       {clientes.filter(c => c.doc !== "admin").map(c => (
-        <div key={c.id} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12, marginLeft: "1rem", marginRight: "1rem", display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.5 }}>
+        <div key={c.id} style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 10, padding: "10px 14px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 500, fontSize: 14 }}>{c.nome}</div>
-            <div style={{ fontSize: 12, color: "#888" }}>{c.doc}</div>
+            <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
+            <div style={{ fontSize: 11, color: "#555" }}>{c.doc}</div>
           </div>
-          <button style={{ cursor: "pointer", border: "1px solid #ddd", borderRadius: 8, padding: "6px 14px", fontSize: 12, background: "transparent" }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
+          <button style={{ cursor: "pointer", border: "0.5px solid #333", borderRadius: 6, padding: "4px 10px", fontSize: 11, background: "transparent", color: "#888" }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminResultados({ jogos, onSalvar }) {
+  function formatData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" }) + " · " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+  return (
+    <div style={{ padding: "12px" }}>
+      {jogos.map(j => (
+        <div key={j.id} style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 10, color: "#555", textTransform: "uppercase", letterSpacing: 1 }}>Grupo {j.grupo}</span>
+            <span style={{ fontSize: 10, color: "#444" }}>{formatData(j.data_hora)}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontWeight: 500, flex: 1, display: "flex", alignItems: "center", gap: 6, color: "#fff", fontSize: 12 }}><Flag time={j.time1} size={18} />{j.time1}</span>
+            <ResultInput jogo={j} onSalvar={onSalvar} />
+            <span style={{ fontWeight: 500, flex: 1, textAlign: "right", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 6, color: "#fff", fontSize: 12 }}>{j.time2}<Flag time={j.time2} size={18} /></span>
+          </div>
         </div>
       ))}
     </div>
@@ -620,34 +563,37 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
 function ResultInput({ jogo, onSalvar }) {
   const [g1, setG1] = useState(jogo.resultado_g1 != null ? jogo.resultado_g1 : "");
   const [g2, setG2] = useState(jogo.resultado_g2 != null ? jogo.resultado_g2 : "");
+  const num = { width: 44, textAlign: "center", padding: "5px 2px", borderRadius: 6, border: "0.5px solid " + BORDER, fontSize: 16, fontWeight: 700, background: "#1a1a1a", color: "#fff" };
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <input style={{ width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 }} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
-        <span style={{ color: "#888" }}>x</span>
-        <input style={{ width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 }} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <input style={num} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
+        <span style={{ color: "#444" }}>×</span>
+        <input style={num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "4px 12px", fontSize: 12, background: RED, color: "#fff", fontWeight: 500 }} onClick={() => onSalvar(jogo.id, g1, g2)}>
+      <button style={{ cursor: "pointer", border: "none", borderRadius: 6, padding: "3px 10px", fontSize: 11, background: RED, color: "#fff", fontWeight: 700 }} onClick={() => onSalvar(jogo.id, g1, g2)}>
         {jogo.encerrado ? "Atualizar" : "Confirmar"}
       </button>
-      {jogo.encerrado && <span style={{ fontSize: 11, color: "#2d7a4f" }}>✓ {jogo.resultado_g1}x{jogo.resultado_g2}</span>}
+      {jogo.encerrado && <span style={{ fontSize: 10, color: "#2d7a4f" }}>✓ {jogo.resultado_g1}×{jogo.resultado_g2}</span>}
     </div>
   );
 }
 
-function PalpiteInput({ jogoId, palpiteAtual, onSalvar }) {
+function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
   const [g1, setG1] = useState(palpiteAtual ? palpiteAtual.g1 : "");
   const [g2, setG2] = useState(palpiteAtual ? palpiteAtual.g2 : "");
+  const borderColor = isBrasil ? YELLOW : BORDER;
+  const num = { width: 44, textAlign: "center", padding: "5px 2px", borderRadius: 6, border: "0.5px solid " + borderColor, fontSize: 16, fontWeight: 700, background: "#1a1a1a", color: "#fff" };
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <input style={{ width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 }} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
-        <span style={{ color: "#888" }}>x</span>
-        <input style={{ width: 52, textAlign: "center", padding: "6px 4px", borderRadius: 8, border: "1px solid #ddd", fontSize: 18, fontWeight: 500 }} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <input style={num} type="number" min={0} max={20} value={g1} onChange={e => setG1(e.target.value)} />
+        <span style={{ color: "#444" }}>×</span>
+        <input style={num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "4px 12px", fontSize: 12, background: palpiteAtual ? "#a00614" : RED, color: "#fff", fontWeight: 500 }}
+      <button style={{ cursor: "pointer", border: "none", borderRadius: 20, padding: "4px 12px", fontSize: 10, background: palpiteAtual ? "#a00614" : RED, color: "#fff", fontWeight: 700 }}
         onClick={() => onSalvar(jogoId, g1, g2)} disabled={g1 === "" || g2 === ""}>
-        {palpiteAtual ? "Atualizar" : "Salvar palpite"}
+        {palpiteAtual ? "Atualizar" : "Salvar"}
       </button>
     </div>
   );

@@ -14,8 +14,14 @@ const DARK = "#080808";
 const CARD = "#0F0F0F";
 const CARD_HOVER = "#161616";
 const BORDER = "#1F1F1F";
+const BORDER_BRIGHT = "#2a2a2a";
 const TEXT_DIM = "#666";
 const TEXT_MUTE = "#888";
+const SHADOW_SM = "0 2px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03)";
+const SHADOW_MD = "0 4px 24px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)";
+const SHADOW_LG = "0 8px 48px rgba(0,0,0,0.8), 0 2px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)";
+const GLOW_RED = "0 0 24px rgba(216,9,27,0.35), 0 0 64px rgba(216,9,27,0.12)";
+const GLOW_YELLOW = "0 0 24px rgba(255,209,1,0.35), 0 0 64px rgba(255,209,1,0.12)";
 const SUPA = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
 
 // Tipografia: títulos em Bebas/Oswald (similar ao Helvetica Now Black), corpo em Inter
@@ -64,49 +70,111 @@ function GlobalStyles() {
   return (
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap');
+      *, *::before, *::after { box-sizing: border-box; }
       * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-      .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
-      .slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-      .scale-in { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      body { background: ${DARK}; }
+
+      @keyframes fadeIn   { from { opacity: 0; transform: translateY(8px);  } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slideUp  { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes scaleIn  { from { opacity: 0; transform: scale(0.94);      } to { opacity: 1; transform: scale(1);    } }
+      @keyframes screenIn { from { opacity: 0; transform: translateY(12px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+      @keyframes shimmer  { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      @keyframes glowPulseRed    { 0%,100% { box-shadow: 0 0 12px rgba(216,9,27,0.2); } 50% { box-shadow: 0 0 28px rgba(216,9,27,0.5); } }
+      @keyframes glowPulseYellow { 0%,100% { box-shadow: 0 0 12px rgba(255,209,1,0.2); } 50% { box-shadow: 0 0 28px rgba(255,209,1,0.5); } }
+      @keyframes borderGlow { 0%,100% { border-color: rgba(216,9,27,0.4); } 50% { border-color: rgba(216,9,27,0.9); } }
+
+      .fade-in   { animation: fadeIn   0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .slide-up  { animation: slideUp  0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .scale-in  { animation: scaleIn  0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .screen-in { animation: screenIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
       .stagger > * { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
-      .stagger > *:nth-child(1) { animation-delay: 0.05s; }
-      .stagger > *:nth-child(2) { animation-delay: 0.1s; }
-      .stagger > *:nth-child(3) { animation-delay: 0.15s; }
-      .stagger > *:nth-child(4) { animation-delay: 0.2s; }
-      .stagger > *:nth-child(5) { animation-delay: 0.25s; }
-      .stagger > *:nth-child(6) { animation-delay: 0.3s; }
-      .stagger > *:nth-child(7) { animation-delay: 0.35s; }
-      .stagger > *:nth-child(n+8) { animation-delay: 0.4s; }
-      .card-hover { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-      .card-hover:hover { background: ${CARD_HOVER}; border-color: #2a2a2a; transform: translateY(-1px); }
-      .btn-press { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-      .btn-press:hover { filter: brightness(1.1); }
-      .btn-press:active { transform: scale(0.97); }
-      .pill { transition: all 0.2s ease; }
+      .stagger > *:nth-child(1)  { animation-delay: 0.04s; }
+      .stagger > *:nth-child(2)  { animation-delay: 0.09s; }
+      .stagger > *:nth-child(3)  { animation-delay: 0.14s; }
+      .stagger > *:nth-child(4)  { animation-delay: 0.19s; }
+      .stagger > *:nth-child(5)  { animation-delay: 0.24s; }
+      .stagger > *:nth-child(6)  { animation-delay: 0.29s; }
+      .stagger > *:nth-child(7)  { animation-delay: 0.34s; }
+      .stagger > *:nth-child(n+8){ animation-delay: 0.38s; }
+
+      .card-hover {
+        transition: transform 0.25s cubic-bezier(0.16,1,0.3,1),
+                    box-shadow 0.25s cubic-bezier(0.16,1,0.3,1),
+                    background 0.25s ease,
+                    border-color 0.25s ease;
+      }
+      .card-hover:hover {
+        background: ${CARD_HOVER} !important;
+        border-color: #2f2f2f !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+      }
+      .card-deep {
+        background: linear-gradient(160deg, #141414 0%, #0d0d0d 100%);
+        box-shadow: ${SHADOW_MD};
+      }
+      .card-brasil {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,209,1,0.15), inset 0 1px 0 rgba(255,255,255,0.04);
+      }
+      .card-brasil:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,209,1,0.35), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+      }
+
+      .btn-press { transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1); }
+      .btn-press:hover  { filter: brightness(1.12); transform: translateY(-1px); }
+      .btn-press:active { transform: scale(0.96) translateY(0); filter: brightness(0.95); }
+
+      .pill { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
       .pill:hover { background: ${CARD_HOVER}; }
-      .dot { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-      input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+      .dot { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease; }
+
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type="number"] { -moz-appearance: textfield; }
       input:focus, button:focus { outline: none; }
-      input { transition: border-color 0.2s ease; font-family: ${FONT_BODY}; }
-      input:focus { border-color: ${RED} !important; }
+      input {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        font-family: ${FONT_BODY};
+      }
+      input:focus {
+        border-color: ${RED} !important;
+        box-shadow: 0 0 0 3px rgba(216,9,27,0.12) !important;
+      }
       ::selection { background: ${RED}; color: white; }
+
+      .stat-card-pts  { background: linear-gradient(135deg, #1a0a05 0%, #0f0f0f 60%); box-shadow: ${SHADOW_MD}, inset 0 0 40px rgba(255,209,1,0.04); }
+      .stat-card-rank { background: linear-gradient(135deg, #0a0a1a 0%, #0f0f0f 60%); box-shadow: ${SHADOW_MD}; }
+
+      .nav-bar {
+        border-bottom: 1.5px solid transparent;
+        background: linear-gradient(${DARK}, ${DARK}) padding-box,
+                    linear-gradient(90deg, transparent 0%, ${RED} 40%, ${RED} 60%, transparent 100%) border-box;
+      }
+
+      .score-display {
+        background: linear-gradient(160deg, #1a1a1a, #111);
+        border-radius: 10px;
+        box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+        padding: 6px 10px;
+        min-width: 52px;
+        text-align: center;
+      }
     `}</style>
   );
 }
 
 function Banner() {
   return (
-    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110 }}>
-      <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0 }} />
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 100, width: "auto", objectFit: "contain" }} />
+    <div style={{ width: "100%", background: DARK, display: "flex", alignItems: "stretch", justifyContent: "space-between", minHeight: 110, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(216,9,27,0.06) 0%, transparent 70%)", pointerEvents: "none", zIndex: 1 }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg, transparent, rgba(216,9,27,0.4) 30%, rgba(216,9,27,0.4) 70%, transparent)", zIndex: 2 }} />
+      <img src={SUPA + "/listras%20esquerda.png"} alt="" style={{ height: 140, width: 80, objectFit: "contain", objectPosition: "left", display: "block", flexShrink: 0, position: "relative", zIndex: 3 }} />
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 3 }}>
+        <img src={SUPA + "/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{ height: 100, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 16px rgba(216,9,27,0.25))" }} />
       </div>
-      <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0 }} />
+      <img src={SUPA + "/listras%20direita.png"} alt="" style={{ height: 140, width: 80, objectFit: "cover", objectPosition: "top", display: "block", flexShrink: 0, position: "relative", zIndex: 3 }} />
     </div>
   );
 }
@@ -204,27 +272,28 @@ export default function App() {
     return (
       <>
         <GlobalStyles />
-        <div style={{ fontFamily: FONT_BODY, background: "#fff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ fontFamily: FONT_BODY, background: "#f7f7f7", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
           <div className="fade-in"><Banner /></div>
-          <div style={{ flex: 1, padding: "2rem 2rem 1rem", maxWidth: 480, width: "100%", margin: "0 auto", boxSizing: "border-box" }}>
-            <div className="slide-up" style={{ fontSize: 56, fontWeight: 400, color: "#1a1a1a", letterSpacing: 1, marginBottom: "2rem", fontFamily: FONT_DISPLAY, lineHeight: 1 }}>LOGIN</div>
+          <div style={{ flex: 1, padding: "2rem 2rem 1rem", maxWidth: 480, width: "100%", margin: "0 auto" }}>
+            <div className="slide-up" style={{ fontSize: 60, fontWeight: 400, color: DARK, letterSpacing: 1, marginBottom: "0.5rem", fontFamily: FONT_DISPLAY, lineHeight: 1 }}>LOGIN</div>
+            <div className="slide-up" style={{ fontSize: 13, color: "#999", marginBottom: "2rem", fontWeight: 400, animationDelay: "0.05s" }}>Acesse sua conta para fazer seus palpites</div>
             <div className="slide-up" style={{ marginBottom: "1.5rem", animationDelay: "0.1s" }}>
-              <div style={{ fontSize: 12, color: TEXT_MUTE, marginBottom: 8, fontWeight: 500, letterSpacing: 0.5, textTransform: "uppercase" }}>CNPJ ou CPF</div>
-              <input id="doc" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #1a1a1a", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", boxSizing: "border-box", color: "#1a1a1a", fontWeight: 500 }} />
+              <div style={{ fontSize: 11, color: "#888", marginBottom: 8, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase" }}>CNPJ ou CPF</div>
+              <input id="doc" style={{ width: "100%", border: "none", borderBottom: "2px solid #e0e0e0", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", color: DARK, fontWeight: 500 }} />
             </div>
             <div className="slide-up" style={{ marginBottom: "2.5rem", animationDelay: "0.15s" }}>
-              <div style={{ fontSize: 12, color: TEXT_MUTE, marginBottom: 8, fontWeight: 500, letterSpacing: 0.5, textTransform: "uppercase" }}>Senha</div>
-              <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "1.5px solid #1a1a1a", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", boxSizing: "border-box", color: "#1a1a1a", fontWeight: 500 }}
+              <div style={{ fontSize: 11, color: "#888", marginBottom: 8, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase" }}>Senha</div>
+              <input id="senha" type="password" style={{ width: "100%", border: "none", borderBottom: "2px solid #e0e0e0", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", color: DARK, fontWeight: 500 }}
                 onKeyDown={e => e.key === "Enter" && login(document.getElementById("doc").value, document.getElementById("senha").value)} />
             </div>
-            {loginErr && <p className="fade-in" style={{ color: RED, fontSize: 13, marginBottom: 16, fontWeight: 500 }}>{loginErr}</p>}
-            <button className="btn-press slide-up" style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "16px", fontSize: 14, fontWeight: 600, letterSpacing: 3, cursor: "pointer", opacity: loading ? 0.6 : 1, fontFamily: FONT_BODY, animationDelay: "0.2s" }}
+            {loginErr && <p className="fade-in" style={{ color: RED, fontSize: 13, marginBottom: 16, fontWeight: 600, background: "rgba(216,9,27,0.06)", padding: "10px 14px", borderRadius: 8, border: "0.5px solid rgba(216,9,27,0.2)" }}>{loginErr}</p>}
+            <button className="btn-press slide-up" style={{ width: "100%", background: DARK, color: "#fff", border: "none", padding: "17px", fontSize: 13, fontWeight: 700, letterSpacing: 3, cursor: "pointer", opacity: loading ? 0.6 : 1, fontFamily: FONT_BODY, borderRadius: 4, animationDelay: "0.2s", boxShadow: "0 4px 24px rgba(0,0,0,0.2)" }}
               onClick={() => login(document.getElementById("doc").value, document.getElementById("senha").value)} disabled={loading}>
-              {loading ? "ENTRANDO" : "ENTRAR"}
+              {loading ? "ENTRANDO..." : "ENTRAR"}
             </button>
           </div>
           <div className="fade-in" style={{ padding: "1.5rem 2rem 0.75rem", textAlign: "center", animationDelay: "0.3s" }}>
-            <div style={{ fontSize: 10, color: "#aaa", letterSpacing: 2, marginBottom: 16, fontWeight: 500, textTransform: "uppercase" }}>Parceiros</div>
+            <div style={{ fontSize: 10, color: "#bbb", letterSpacing: 2, marginBottom: 16, fontWeight: 600, textTransform: "uppercase" }}>Parceiros</div>
             <div style={{ marginBottom: "1.25rem" }}>
               <img src={SUPA + "/bel%20lube%20logo.png"} alt="Bel Lube" style={{ maxHeight: 50, objectFit: "contain" }} />
             </div>
@@ -233,8 +302,8 @@ export default function App() {
               <img src={SUPA + "/texaco%20logo.png"} alt="Texaco" style={{ maxHeight: 26, maxWidth: "50%", objectFit: "contain" }} />
             </div>
           </div>
-          <div style={{ textAlign: "center", padding: "0.75rem", fontSize: 9, color: "#ccc", letterSpacing: 1, fontWeight: 400 }}>
-            Desenvolvido por <span style={{ fontWeight: 600, color: "#999" }}>Gerth Consultoria</span>
+          <div style={{ textAlign: "center", padding: "0.75rem", fontSize: 9, color: "#bbb", letterSpacing: 1, fontWeight: 400 }}>
+            Desenvolvido por <span style={{ fontWeight: 700, color: "#888" }}>Gerth Consultoria</span>
           </div>
         </div>
       </>
@@ -299,30 +368,31 @@ export default function App() {
       <GlobalStyles />
       <div style={{ fontFamily: FONT_BODY, background: DARK, minHeight: "100vh", color: "#fff" }}>
         <Banner />
-        <div className="fade-in" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: "2px solid " + RED, background: DARK }}>
+        <div className="fade-in nav-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: DARK }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ color: RED, fontWeight: 400, fontSize: 18, letterSpacing: 2, fontFamily: FONT_DISPLAY }}>BET LUBE</div>
+            <div style={{ color: RED, fontWeight: 400, fontSize: 20, letterSpacing: 2.5, fontFamily: FONT_DISPLAY, textShadow: "0 0 20px rgba(216,9,27,0.5)" }}>BET LUBE</div>
             <div style={{ width: 1, height: 18, background: "#2a2a2a" }} />
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{isAdmin ? "Admin" : user.nome}</div>
               {!isAdmin && <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 2 }}>{formatDoc(user.doc)}</div>}
             </div>
           </div>
-          <button className="btn-press" style={{ cursor: "pointer", border: "0.5px solid #2a2a2a", borderRadius: 6, padding: "6px 14px", fontSize: 12, background: "transparent", color: TEXT_MUTE, fontWeight: 500 }} onClick={logout}>Sair</button>
+          <button className="btn-press" style={{ cursor: "pointer", border: "0.5px solid #2a2a2a", borderRadius: 6, padding: "6px 14px", fontSize: 12, background: "rgba(255,255,255,0.04)", color: TEXT_MUTE, fontWeight: 500 }} onClick={logout}>Sair</button>
         </div>
 
         {msg && (
-          <div className="fade-in" style={{ margin: "12px 14px 0", padding: "10px 14px", borderRadius: 8, background: msg.err ? "#1a0303" : "#031a0a", color: msg.err ? "#ff6b6b" : "#4ade80", fontSize: 13, border: "0.5px solid " + (msg.err ? "#3a0a0a" : "#0a3a1a"), fontWeight: 500 }}>
+          <div className="fade-in" style={{ margin: "12px 14px 0", padding: "11px 16px", borderRadius: 10, background: msg.err ? "#180202" : "#021408", color: msg.err ? "#ff6b6b" : "#4ade80", fontSize: 13, border: "0.5px solid " + (msg.err ? "rgba(216,9,27,0.35)" : "rgba(74,222,128,0.25)"), fontWeight: 600, boxShadow: msg.err ? "0 0 16px rgba(216,9,27,0.1)" : "0 0 16px rgba(74,222,128,0.08)" }}>
             {msg.text}
           </div>
         )}
 
         {!isAdmin && (
           <div className="stagger" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "14px 14px 0" }}>
-            {[["Seus pontos", meusPts, YELLOW], ["Posição", meuRank > 0 ? meuRank + "º" : "—", "#fff"]].map(([l, v, cor]) => (
-              <div key={l} className="card-hover" style={{ background: CARD, borderRadius: 12, padding: "14px 16px", border: "0.5px solid " + BORDER }}>
-                <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 6, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 600 }}>{l}</div>
-                <div style={{ fontSize: 32, fontWeight: 400, color: cor, lineHeight: 1, fontFamily: FONT_DISPLAY, letterSpacing: 1 }}>{v}</div>
+            {[["Seus pontos", meusPts, YELLOW, "stat-card-pts"], ["Posição", meuRank > 0 ? meuRank + "º" : "—", "#fff", "stat-card-rank"]].map(([l, v, cor, cls]) => (
+              <div key={l} className={"card-hover " + cls} style={{ borderRadius: 14, padding: "16px 18px", border: "0.5px solid " + BORDER_BRIGHT, position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: cor === YELLOW ? `linear-gradient(90deg, transparent, ${YELLOW}, transparent)` : `linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)`, opacity: 0.6 }} />
+                <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 8, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 600 }}>{l}</div>
+                <div style={{ fontSize: 36, fontWeight: 400, color: cor, lineHeight: 1, fontFamily: FONT_DISPLAY, letterSpacing: 1, textShadow: cor === YELLOW ? "0 0 20px rgba(255,209,1,0.4)" : "none" }}>{v}</div>
               </div>
             ))}
           </div>
@@ -350,15 +420,15 @@ export default function App() {
         </div>
 
         {tela === "admin" && (
-          <div className="fade-in" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1.25rem", margin: "14px" }}>
-            <p style={{ margin: 0, fontSize: 14, color: TEXT_MUTE, lineHeight: 1.6 }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+          <div className="screen-in card-deep" style={{ border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 14, padding: "1.5rem", margin: "14px" }}>
+            <p style={{ margin: 0, fontSize: 14, color: TEXT_MUTE, lineHeight: 1.7 }}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
           </div>
         )}
 
-        {tela === "clientes" && <AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} />}
-        {tela === "resultados" && <AdminResultados jogos={jogos} onSalvar={salvarResultado} />}
-        {tela === "ranking" && <RankingView ranking={ranking} myId={user.id} />}
-        {tela === "jogos" && <ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} />}
+        {tela === "clientes" && <div className="screen-in"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} /></div>}
+        {tela === "resultados" && <div className="screen-in"><AdminResultados jogos={jogos} onSalvar={salvarResultado} /></div>}
+        {tela === "ranking" && <div className="screen-in"><RankingView ranking={ranking} myId={user.id} /></div>}
+        {tela === "jogos" && <div className="screen-in"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} /></div>}
 
         {/* Rodapé minimalista */}
         <div style={{ padding: "2rem 1rem 1.5rem", textAlign: "center" }}>
@@ -440,7 +510,7 @@ function Carrossel({ slides, onFim }) {
   const isUltimo = atual === slides.length - 1;
   const isPrimeiro = atual === 0;
   return (
-    <div className="scale-in" style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 460, overflow: "hidden", boxShadow: "0 30px 80px rgba(0,0,0,0.7)" }}>
+    <div className="scale-in" style={{ background: "#fff", borderRadius: 22, width: "100%", maxWidth: 460, overflow: "hidden", boxShadow: "0 40px 100px rgba(0,0,0,0.85), 0 0 0 0.5px rgba(255,255,255,0.08)" }}>
       <div style={{ background: "#0a0a14", minHeight: 200, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
         <button className="btn-press" onClick={onFim} style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>×</button>
         <div key={atual} className="fade-in">{slide.visual}</div>
@@ -484,7 +554,7 @@ function RankingView({ ranking, myId }) {
     <div style={{ padding: "14px" }}>
       {ranking.length === 0 && <p style={{ fontSize: 14, color: TEXT_DIM, padding: "1rem" }}>Nenhum palpite ainda.</p>}
       {podio.length >= 1 && (
-        <div className="scale-in" style={{ background: CARD, borderRadius: 14, padding: "1.5rem 1rem 0", marginBottom: 16, overflow: "hidden", border: "0.5px solid " + BORDER }}>
+        <div className="scale-in card-deep" style={{ borderRadius: 16, padding: "1.5rem 1rem 0", marginBottom: 16, overflow: "hidden", border: "0.5px solid " + BORDER_BRIGHT, boxShadow: `${SHADOW_LG}, inset 0 0 60px rgba(255,209,1,0.03)` }}>
           <div style={{ textAlign: "center", color: YELLOW, fontSize: 11, fontWeight: 600, letterSpacing: 4, marginBottom: 16, textTransform: "uppercase" }}>Pódio</div>
           <div className="stagger" style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 10 }}>
             {ordem.map((idx, i) => {
@@ -508,7 +578,7 @@ function RankingView({ ranking, myId }) {
         <div className="stagger">
           <div style={{ fontSize: 10, fontWeight: 600, color: TEXT_DIM, letterSpacing: 2, padding: "0.5rem 0 0.75rem", textTransform: "uppercase" }}>Classificação geral</div>
           {resto.map((c, i) => (
-            <div key={c.id} className="card-hover" style={{ background: c.id === myId ? "#1a0303" : CARD, border: "0.5px solid " + (c.id === myId ? RED : BORDER), borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 14 }}>
+            <div key={c.id} className="card-hover" style={{ background: c.id === myId ? "linear-gradient(135deg, #1a0303 0%, #0f0f0f 100%)" : "linear-gradient(160deg, #141414, #0d0d0d)", border: "0.5px solid " + (c.id === myId ? "rgba(216,9,27,0.5)" : BORDER_BRIGHT), borderRadius: 12, padding: "13px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 14, boxShadow: c.id === myId ? `${SHADOW_MD}, 0 0 16px rgba(216,9,27,0.15)` : SHADOW_SM }}>
               <span style={{ fontSize: 16, fontWeight: 400, color: TEXT_DIM, minWidth: 28, fontFamily: FONT_DISPLAY }}>{i + 4}º</span>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 500, fontSize: 14, color: "#fff" }}>{c.nome}</div>
@@ -575,29 +645,39 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
             const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
             const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
             return (
-              <div key={j.id} className="card-hover" style={{ background: CARD, borderRadius: 12, padding: "12px 14px", marginBottom: 10, marginLeft: 14, marginRight: 14, borderLeft: isBrasil ? "3px solid " + YELLOW : "0.5px solid " + BORDER, borderTop: "0.5px solid " + BORDER, borderRight: "0.5px solid " + BORDER, borderBottom: "0.5px solid " + BORDER }}>
+              <div key={j.id} className={"card-hover " + (isBrasil ? "card-brasil" : "card-deep")} style={{ borderRadius: 14, padding: "14px 14px", marginBottom: 10, marginLeft: 14, marginRight: 14, position: "relative", overflow: "hidden", border: isBrasil ? "1px solid rgba(255,209,1,0.18)" : "0.5px solid " + BORDER_BRIGHT }}>
+                {isBrasil && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${YELLOW}, transparent)`, opacity: 0.7 }} />}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div style={{ background: isBrasil ? "rgba(255,209,1,0.1)" : "#181818", color: isBrasil ? YELLOW : TEXT_DIM, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 4, letterSpacing: 1 }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
-                  {pts !== null && <span style={{ fontSize: 10, borderRadius: 6, padding: "3px 10px", background: pts === 3 ? "rgba(255,209,1,0.15)" : pts === 1 ? "rgba(255,255,255,0.08)" : "rgba(216,9,27,0.1)", color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#888", fontWeight: 600, letterSpacing: 0.5 }}>{pts === 3 ? "+3 EXATO" : pts === 1 ? "+1 VENCEDOR" : "ERROU"}</span>}
+                  <div style={{ background: isBrasil ? "rgba(255,209,1,0.1)" : "rgba(255,255,255,0.05)", color: isBrasil ? YELLOW : TEXT_DIM, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 5, letterSpacing: 1, border: isBrasil ? "0.5px solid rgba(255,209,1,0.2)" : "0.5px solid rgba(255,255,255,0.07)" }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
+                  {pts !== null && (
+                    <span style={{ fontSize: 10, borderRadius: 6, padding: "3px 10px", fontWeight: 700, letterSpacing: 0.5,
+                      background: pts === 3 ? "rgba(255,209,1,0.15)" : pts === 1 ? "rgba(255,255,255,0.08)" : "rgba(216,9,27,0.1)",
+                      color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#555",
+                      border: pts === 3 ? "0.5px solid rgba(255,209,1,0.3)" : pts === 1 ? "0.5px solid rgba(255,255,255,0.15)" : "0.5px solid rgba(216,9,27,0.2)",
+                      boxShadow: pts === 3 ? "0 0 8px rgba(255,209,1,0.2)" : "none"
+                    }}>{pts === 3 ? "+3 EXATO" : pts === 1 ? "+1 VENCEDOR" : "ERROU"}</span>
+                  )}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ flex: 1, textAlign: "left" }}>
-                    <Flag time={j.time1} size={42} />
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 6, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3 }}>{j.time1}</div>
+                    <Flag time={j.time1} size={44} />
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time1 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time1}</div>
                   </div>
                   <div style={{ textAlign: "center", flex: "0 0 auto" }}>
                     {passou || j.encerrado ? (
                       <div>
-                        {j.encerrado ? <div style={{ fontSize: 26, fontWeight: 400, color: "#fff", letterSpacing: 3, fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{j.resultado_g1} : {j.resultado_g2}</div> : <div style={{ fontSize: 11, color: TEXT_DIM, fontStyle: "italic" }}>Em andamento</div>}
-                        {p ? <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 5, letterSpacing: 0.5 }}>Palpite {p.g1}—{p.g2}</div> : <div style={{ fontSize: 11, color: "#333", marginTop: 5 }}>Sem palpite</div>}
+                        {j.encerrado
+                          ? <div className="score-display" style={{ fontSize: 28, fontWeight: 400, color: "#fff", letterSpacing: 4, fontFamily: FONT_DISPLAY, lineHeight: 1, display: "inline-block" }}>{j.resultado_g1} : {j.resultado_g2}</div>
+                          : <div style={{ fontSize: 11, color: TEXT_DIM, fontStyle: "italic" }}>Em andamento</div>}
+                        {p ? <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6, letterSpacing: 0.5 }}>Palpite {p.g1}—{p.g2}</div> : <div style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>Sem palpite</div>}
                       </div>
                     ) : (
                       <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBrasil} />
                     )}
                   </div>
                   <div style={{ flex: 1, textAlign: "right" }}>
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={42} /></div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 6, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3 }}>{j.time2}</div>
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={44} /></div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time2 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time2}</div>
                   </div>
                 </div>
               </div>
@@ -615,7 +695,8 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
   const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#161616", color: "#fff" };
   return (
     <div style={{ padding: "14px" }}>
-      <div className="scale-in" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "1.25rem", marginBottom: 14 }}>
+      <div className="scale-in card-deep" style={{ border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 14, padding: "1.25rem", marginBottom: 14, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${RED}, transparent)`, opacity: 0.5 }} />
         <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 14 }}>Novo cliente</div>
         <div style={{ display: "grid", gap: 10 }}>
           <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e => setDoc(e.target.value)} />
@@ -627,7 +708,7 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
       <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
       <div className="stagger">
       {clientes.filter(c => c.doc !== "admin").map(c => (
-        <div key={c.id} className="card-hover" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 10, padding: "12px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4 }}>
+        <div key={c.id} className="card-hover" style={{ background: "linear-gradient(160deg,#141414,#0d0d0d)", border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 12, padding: "13px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4, boxShadow: SHADOW_SM }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
             <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.doc}</div>
@@ -648,7 +729,7 @@ function AdminResultados({ jogos, onSalvar }) {
   return (
     <div className="stagger" style={{ padding: "14px" }}>
       {jogos.map(j => (
-        <div key={j.id} className="card-hover" style={{ background: CARD, border: "0.5px solid " + BORDER, borderRadius: 12, padding: "12px 14px", marginBottom: 8 }}>
+        <div key={j.id} className="card-hover card-deep" style={{ border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 14, padding: "13px 14px", marginBottom: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <span style={{ fontSize: 10, color: TEXT_DIM, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Grupo {j.grupo}</span>
             <span style={{ fontSize: 10, color: TEXT_DIM }}>{formatData(j.data_hora)}</span>
@@ -686,8 +767,8 @@ function ResultInput({ jogo, onSalvar }) {
 function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
   const [g1, setG1] = useState(palpiteAtual ? palpiteAtual.g1 : "");
   const [g2, setG2] = useState(palpiteAtual ? palpiteAtual.g2 : "");
-  const borderColor = isBrasil ? YELLOW : BORDER;
-  const num = { width: 46, textAlign: "center", padding: "7px 2px", borderRadius: 6, border: "0.5px solid " + borderColor, fontSize: 18, fontWeight: 400, background: "#161616", color: "#fff", fontFamily: FONT_DISPLAY };
+  const borderColor = isBrasil ? "rgba(255,209,1,0.4)" : "#2a2a2a";
+  const num = { width: 48, textAlign: "center", padding: "8px 2px", borderRadius: 8, border: "1px solid " + borderColor, fontSize: 20, fontWeight: 400, background: "linear-gradient(160deg,#1a1a1a,#111)", color: "#fff", fontFamily: FONT_DISPLAY, boxShadow: "inset 0 2px 6px rgba(0,0,0,0.5)" };
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -695,7 +776,7 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
         <span style={{ color: "#333", fontSize: 14 }}>×</span>
         <input style={num} type="number" min={0} max={20} value={g2} onChange={e => setG2(e.target.value)} />
       </div>
-      <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 20, padding: "5px 14px", fontSize: 10, background: palpiteAtual ? "#7a0410" : RED, color: "#fff", fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" }}
+      <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 20, padding: "6px 16px", fontSize: 10, background: palpiteAtual ? "#5a020e" : RED, color: "#fff", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", boxShadow: g1 !== "" && g2 !== "" ? "0 2px 12px rgba(216,9,27,0.35)" : "none", opacity: g1 === "" || g2 === "" ? 0.5 : 1 }}
         onClick={() => onSalvar(jogoId, g1, g2)} disabled={g1 === "" || g2 === ""}>
         {palpiteAtual ? "Atualizar" : "Salvar"}
       </button>

@@ -104,12 +104,6 @@ function GlobalStyles() {
                     background 0.25s ease,
                     border-color 0.25s ease;
       }
-      .card-hover:hover {
-        background: ${CARD_HOVER} !important;
-        border-color: #2f2f2f !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important;
-      }
       .card-deep {
         background: linear-gradient(160deg, #141414 0%, #0d0d0d 100%);
         box-shadow: ${SHADOW_MD};
@@ -122,11 +116,9 @@ function GlobalStyles() {
       }
 
       .btn-press { transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1); }
-      .btn-press:hover  { filter: brightness(1.12); transform: translateY(-1px); }
-      .btn-press:active { transform: scale(0.96) translateY(0); filter: brightness(0.95); }
+      .btn-press:active { transform: scale(0.97); filter: brightness(0.95); }
 
       .pill { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-      .pill:hover { background: ${CARD_HOVER}; }
 
       .dot { transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease; }
 
@@ -161,6 +153,13 @@ function GlobalStyles() {
         min-width: 52px;
         text-align: center;
       }
+      .cal-scroll { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .cal-scroll::-webkit-scrollbar { display: none; }
+      @media (hover: hover) and (pointer: fine) {
+        .card-hover:hover { background: ${CARD_HOVER} !important; border-color: #2f2f2f !important; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important; }
+        .btn-press:hover { filter: brightness(1.12); transform: translateY(-1px); }
+        .pill:hover { background: ${CARD_HOVER}; }
+      }
     `}</style>
   );
 }
@@ -188,13 +187,16 @@ export default function App() {
   const [palpites, setPalpites] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [msg, setMsg] = useState("");
+  const [competicao, setCompeticao] = useState("cliente");
 
   const isAdmin = user && user.doc === "admin";
 
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
     const docLimpo = doc.replace(/\D/g, "") || doc;
-    const { data, error } = await supabase.from("clientes").select("*").eq("doc", docLimpo).eq("senha", senha).eq("ativo", true).limit(1);
+    let q = supabase.from("clientes").select("*").eq("doc", docLimpo).eq("senha", senha).eq("ativo", true);
+    if (docLimpo !== "admin") q = q.eq("tipo", competicao);
+    const { data, error } = await q.limit(1);
     if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
     const u = data[0];
     setUser(u);
@@ -241,8 +243,8 @@ export default function App() {
     flash("Resultado salvo");
   }
 
-  async function addCliente(doc, nome, senha) {
-    const { error } = await supabase.from("clientes").insert({ doc: doc.replace(/\D/g, ""), nome, senha, ativo: true });
+  async function addCliente(doc, nome, senha, tipo) {
+    const { error } = await supabase.from("clientes").insert({ doc: doc.replace(/\D/g, ""), nome, senha, ativo: true, tipo: tipo || "cliente" });
     if (error) { flash("Erro: CPF/CNPJ já cadastrado", true); return; }
     await carregarClientes();
     flash("Cliente adicionado");
@@ -272,11 +274,18 @@ export default function App() {
     return (
       <>
         <GlobalStyles />
-        <div style={{ fontFamily: FONT_BODY, background: "#f7f7f7", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ fontFamily: FONT_BODY, background: "#f7f7f7", minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
           <div className="fade-in"><Banner /></div>
           <div style={{ flex: 1, padding: "2rem 2rem 1rem", maxWidth: 480, width: "100%", margin: "0 auto" }}>
             <div className="slide-up" style={{ fontSize: 60, fontWeight: 400, color: DARK, letterSpacing: 1, marginBottom: "0.5rem", fontFamily: FONT_DISPLAY, lineHeight: 1 }}>LOGIN</div>
-            <div className="slide-up" style={{ fontSize: 13, color: "#999", marginBottom: "2rem", fontWeight: 400, animationDelay: "0.05s" }}>Acesse sua conta para fazer seus palpites</div>
+            <div className="slide-up" style={{ fontSize: 13, color: "#999", marginBottom: "1.5rem", fontWeight: 400, animationDelay: "0.05s" }}>Selecione sua competição para entrar</div>
+
+            <div className="slide-up" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: "1.75rem", animationDelay: "0.08s" }}>
+              {[["cliente", "COMPETIÇÃO\nCLIENTES"], ["funcionario", "COMPETIÇÃO\nFUNCIONÁRIOS"]].map(([val, label]) => (
+                <button key={val} className="btn-press" onClick={() => setCompeticao(val)} style={{ cursor: "pointer", padding: "16px 12px", borderRadius: 10, border: competicao === val ? `2px solid ${RED}` : "2px solid #e0e0e0", background: competicao === val ? RED : "transparent", color: competicao === val ? "#fff" : "#888", fontWeight: 700, fontSize: 10, letterSpacing: 1.5, fontFamily: FONT_BODY, textTransform: "uppercase", whiteSpace: "pre-line", lineHeight: 1.5, textAlign: "center", boxShadow: competicao === val ? "0 4px 16px rgba(216,9,27,0.25)" : "none" }}>{label}</button>
+              ))}
+            </div>
+
             <div className="slide-up" style={{ marginBottom: "1.5rem", animationDelay: "0.1s" }}>
               <div style={{ fontSize: 11, color: "#888", marginBottom: 8, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase" }}>CNPJ ou CPF</div>
               <input id="doc" style={{ width: "100%", border: "none", borderBottom: "2px solid #e0e0e0", outline: "none", fontSize: 16, padding: "10px 0", background: "transparent", color: DARK, fontWeight: 500 }} />
@@ -427,7 +436,7 @@ export default function App() {
 
         {tela === "clientes" && <div className="screen-in"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} /></div>}
         {tela === "resultados" && <div className="screen-in"><AdminResultados jogos={jogos} onSalvar={salvarResultado} /></div>}
-        {tela === "ranking" && <div className="screen-in"><RankingView ranking={ranking} myId={user.id} /></div>}
+        {tela === "ranking" && <div className="screen-in"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user ? user.tipo : null} /></div>}
         {tela === "jogos" && <div className="screen-in"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} /></div>}
 
         {/* Rodapé minimalista */}
@@ -541,32 +550,50 @@ function Carrossel({ slides, onFim }) {
   );
 }
 
-function RankingView({ ranking, myId }) {
-  const podio = ranking.slice(0, 3);
-  const resto = ranking.slice(3);
-  const cfg = [
-    { cor: YELLOW, altura: 110, pos: "1º" },
-    { cor: "#C0C0C0", altura: 80, pos: "2º" },
-    { cor: "#CD7F32", altura: 70, pos: "3º" },
-  ];
+function RankingView({ ranking, myId, isAdmin, userTipo }) {
+  const tipoInicial = isAdmin ? "cliente" : (userTipo || "cliente");
+  const [aba, setAba] = useState(tipoInicial);
+
+  const rankFiltrado = ranking.filter(c => c.tipo === aba);
+  const podio = rankFiltrado.slice(0, 3);
+  const resto = rankFiltrado.slice(3);
   const ordem = [1, 0, 2];
+
+  const MEDAL = [
+    { cor: "#FFD700", grad: "linear-gradient(145deg,#FFD700 0%,#B8860B 55%,#FFD700 100%)", glow: "0 4px 24px rgba(255,215,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3)", border: "rgba(255,215,0,0.6)", altura: 110, pos: "1" },
+    { cor: "#C0C0C0", grad: "linear-gradient(145deg,#C0C0C0 0%,#707070 55%,#C0C0C0 100%)", glow: "0 4px 24px rgba(192,192,192,0.3), inset 0 1px 0 rgba(255,255,255,0.25)", border: "rgba(192,192,192,0.5)", altura: 82, pos: "2" },
+    { cor: "#CD7F32", grad: "linear-gradient(145deg,#CD7F32 0%,#7B4420 55%,#CD7F32 100%)", glow: "0 4px 24px rgba(205,127,50,0.3), inset 0 1px 0 rgba(255,255,255,0.2)", border: "rgba(205,127,50,0.5)", altura: 65, pos: "3" },
+  ];
+
   return (
     <div style={{ padding: "14px" }}>
-      {ranking.length === 0 && <p style={{ fontSize: 14, color: TEXT_DIM, padding: "1rem" }}>Nenhum palpite ainda.</p>}
+      {isAdmin && (
+        <div className="fade-in" style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+          {[["cliente", "Clientes"], ["funcionario", "Funcionários"]].map(([val, label]) => (
+            <button key={val} className="pill btn-press" onClick={() => setAba(val)} style={{ cursor: "pointer", padding: "6px 16px", borderRadius: 20, border: "0.5px solid " + (aba === val ? RED : "#2a2a2a"), background: aba === val ? RED : "transparent", color: aba === val ? "#fff" : TEXT_MUTE, fontSize: 12, fontWeight: aba === val ? 600 : 500 }}>{label}</button>
+          ))}
+        </div>
+      )}
+
+      {rankFiltrado.length === 0 && <p style={{ fontSize: 14, color: TEXT_DIM, padding: "1rem" }}>Nenhum palpite ainda.</p>}
+
       {podio.length >= 1 && (
-        <div className="scale-in card-deep" style={{ borderRadius: 16, padding: "1.5rem 1rem 0", marginBottom: 16, overflow: "hidden", border: "0.5px solid " + BORDER_BRIGHT, boxShadow: `${SHADOW_LG}, inset 0 0 60px rgba(255,209,1,0.03)` }}>
-          <div style={{ textAlign: "center", color: YELLOW, fontSize: 11, fontWeight: 600, letterSpacing: 4, marginBottom: 16, textTransform: "uppercase" }}>Pódio</div>
+        <div className="scale-in" style={{ borderRadius: 18, padding: "1.5rem 1rem 0", marginBottom: 20, overflow: "hidden", position: "relative", background: "linear-gradient(160deg, #141414 0%, #0d0d0d 100%)", border: "0.5px solid #2a2a2a", boxShadow: `${SHADOW_LG}, inset 0 0 80px rgba(255,215,0,0.02)` }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent)" }} />
+          <div style={{ textAlign: "center", color: "#FFD700", fontSize: 10, fontWeight: 700, letterSpacing: 4, marginBottom: 20, textTransform: "uppercase", opacity: 0.75 }}>Pódio</div>
           <div className="stagger" style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 10 }}>
-            {ordem.map((idx, i) => {
+            {ordem.map((idx) => {
               const c = podio[idx];
               if (!c) return <div key={idx} style={{ flex: 1 }} />;
-              const conf = cfg[idx];
+              const m = MEDAL[idx];
+              const isMe = c.id === myId;
               return (
                 <div key={c.id} style={{ flex: 1, textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 4, fontWeight: 500 }}>{c.nome.split(" ")[0]}</div>
-                  <div style={{ fontSize: 18, fontWeight: 400, color: conf.cor, marginBottom: 6, fontFamily: FONT_DISPLAY, letterSpacing: 0.5 }}>{c.pts}<span style={{ fontSize: 10, opacity: 0.7 }}>PTS</span></div>
-                  <div style={{ background: conf.cor, borderRadius: "8px 8px 0 0", height: conf.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                    <div style={{ fontSize: 26, fontWeight: 400, color: DARK, fontFamily: FONT_DISPLAY }}>{conf.pos}</div>
+                  <div style={{ fontSize: 10, color: isMe ? RED : TEXT_DIM, marginBottom: 3, fontWeight: isMe ? 700 : 400, letterSpacing: isMe ? 1.5 : 0.5, textTransform: "uppercase" }}>{isMe ? "Você" : c.nome.split(" ")[0]}</div>
+                  <div style={{ fontSize: 20, fontWeight: 400, color: m.cor, marginBottom: 8, fontFamily: FONT_DISPLAY, letterSpacing: 0.5, textShadow: `0 0 16px ${m.cor}60` }}>{c.pts}<span style={{ fontSize: 9, opacity: 0.65, marginLeft: 1 }}>pts</span></div>
+                  <div style={{ background: m.grad, borderRadius: "10px 10px 0 0", height: m.altura, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: m.glow, border: `1px solid ${m.border}`, borderBottom: "none" }}>
+                    <div style={{ fontSize: 34, fontWeight: 400, color: "#111", fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{m.pos}</div>
+                    <div style={{ fontSize: 7, fontWeight: 800, color: "rgba(0,0,0,0.5)", letterSpacing: 1.5, marginTop: 3 }}>LUGAR</div>
                   </div>
                 </div>
               );
@@ -574,23 +601,29 @@ function RankingView({ ranking, myId }) {
           </div>
         </div>
       )}
+
       {resto.length > 0 && (
-        <div className="stagger">
-          <div style={{ fontSize: 10, fontWeight: 600, color: TEXT_DIM, letterSpacing: 2, padding: "0.5rem 0 0.75rem", textTransform: "uppercase" }}>Classificação geral</div>
-          {resto.map((c, i) => (
-            <div key={c.id} className="card-hover" style={{ background: c.id === myId ? "linear-gradient(135deg, #1a0303 0%, #0f0f0f 100%)" : "linear-gradient(160deg, #141414, #0d0d0d)", border: "0.5px solid " + (c.id === myId ? "rgba(216,9,27,0.5)" : BORDER_BRIGHT), borderRadius: 12, padding: "13px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 14, boxShadow: c.id === myId ? `${SHADOW_MD}, 0 0 16px rgba(216,9,27,0.15)` : SHADOW_SM }}>
-              <span style={{ fontSize: 16, fontWeight: 400, color: TEXT_DIM, minWidth: 28, fontFamily: FONT_DISPLAY }}>{i + 4}º</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, fontSize: 14, color: "#fff" }}>{c.nome}</div>
-                <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.acertos} placar(es) exato(s)</div>
-              </div>
-              {c.id === myId && <span style={{ fontSize: 9, color: RED, fontWeight: 700, letterSpacing: 1 }}>VOCÊ</span>}
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 400, fontSize: 22, color: "#fff", fontFamily: FONT_DISPLAY, letterSpacing: 0.5 }}>{c.pts}</div>
-                <div style={{ fontSize: 9, color: TEXT_DIM, letterSpacing: 1, textTransform: "uppercase" }}>pts</div>
-              </div>
-            </div>
-          ))}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: TEXT_DIM, letterSpacing: 2, padding: "0.25rem 0 0.75rem", textTransform: "uppercase" }}>Classificação geral</div>
+          <div className="stagger">
+            {resto.map((c, i) => {
+              const isMe = c.id === myId;
+              return (
+                <div key={c.id} className="card-hover" style={{ background: isMe ? "linear-gradient(135deg, #1a0303 0%, #0f0f0f 100%)" : "linear-gradient(160deg, #141414, #0d0d0d)", border: "0.5px solid " + (isMe ? "rgba(216,9,27,0.55)" : BORDER_BRIGHT), borderRadius: 12, padding: "13px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 14, boxShadow: isMe ? `${SHADOW_MD}, 0 0 20px rgba(216,9,27,0.12)` : SHADOW_SM }}>
+                  <span style={{ fontSize: 16, fontWeight: 400, color: TEXT_DIM, minWidth: 30, fontFamily: FONT_DISPLAY }}>{i + 4}º</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 500, fontSize: 14, color: "#fff" }}>{c.nome}</div>
+                    <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.acertos} placar(es) exato(s)</div>
+                  </div>
+                  {isMe && <span style={{ fontSize: 9, color: RED, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" }}>Você</span>}
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: 400, fontSize: 22, color: "#fff", fontFamily: FONT_DISPLAY, letterSpacing: 0.5 }}>{c.pts}</div>
+                    <div style={{ fontSize: 9, color: TEXT_DIM, letterSpacing: 1, textTransform: "uppercase" }}>pts</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -599,24 +632,45 @@ function RankingView({ ranking, myId }) {
 
 function ListaJogos({ jogos, palpites, onSalvar }) {
   const [rodada, setRodada] = useState("todas");
+  const [diaSel, setDiaSel] = useState(null);
+
   const RODADAS = [
     { id: "todas", label: "Todos" },
     { id: "1", label: "1ª Rodada", inicio: "2026-06-11", fim: "2026-06-17" },
     { id: "2", label: "2ª Rodada", inicio: "2026-06-18", fim: "2026-06-23" },
     { id: "3", label: "3ª Rodada", inicio: "2026-06-24", fim: "2026-06-28" },
   ];
+
   const filtrados = jogos.filter(j => {
     if (rodada === "todas") return true;
     const r = RODADAS.find(x => x.id === rodada);
     const d = j.data_hora.slice(0, 10);
     return d >= r.inicio && d <= r.fim;
   });
+
   const grupos = {};
   filtrados.forEach(j => {
     const dia = j.data_hora.slice(0, 10);
     if (!grupos[dia]) grupos[dia] = [];
     grupos[dia].push(j);
   });
+  const dias = Object.keys(grupos).sort();
+
+  useEffect(() => {
+    if (dias.length === 0) { setDiaSel(null); return; }
+    const hoje = new Date().toISOString().slice(0, 10);
+    const proximo = dias.find(d => d >= hoje) || dias[dias.length - 1];
+    setDiaSel(proximo);
+  }, [rodada, jogos.length]); // eslint-disable-line
+
+  function scrollParaDia(dia) {
+    setDiaSel(dia);
+    setTimeout(() => {
+      const el = document.getElementById("dia-" + dia);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 10);
+  }
+
   function formatDia(iso) {
     const d = new Date(iso + "T12:00:00");
     return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
@@ -624,94 +678,125 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
   function formatHora(iso) {
     return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
+  function formatCalDia(iso) {
+    const d = new Date(iso + "T12:00:00");
+    const sem = d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "").toUpperCase();
+    const mes = d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
+    return { sem, num: d.getDate(), mes };
+  }
+
   return (
     <div style={{ padding: "14px 0" }}>
-      <div className="fade-in" style={{ display: "flex", gap: 6, padding: "0 14px 14px", flexWrap: "wrap" }}>
+      <div className="fade-in" style={{ display: "flex", gap: 6, padding: "0 14px 12px", flexWrap: "wrap" }}>
         {RODADAS.map(r => (
           <button key={r.id} className="pill btn-press" onClick={() => setRodada(r.id)} style={{ cursor: "pointer", padding: "5px 14px", borderRadius: 20, border: "0.5px solid " + (rodada === r.id ? RED : "#2a2a2a"), background: rodada === r.id ? RED : "transparent", color: rodada === r.id ? "#fff" : TEXT_MUTE, fontSize: 12, fontWeight: rodada === r.id ? 600 : 500 }}>{r.label}</button>
         ))}
       </div>
-      <div className="stagger">
-      {Object.keys(grupos).sort().map(dia => (
-        <div key={dia}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px 12px" }}>
-            <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
-            <span style={{ fontSize: 10, color: TEXT_DIM, fontWeight: 600, textTransform: "uppercase", whiteSpace: "nowrap", letterSpacing: 1 }}>{formatDia(dia)}</span>
-            <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
-          </div>
-          {grupos[dia].map(j => {
-            const p = palpites.find(x => x.jogo_id === j.id);
-            const passou = new Date(j.data_hora) < new Date();
-            const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
-            const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
+
+      {dias.length > 0 && (
+        <div className="cal-scroll fade-in" style={{ display: "flex", gap: 8, padding: "0 14px 16px" }}>
+          {dias.map(dia => {
+            const { sem, num, mes } = formatCalDia(dia);
+            const ativo = dia === diaSel;
             return (
-              <div key={j.id} className={"card-hover " + (isBrasil ? "card-brasil" : "card-deep")} style={{ borderRadius: 14, padding: "14px 14px", marginBottom: 10, marginLeft: 14, marginRight: 14, position: "relative", overflow: "hidden", border: isBrasil ? "1px solid rgba(255,209,1,0.18)" : "0.5px solid " + BORDER_BRIGHT }}>
-                {isBrasil && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${YELLOW}, transparent)`, opacity: 0.7 }} />}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div style={{ background: isBrasil ? "rgba(255,209,1,0.1)" : "rgba(255,255,255,0.05)", color: isBrasil ? YELLOW : TEXT_DIM, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 5, letterSpacing: 1, border: isBrasil ? "0.5px solid rgba(255,209,1,0.2)" : "0.5px solid rgba(255,255,255,0.07)" }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
-                  {pts !== null && (
-                    <span style={{ fontSize: 10, borderRadius: 6, padding: "3px 10px", fontWeight: 700, letterSpacing: 0.5,
-                      background: pts === 3 ? "rgba(255,209,1,0.15)" : pts === 1 ? "rgba(255,255,255,0.08)" : "rgba(216,9,27,0.1)",
-                      color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#555",
-                      border: pts === 3 ? "0.5px solid rgba(255,209,1,0.3)" : pts === 1 ? "0.5px solid rgba(255,255,255,0.15)" : "0.5px solid rgba(216,9,27,0.2)",
-                      boxShadow: pts === 3 ? "0 0 8px rgba(255,209,1,0.2)" : "none"
-                    }}>{pts === 3 ? "+3 EXATO" : pts === 1 ? "+1 VENCEDOR" : "ERROU"}</span>
-                  )}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <Flag time={j.time1} size={44} />
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time1 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time1}</div>
-                  </div>
-                  <div style={{ textAlign: "center", flex: "0 0 auto" }}>
-                    {passou || j.encerrado ? (
-                      <div>
-                        {j.encerrado
-                          ? <div className="score-display" style={{ fontSize: 28, fontWeight: 400, color: "#fff", letterSpacing: 4, fontFamily: FONT_DISPLAY, lineHeight: 1, display: "inline-block" }}>{j.resultado_g1} : {j.resultado_g2}</div>
-                          : <div style={{ fontSize: 11, color: TEXT_DIM, fontStyle: "italic" }}>Em andamento</div>}
-                        {p ? <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6, letterSpacing: 0.5 }}>Palpite {p.g1}—{p.g2}</div> : <div style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>Sem palpite</div>}
-                      </div>
-                    ) : (
-                      <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBrasil} />
-                    )}
-                  </div>
-                  <div style={{ flex: 1, textAlign: "right" }}>
-                    <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={44} /></div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time2 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time2}</div>
-                  </div>
-                </div>
-              </div>
+              <button key={dia} className="btn-press" onClick={() => scrollParaDia(dia)} style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", padding: "9px 13px", borderRadius: 11, border: ativo ? `1.5px solid ${RED}` : "0.5px solid #2a2a2a", background: ativo ? RED : "rgba(255,255,255,0.03)", cursor: "pointer", gap: 2, boxShadow: ativo ? "0 4px 16px rgba(216,9,27,0.3)" : "none", minWidth: 52 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: ativo ? "rgba(255,255,255,0.75)" : TEXT_DIM, letterSpacing: 1 }}>{sem}</span>
+                <span style={{ fontSize: 24, fontWeight: 400, color: "#fff", fontFamily: FONT_DISPLAY, lineHeight: 1.1 }}>{num}</span>
+                <span style={{ fontSize: 9, fontWeight: 600, color: ativo ? "rgba(255,255,255,0.65)" : TEXT_DIM, letterSpacing: 0.5 }}>{mes}</span>
+              </button>
             );
           })}
         </div>
-      ))}
+      )}
+
+      <div className="stagger">
+        {dias.map(dia => (
+          <div key={dia} id={"dia-" + dia}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px 12px" }}>
+              <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
+              <span style={{ fontSize: 10, color: TEXT_DIM, fontWeight: 600, textTransform: "uppercase", whiteSpace: "nowrap", letterSpacing: 1 }}>{formatDia(dia)}</span>
+              <div style={{ flex: 1, height: "0.5px", background: BORDER }} />
+            </div>
+            {grupos[dia].map(j => {
+              const p = palpites.find(x => x.jogo_id === j.id);
+              const passou = new Date(j.data_hora) < new Date();
+              const pts = p && j.resultado_g1 != null ? calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2) : null;
+              const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
+              return (
+                <div key={j.id} className={"card-hover " + (isBrasil ? "card-brasil" : "card-deep")} style={{ borderRadius: 14, padding: "14px 14px", marginBottom: 10, marginLeft: 14, marginRight: 14, position: "relative", overflow: "hidden", border: isBrasil ? "1px solid rgba(255,209,1,0.18)" : "0.5px solid " + BORDER_BRIGHT }}>
+                  {isBrasil && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${YELLOW}, transparent)`, opacity: 0.7 }} />}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div style={{ background: isBrasil ? "rgba(255,209,1,0.1)" : "rgba(255,255,255,0.05)", color: isBrasil ? YELLOW : TEXT_DIM, fontSize: 10, fontWeight: 600, padding: "3px 8px", borderRadius: 5, letterSpacing: 1, border: isBrasil ? "0.5px solid rgba(255,209,1,0.2)" : "0.5px solid rgba(255,255,255,0.07)" }}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
+                    {pts !== null && (
+                      <span style={{ fontSize: 10, borderRadius: 6, padding: "3px 10px", fontWeight: 700, letterSpacing: 0.5,
+                        background: pts === 3 ? "rgba(255,209,1,0.15)" : pts === 1 ? "rgba(255,255,255,0.08)" : "rgba(216,9,27,0.1)",
+                        color: pts === 3 ? YELLOW : pts === 1 ? "#fff" : "#555",
+                        border: pts === 3 ? "0.5px solid rgba(255,209,1,0.3)" : pts === 1 ? "0.5px solid rgba(255,255,255,0.15)" : "0.5px solid rgba(216,9,27,0.2)",
+                        boxShadow: pts === 3 ? "0 0 8px rgba(255,209,1,0.2)" : "none"
+                      }}>{pts === 3 ? "+3 EXATO" : pts === 1 ? "+1 VENCEDOR" : "ERROU"}</span>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div style={{ flex: 1, textAlign: "left" }}>
+                      <Flag time={j.time1} size={44} />
+                      <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time1 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time1 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time1}</div>
+                    </div>
+                    <div style={{ textAlign: "center", flex: "0 0 auto" }}>
+                      {passou || j.encerrado ? (
+                        <div>
+                          {j.encerrado
+                            ? <div className="score-display" style={{ fontSize: 28, fontWeight: 400, color: "#fff", letterSpacing: 4, fontFamily: FONT_DISPLAY, lineHeight: 1, display: "inline-block" }}>{j.resultado_g1} : {j.resultado_g2}</div>
+                            : <div style={{ fontSize: 11, color: TEXT_DIM, fontStyle: "italic" }}>Em andamento</div>}
+                          {p ? <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6, letterSpacing: 0.5 }}>Palpite {p.g1}—{p.g2}</div> : <div style={{ fontSize: 11, color: "#2a2a2a", marginTop: 6 }}>Sem palpite</div>}
+                        </div>
+                      ) : (
+                        <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBrasil} />
+                      )}
+                    </div>
+                    <div style={{ flex: 1, textAlign: "right" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}><Flag time={j.time2} size={44} /></div>
+                      <div style={{ fontWeight: 600, fontSize: 12, marginTop: 7, color: isBrasil && j.time2 === "Brasil" ? YELLOW : "#fff", letterSpacing: 0.3, textShadow: isBrasil && j.time2 === "Brasil" ? "0 0 12px rgba(255,209,1,0.4)" : "none" }}>{j.time2}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
 function AdminClientes({ clientes, onAdd, onToggle }) {
-  const [doc, setDoc] = useState(""); const [nome, setNome] = useState(""); const [senha, setSenha] = useState("");
-  const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#161616", color: "#fff" };
+  const [doc, setDoc] = useState(""); const [nome, setNome] = useState(""); const [senha, setSenha] = useState(""); const [tipo, setTipo] = useState("cliente");
+  const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: "0.5px solid " + BORDER, fontSize: 14, background: "#161616", color: "#fff", fontFamily: FONT_BODY };
   return (
     <div style={{ padding: "14px" }}>
       <div className="scale-in card-deep" style={{ border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 14, padding: "1.25rem", marginBottom: 14, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${RED}, transparent)`, opacity: 0.5 }} />
-        <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 14 }}>Novo cliente</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 14 }}>Novo cadastro</div>
         <div style={{ display: "grid", gap: 10 }}>
           <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e => setDoc(e.target.value)} />
           <input style={inp} placeholder="Nome / Razão social" value={nome} onChange={e => setNome(e.target.value)} />
           <input style={inp} placeholder="Senha inicial" value={senha} onChange={e => setSenha(e.target.value)} />
-          <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, background: RED, color: "#fff", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }} onClick={async () => { await onAdd(doc, nome, senha); setDoc(""); setNome(""); setSenha(""); }}>Adicionar</button>
+          <select style={{ ...inp, cursor: "pointer" }} value={tipo} onChange={e => setTipo(e.target.value)}>
+            <option value="cliente">Cliente</option>
+            <option value="funcionario">Funcionário</option>
+          </select>
+          <button className="btn-press" style={{ cursor: "pointer", border: "none", borderRadius: 8, padding: "12px", fontSize: 13, background: RED, color: "#fff", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }} onClick={async () => { await onAdd(doc, nome, senha, tipo); setDoc(""); setNome(""); setSenha(""); setTipo("cliente"); }}>Adicionar</button>
         </div>
       </div>
-      <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} clientes ativos</div>
+      <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>{clientes.filter(c => c.doc !== "admin" && c.ativo).length} cadastros ativos</div>
       <div className="stagger">
       {clientes.filter(c => c.doc !== "admin").map(c => (
         <div key={c.id} className="card-hover" style={{ background: "linear-gradient(160deg,#141414,#0d0d0d)", border: "0.5px solid " + BORDER_BRIGHT, borderRadius: 12, padding: "13px 16px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12, opacity: c.ativo ? 1 : 0.4, boxShadow: SHADOW_SM }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 13, color: "#fff" }}>{c.nome}</div>
-            <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{c.doc}</div>
+            <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 3, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>{c.doc}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: c.tipo === "funcionario" ? "#60a5fa" : YELLOW, background: c.tipo === "funcionario" ? "rgba(96,165,250,0.1)" : "rgba(255,209,1,0.1)", padding: "2px 6px", borderRadius: 4, border: "0.5px solid " + (c.tipo === "funcionario" ? "rgba(96,165,250,0.25)" : "rgba(255,209,1,0.25)") }}>{c.tipo === "funcionario" ? "FUNC" : "CLI"}</span>
+            </div>
           </div>
           <button className="btn-press" style={{ cursor: "pointer", border: "0.5px solid #2a2a2a", borderRadius: 6, padding: "5px 12px", fontSize: 11, background: "transparent", color: TEXT_MUTE, fontWeight: 500 }} onClick={() => onToggle(c.id, c.ativo)}>{c.ativo ? "Desativar" : "Ativar"}</button>
         </div>

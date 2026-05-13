@@ -299,7 +299,7 @@ export default function App() {
 
   async function zerarResultados() {
     if (!confirm("Zerar TODOS os resultados? Os palpites serão mantidos.")) return;
-    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false});
+    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).neq("id","00000000-0000-0000-0000-000000000000");
     await carregarJogos();
     flash("Todos os resultados foram zerados");
   }

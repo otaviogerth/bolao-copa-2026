@@ -248,11 +248,12 @@ export default function App() {
 
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
-    const docNumerico = doc.replace(/\D/g,"");
-    // Se só tem números usa o doc limpo, senão usa o original (funcionários com nome como login)
-    const docLimpo = docNumerico.length > 0 ? docNumerico : doc.trim();
+    const docStr = doc.trim();
+    const docNumerico = docStr.replace(/\D/g,"");
+    // Se é só números (CPF/CNPJ), usa sem formatação; senão usa o texto original (funcionários)
+    const docLimpo = /^\d+$/.test(docNumerico) && docNumerico === docStr.replace(/[.\-\/]/g,"") ? docNumerico : docStr;
     let q = supabase.from("clientes").select("*").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true);
-    if (docLimpo !== "admin") q = q.eq("tipo", competicao);
+    if (docLimpo.toLowerCase() !== "admin") q = q.eq("tipo", competicao);
     const { data, error } = await q.limit(1);
     if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
     const u = data[0];
@@ -988,7 +989,7 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
         )}
         {jogosDoDia.map(j=>{
           const p      = palpites.find(x=>x.jogo_id===j.id);
-          const passou = new Date(j.data_hora)<new Date();
+          const passou = j.encerrado; // bloqueia só quando admin encerra, não por horário
           const pts    = p&&j.resultado_g1!=null ? calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2) : null;
           const isBR   = j.time1==="Brasil"||j.time2==="Brasil";
           return (

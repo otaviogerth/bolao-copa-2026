@@ -719,7 +719,9 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
   },[diaSel]);
 
   // *** FILTRO POR DIA — só mostra jogos do dia selecionado ***
-  const jogosDoDia = filtradosRodada.filter(j=>j.data_hora.slice(0,10)===diaSel);
+  const jogosDoDia = filtradosRodada
+    .filter(j=>j.data_hora.slice(0,10)===diaSel)
+    .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora));
 
   function formatDiaLabel(iso){
     const d = new Date(iso+"T12:00:00");

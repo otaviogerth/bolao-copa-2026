@@ -9,13 +9,13 @@ const supabase = createClient(
 
 const RED    = "#D8091B";
 const YELLOW = "#FFD101";
-const DARK   = "#0a0a0a"; // off-black (skill: NO pure black)
-const CARD   = "#0F0F0F";
-const CARD2  = "#111111";
-const BORDER = "#1C1C1C";
-const BORDER2= "#252525";
-const DIM    = "#555";
-const MUTE   = "#777";
+const DARK   = "#111318"; // azul-aço escuro — menos pesado que preto puro
+const CARD   = "#181c24";
+const CARD2  = "#1a1e28";
+const BORDER = "#252a36";
+const BORDER2= "#2e3444";
+const DIM    = "#6b7280";
+const MUTE   = "#8b95a8";
 const SUPA   = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
 const LOGO_BRANCA   = SUPA + "/bet%20lube%20branca.png";
 const LOGO_PRETA    = SUPA + "/bet%20lube%20preta.png";
@@ -121,7 +121,7 @@ function GlobalStyles() {
 
       /* Card base — gradiente sutil para dar profundidade */
       .card{
-        background:linear-gradient(160deg,#131313 0%,#0c0c0c 100%);
+        background:linear-gradient(160deg,#1c2030 0%,#161a26 100%);
         border:0.5px solid ${BORDER2};
         transition:
           transform 200ms var(--ease-out),
@@ -208,9 +208,9 @@ function GlobalStyles() {
       }
       /* Card com liquid glass completo */
       .card-glass{
-        background:linear-gradient(160deg,rgba(22,22,22,0.95) 0%,rgba(12,12,12,0.98) 100%);
-        border:0.5px solid rgba(255,255,255,0.07);
-        box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.5);
+        background:linear-gradient(160deg,rgba(28,32,42,0.97) 0%,rgba(20,24,34,0.99) 100%);
+        border:0.5px solid rgba(255,255,255,0.08);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.2),0 4px 16px rgba(0,0,0,0.35);
         backdrop-filter:blur(0px);
       }
     `}</style>
@@ -312,7 +312,7 @@ export default function App() {
   if (tela==="login") return (
     <>
       <GlobalStyles/>
-      <div style={{fontFamily:FB,background:"#f5f4f2",minHeight:"100dvh",display:"flex",flexDirection:"column"}}>
+      <div style={{fontFamily:FB,background:"#f8f7f5",minHeight:"100dvh",display:"flex",flexDirection:"column"}}>
         <div className="fade-up"><Banner/></div>
 
         <div style={{flex:1,padding:"2rem 1.5rem 1rem",maxWidth:440,width:"100%",margin:"0 auto"}}>
@@ -429,7 +429,7 @@ export default function App() {
         {/* Navbar */}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:28,width:"auto",objectFit:"contain"}}/>
+            <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:38,width:"auto",objectFit:"contain"}}/>
             <div style={{width:1,height:16,background:BORDER2}}/>
             <div>
               <div style={{fontSize:13,fontWeight:600,color:"#e8e8e8",lineHeight:1.2}}>{isAdmin?"Admin":user.nome}</div>
@@ -450,10 +450,10 @@ export default function App() {
         {!isAdmin&&(
           <div className="stagger" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,padding:"12px 14px 0"}}>
             {[
-              {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,#1a0b04,#0e0e0e)",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`},
-              {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,#0d0d18,#0e0e0e)",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)"},
+              {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,rgba(255,209,1,0.08),rgba(28,32,42,0.95))",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`},
+              {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,rgba(216,9,27,0.06),rgba(28,32,42,0.95))",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)"},
             ].map(({label,val,cor,bg,topBar})=>(
-              <div key={label} className="card glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:SH_MD}}>
+              <div key={label} className="card card-glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.09)`}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
                 <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:FO}}>{label}</div>
                 <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1,textShadow:"none"}}>{val}</div>
@@ -470,12 +470,17 @@ export default function App() {
           ).map(([t,l])=>(
             <button key={t} className="pill btn" style={{
               padding:"5px 14px",borderRadius:20,
-              border:`0.5px solid ${tela===t?RED:BORDER2}`,
+              border:tela===t?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
               fontSize:12,
-              background:tela===t?RED:"transparent",
+              background:tela===t
+                ?`linear-gradient(135deg,${RED},#a30614)`
+                :"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
               color:tela===t?"#fff":MUTE,
               fontWeight:tela===t?600:500,
               fontFamily:FB,
+              boxShadow:tela===t
+                ?"inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2)"
+                :"inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.1)",
             }} onClick={async()=>{
               setTela(t);
               if(t==="clientes")await carregarClientes();
@@ -893,18 +898,23 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
         {RODADAS.map(r=>(
           <button key={r.id} className="pill btn" onClick={()=>setRodada(r.id)} style={{
             padding:"5px 14px",borderRadius:20,
-            border:`0.5px solid ${rodada===r.id?RED:BORDER2}`,
-            background:rodada===r.id?RED:"transparent",
+            border:rodada===r.id?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
+            background:rodada===r.id
+              ?`linear-gradient(135deg,${RED},#a30614)`
+              :"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
             color:rodada===r.id?"#fff":MUTE,
             fontSize:12,fontWeight:rodada===r.id?600:500,
             fontFamily:FB,
+            boxShadow:rodada===r.id
+              ?"inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2)"
+              :"inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.1)",
           }}>{r.label}</button>
         ))}
       </div>
 
       {/* Calendário horizontal — FILTRO, não scroll */}
       {todosOsDias.length>0&&(
-        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:7,padding:"0 14px 14px"}}>
+        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:7,padding:"0 14px 14px",justifyContent:"center"}}>
           {todosOsDias.map(dia=>{
             const {sem,num,mes} = formatCalDia(dia);
             const ativo = dia===diaSel;
@@ -912,9 +922,13 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
               <button key={dia} data-dia={dia} className="btn" onClick={()=>setDiaSel(dia)} style={{
                 flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",
                 padding:"10px 14px",borderRadius:12,gap:2,minWidth:54,
-                border:`1.5px solid ${ativo?RED:BORDER2}`,
-                background: ativo?`linear-gradient(135deg,${RED},#a30614)`:"rgba(255,255,255,0.025)",
-                boxShadow: ativo?`0 4px 16px rgba(216,9,27,0.35),inset 0 1px 0 rgba(255,255,255,0.1)`:"none",
+                border:ativo?`1.5px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
+                background: ativo
+                  ?`linear-gradient(135deg,${RED},#a30614)`
+                  :"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
+                boxShadow: ativo
+                  ?`0 4px 16px rgba(216,9,27,0.25),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2)`
+                  :"inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.15)",
                 cursor:"pointer",
                 transition:"all 180ms var(--ease-out)",
               }}>

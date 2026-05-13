@@ -248,7 +248,9 @@ export default function App() {
 
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
-    const docLimpo = doc.replace(/\D/g,"") || doc;
+    const docNumerico = doc.replace(/\D/g,"");
+    // Se só tem números usa o doc limpo, senão usa o original (funcionários com nome como login)
+    const docLimpo = docNumerico.length > 0 ? docNumerico : doc.trim();
     let q = supabase.from("clientes").select("*").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true);
     if (docLimpo !== "admin") q = q.eq("tipo", competicao);
     const { data, error } = await q.limit(1);
@@ -292,6 +294,13 @@ export default function App() {
   async function toggleCliente(id,ativo) {
     await supabase.from("clientes").update({ativo:!ativo}).eq("id",id);
     await carregarClientes();
+  }
+
+  async function zerarResultados() {
+    if (!confirm("Zerar TODOS os resultados? Os palpites serão mantidos.")) return;
+    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false});
+    await carregarJogos();
+    flash("Todos os resultados foram zerados");
   }
 
   const ranking = clientes.filter(c=>c.doc!=="admin").map(c=>{
@@ -492,8 +501,21 @@ export default function App() {
 
         {/* Telas */}
         {tela==="admin"&&(
-          <div className="screen card glass" style={{borderRadius:12,padding:"1.25rem",margin:"12px 14px",boxShadow:SH_SM}}>
-            <p style={{margin:0,fontSize:13,color:MUTE,lineHeight:1.7}}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+          <div className="screen" style={{margin:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
+            <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM}}>
+              <p style={{margin:0,fontSize:13,color:MUTE,lineHeight:1.7}}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+            </div>
+            <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM,position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,rgba(216,9,27,0.4),transparent)"}}/>
+              <div style={{fontSize:12,fontWeight:700,color:"#e0e0e0",marginBottom:4,fontFamily:FO}}>Ferramentas de teste</div>
+              <div style={{fontSize:11,color:MUTE,marginBottom:14,lineHeight:1.6}}>Use apenas em ambiente de testes. Zerar resultados mantém todos os palpites intactos.</div>
+              <button className="btn" onClick={zerarResultados} style={{
+                border:"1px solid rgba(216,9,27,0.4)",borderRadius:8,padding:"10px 18px",
+                fontSize:12,fontWeight:700,letterSpacing:1,textTransform:"uppercase",
+                background:"rgba(216,9,27,0.08)",color:RED,fontFamily:FB,
+                boxShadow:"inset 0 1px 0 rgba(255,255,255,0.06)",
+              }}>Zerar todos os resultados</button>
+            </div>
           </div>
         )}
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}

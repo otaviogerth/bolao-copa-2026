@@ -17,10 +17,14 @@ const BORDER2= "#252525";
 const DIM    = "#555";
 const MUTE   = "#777";
 const SUPA   = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
+const LOGO_BRANCA   = SUPA + "/bet%20lube%20branca.png";
+const LOGO_PRETA    = SUPA + "/bet%20lube%20preta.png";
+const LOGO_VERMELHA = SUPA + "/bet%20lube%20vermelha.png";
 
-// Tipografia premium — Outfit para display, Inter para corpo
-const FD = "'Bebas Neue','Oswald','Impact',sans-serif";
-const FB = "'Inter',-apple-system,system-ui,sans-serif";
+// Tipografia: Outfit para tudo (skill: fonte característica), Bebas Neue para números
+const FD = "'Bebas Neue','Impact',sans-serif"; // números/placares
+const FO = "'Outfit',sans-serif"; // títulos e display
+const FB = "'Outfit','Inter',sans-serif"; // corpo
 
 // Sombras com tint escuro (skill: tint shadows to background hue)
 const SH_SM = "0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.4)";
@@ -74,7 +78,7 @@ function formatDoc(doc) {
 function GlobalStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
       *,*::before,*::after{box-sizing:border-box;}
       *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
       html{scroll-behavior:smooth;}
@@ -155,6 +159,20 @@ function GlobalStyles() {
       input:focus{border-color:${RED}!important;box-shadow:0 0 0 3px rgba(216,9,27,0.14)!important;}
       ::selection{background:${RED};color:#fff;}
 
+      /* Skeleton shimmer (skill: skeletal loaders) */
+      @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+      .skeleton{
+        background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);
+        background-size:200% 100%;
+        animation:shimmer 1.4s ease infinite;
+        border-radius:8px;
+      }
+
+      /* prefers-reduced-motion (skill: acessibilidade) */
+      @media(prefers-reduced-motion:reduce){
+        *{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}
+      }
+
       /* Scroll calendário — sem scrollbar */
       .cal-scroll{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
       .cal-scroll::-webkit-scrollbar{display:none;}
@@ -192,7 +210,7 @@ function Banner() {
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:1,background:"linear-gradient(90deg,transparent,rgba(216,9,27,0.35) 30%,rgba(216,9,27,0.35) 70%,transparent)",zIndex:2}}/>
       <img src={SUPA+"/listras%20esquerda.png"} alt="" style={{height:140,width:80,objectFit:"contain",objectPosition:"left",display:"block",flexShrink:0,position:"relative",zIndex:3}}/>
       <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:3}}>
-        <img src={SUPA+"/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{height:100,width:"auto",objectFit:"contain",filter:"drop-shadow(0 4px 20px rgba(216,9,27,0.3))"}}/>
+        <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:100,width:"auto",objectFit:"contain",filter:"drop-shadow(0 4px 20px rgba(216,9,27,0.3))"}}/>
       </div>
       <img src={SUPA+"/listras%20direita.png"} alt="" style={{height:140,width:80,objectFit:"cover",objectPosition:"top",display:"block",flexShrink:0,position:"relative",zIndex:3}}/>
     </div>
@@ -279,12 +297,12 @@ export default function App() {
   if (tela==="login") return (
     <>
       <GlobalStyles/>
-      <div style={{fontFamily:FB,background:DARK,minHeight:"100dvh",display:"flex",flexDirection:"column"}}>
+      <div style={{fontFamily:FB,background:"#f5f4f2",minHeight:"100dvh",display:"flex",flexDirection:"column"}}>
         <div className="fade-up"><Banner/></div>
 
         <div style={{flex:1,padding:"2rem 1.5rem 1rem",maxWidth:440,width:"100%",margin:"0 auto"}}>
           {/* Título */}
-          <div className="fade-up" style={{fontFamily:FD,fontSize:56,color:"#fff",letterSpacing:2,lineHeight:1,marginBottom:4}}>LOGIN</div>
+          <div className="fade-up" style={{fontFamily:FO,fontSize:52,fontWeight:800,color:"#111",letterSpacing:-1,lineHeight:1,marginBottom:4}}>LOGIN</div>
           <div className="fade-up" style={{fontSize:12,color:MUTE,marginBottom:"1.75rem",animationDelay:"40ms",letterSpacing:0.3}}>
             Selecione sua competição para entrar
           </div>
@@ -309,12 +327,12 @@ export default function App() {
 
           {/* Campos */}
           <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms"}}>
-            <div style={{fontSize:10,color:MUTE,marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
-            <input id="doc" style={{width:"100%",border:"none",borderBottom:`1.5px solid ${BORDER2}`,outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#fff",fontWeight:500}}/>
+            <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
+            <input id="doc" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}/>
           </div>
           <div className="fade-up" style={{marginBottom:"2rem",animationDelay:"130ms"}}>
-            <div style={{fontSize:10,color:MUTE,marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Senha</div>
-            <input id="senha" type="password" style={{width:"100%",border:"none",borderBottom:`1.5px solid ${BORDER2}`,outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#fff",fontWeight:500}}
+            <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Senha</div>
+            <input id="senha" type="password" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}
               onKeyDown={e=>e.key==="Enter"&&login(document.getElementById("doc").value,document.getElementById("senha").value)}/>
           </div>
 
@@ -327,11 +345,11 @@ export default function App() {
           <button className="btn fade-up" style={{
             width:"100%",border:"none",padding:"16px",
             fontSize:12,fontWeight:700,letterSpacing:3,
-            background:`linear-gradient(135deg,#1a1a1a,#111)`,
-            color: loading?"#555":"#fff",
+            background:`linear-gradient(135deg,${RED},#a30614)`,
+            color:"#fff",
             borderRadius:6,animationDelay:"160ms",
-            border:`0.5px solid ${BORDER2}`,
-            boxShadow: SH_SM,
+            border:"none",
+            boxShadow:"0 4px 20px rgba(216,9,27,0.35)",
             opacity: loading ? 0.6 : 1,
           }} onClick={()=>login(document.getElementById("doc").value,document.getElementById("senha").value)} disabled={loading}>
             {loading?"ENTRANDO...":"ENTRAR"}
@@ -342,11 +360,11 @@ export default function App() {
         <div className="fade-up" style={{padding:"1.5rem 1.5rem 0.5rem",textAlign:"center",animationDelay:"200ms"}}>
           <div style={{fontSize:9,color:"#333",letterSpacing:2,marginBottom:14,fontWeight:600,textTransform:"uppercase"}}>Parceiros</div>
           <div style={{marginBottom:"1rem"}}>
-            <img src={SUPA+"/bel%20lube%20logo.png"} alt="Bel Lube" style={{maxHeight:44,objectFit:"contain"}}/>
+            <img src={LOGO_PRETA} alt="Bel Lube" style={{maxHeight:44,objectFit:"contain"}}/>
           </div>
           <div style={{display:"flex",justifyContent:"center",gap:24,marginBottom:"1.25rem"}}>
-            <img src={SUPA+"/ipiranga%20logo.png"} alt="Ipiranga" style={{maxHeight:22,objectFit:"contain"}}/>
-            <img src={SUPA+"/texaco%20logo.png"} alt="Texaco" style={{maxHeight:22,objectFit:"contain"}}/>
+            <img src={SUPA+"/ipiranga%20logo.png"} alt="Ipiranga" style={{maxHeight:22,objectFit:"contain",filter:"brightness(0)"}}/>
+            <img src={SUPA+"/texaco%20logo.png"} alt="Texaco" style={{maxHeight:22,objectFit:"contain",filter:"brightness(0)"}}/>
           </div>
         </div>
         <div style={{textAlign:"center",padding:"0.5rem",fontSize:9,color:"#2a2a2a",letterSpacing:1}}>
@@ -396,7 +414,7 @@ export default function App() {
         {/* Navbar */}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontFamily:FD,fontSize:20,color:RED,letterSpacing:2.5,textShadow:"0 0 24px rgba(216,9,27,0.45)"}}>BET LUBE</div>
+            <div style={{fontFamily:FO,fontSize:18,fontWeight:800,color:RED,letterSpacing:3,textShadow:"0 0 24px rgba(216,9,27,0.45)"}}>BET LUBE</div>
             <div style={{width:1,height:16,background:BORDER2}}/>
             <div>
               <div style={{fontSize:13,fontWeight:600,color:"#e8e8e8",lineHeight:1.2}}>{isAdmin?"Admin":user.nome}</div>
@@ -422,7 +440,7 @@ export default function App() {
             ].map(({label,val,cor,bg,topBar})=>(
               <div key={label} className="card glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:SH_MD}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
-                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:1.5,textTransform:"uppercase",fontWeight:600}}>{label}</div>
+                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:FO}}>{label}</div>
                 <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1,textShadow:cor===YELLOW?"0 0 20px rgba(255,209,1,0.35)":"none"}}>{val}</div>
               </div>
             ))}
@@ -461,7 +479,7 @@ export default function App() {
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user?.tipo}/></div>}
-        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite}/></div>}
+        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} loading={loading}/></div>}
 
         {/* Footer */}
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
@@ -522,7 +540,7 @@ function Visual4() {
   );
 }
 function Visual5() {
-  return <img src={SUPA+"/Logo%20branca%20sem%20fundo.png"} alt="Bet Lube" style={{height:120,width:"auto",objectFit:"contain"}} className="scale-in"/>;
+  return <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:120,width:"auto",objectFit:"contain"}} className="scale-in"/>;
 }
 
 /* ─── CARROSSEL ──────────────────────────────────────────────────────────── */
@@ -682,7 +700,7 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
 }
 
 /* ─── LISTA DE JOGOS ─────────────────────────────────────────────────────── */
-function ListaJogos({ jogos, palpites, onSalvar }) {
+function ListaJogos({ jogos, palpites, onSalvar, loading }) {
   const [rodada,setRodada] = useState("1");
   const [diaSel,setDiaSel] = useState(null);
   const calRef = useRef(null);
@@ -738,6 +756,21 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
 
   return (
     <div style={{paddingTop:14}}>
+      {/* Skeleton loader enquanto carrega */}
+      {loading && (
+        <div style={{padding:"0 14px"}}>
+          <div style={{display:"flex",gap:8,marginBottom:14}}>
+            {[80,90,80].map((w,i)=><div key={i} className="skeleton" style={{height:32,width:w,borderRadius:20}}/>)}
+          </div>
+          <div style={{display:"flex",gap:7,marginBottom:14}}>
+            {[0,1,2,3,4].map(i=><div key={i} className="skeleton" style={{height:72,width:54,borderRadius:12,flexShrink:0}}/>)}
+          </div>
+          {[0,1,2,3].map(i=>(
+            <div key={i} className="skeleton" style={{height:130,borderRadius:14,marginBottom:10}}/>
+          ))}
+        </div>
+      )}
+      {!loading && <>
       {/* Filtro rodada */}
       <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap"}}>
         {RODADAS.map(r=>(
@@ -791,8 +824,13 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
       {/* Cards dos jogos do dia selecionado */}
       <div className="stagger" style={{padding:"0 14px 24px"}}>
         {jogosDoDia.length===0&&(
-          <div style={{textAlign:"center",padding:"2.5rem 1rem",color:DIM,fontSize:13}}>
-            Nenhum jogo nesta data.
+          <div style={{textAlign:"center",padding:"3rem 1rem"}}>
+            <svg width="48" height="48" viewBox="0 0 48 48" style={{margin:"0 auto 16px",display:"block",opacity:0.2}}>
+              <circle cx="24" cy="24" r="20" fill="none" stroke="#fff" strokeWidth="2"/>
+              <path d="M16 24h16M24 16v16" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <div style={{fontSize:13,color:DIM,fontFamily:FO,fontWeight:500}}>Nenhum jogo nesta data</div>
+            <div style={{fontSize:11,color:"#333",marginTop:4}}>Selecione outro dia no calendário</div>
           </div>
         )}
         {jogosDoDia.map(j=>{
@@ -806,7 +844,7 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
               position:"relative",overflow:"hidden",
               border:isBR?"1px solid rgba(255,209,1,0.2)":`0.5px solid ${BORDER2}`,
               background:isBR?"linear-gradient(160deg,#161200,#0d0d0d)":"linear-gradient(160deg,#131313,#0c0c0c)",
-              boxShadow:isBR?"0 4px 20px rgba(0,0,0,0.6),0 0 0 1px rgba(255,209,1,0.08)":SH_MD,
+              boxShadow:isBR?`0 4px 20px rgba(0,0,0,0.6),0 0 0 1px rgba(255,209,1,0.08),inset 0 1px 0 rgba(255,255,255,0.04)`:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.03)`,
             }}>
               {/* Linha amarela topo para jogos do Brasil */}
               {isBR&&<div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,opacity:0.6}}/>}
@@ -866,6 +904,8 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
           );
         })}
       </div>
+      </>
+      }
     </div>
   );
 }

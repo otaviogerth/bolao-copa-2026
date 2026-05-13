@@ -694,19 +694,16 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
   ];
 
   // Jogos filtrados pela rodada
-  const filtradosRodada = jogos.filter(j=>{
-    const r = RODADAS.find(x=>x.id===rodada);
-    const d = j.data_hora.slice(0,10);
-    return d>=r.inicio && d<=r.fim;
-  });
+  function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
+  const filtradosRodada = jogos.filter(j=>{const r=RODADAS.find(x=>x.id===rodada);const d=diaBR(j.data_hora);return d>=r.inicio&&d<=r.fim;});
 
   // Dias disponíveis na rodada
-  const todosOsDias = [...new Set(filtradosRodada.map(j=>j.data_hora.slice(0,10)))].sort();
+  const todosOsDias = [...new Set(filtradosRodada.map(j=>diaBR(j.data_hora)))].sort();
 
   // Seleciona dia mais próximo ao entrar na rodada
   useEffect(()=>{
     if (todosOsDias.length===0){setDiaSel(null);return;}
-    const hoje = new Date().toISOString().slice(0,10);
+    const hoje = diaBR(new Date().toISOString());
     const proximo = todosOsDias.find(d=>d>=hoje)||todosOsDias[todosOsDias.length-1];
     setDiaSel(proximo);
   },[rodada,jogos.length]); // eslint-disable-line
@@ -720,22 +717,22 @@ function ListaJogos({ jogos, palpites, onSalvar }) {
 
   // *** FILTRO POR DIA — só mostra jogos do dia selecionado ***
   const jogosDoDia = filtradosRodada
-    .filter(j=>j.data_hora.slice(0,10)===diaSel)
+    .filter(j=>diaBR(j.data_hora)===diaSel)
     .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora));
 
   function formatDiaLabel(iso){
-    const d = new Date(iso+"T12:00:00");
-    return d.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"});
+    const d = new Date(iso+"T12:00:00-03:00");
+    return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});
   }
   function formatHora(iso){
-    return new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});
   }
   function formatCalDia(iso){
-    const d = new Date(iso+"T12:00:00");
+    const d = new Date(iso+"T12:00:00-03:00");
     return {
-      sem: d.toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","").toUpperCase().slice(0,3),
-      num: d.getDate(),
-      mes: d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","").toUpperCase().slice(0,3),
+      sem: d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),
+      num: String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),
+      mes: d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3),
     };
   }
 

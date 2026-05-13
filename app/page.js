@@ -9,7 +9,7 @@ const supabase = createClient(
 
 const RED    = "#D8091B";
 const YELLOW = "#FFD101";
-const DARK   = "#080808";
+const DARK   = "#0a0a0a"; // off-black (skill: NO pure black)
 const CARD   = "#0F0F0F";
 const CARD2  = "#111111";
 const BORDER = "#1C1C1C";
@@ -21,10 +21,10 @@ const LOGO_BRANCA   = SUPA + "/bet%20lube%20branca.png";
 const LOGO_PRETA    = SUPA + "/bet%20lube%20preta.png";
 const LOGO_VERMELHA = SUPA + "/bet%20lube%20vermelha.png";
 
-// Tipografia: Outfit para tudo (skill: fonte característica), Bebas Neue para números
-const FD = "'Bebas Neue','Impact',sans-serif"; // números/placares
-const FO = "'Outfit',sans-serif"; // títulos e display
-const FB = "'Outfit','Inter',sans-serif"; // corpo
+// Tipografia: FIFATournament para display/títulos, Ubuntu para corpo
+const FD = "'FIFATournament','Impact',sans-serif"; // títulos e display principal
+const FO = "'FIFATournament','Impact',sans-serif"; // mesmo — fonte FIFA para tudo display
+const FB = "'Ubuntu',sans-serif"; // corpo
 
 // Sombras com tint escuro (skill: tint shadows to background hue)
 const SH_SM = "0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.4)";
@@ -78,7 +78,14 @@ function formatDoc(doc) {
 function GlobalStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+      @font-face {
+        font-family: 'FIFATournament';
+        src: url('https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets/FIFATournament-Black.woff') format('woff');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
       *,*::before,*::after{box-sizing:border-box;}
       *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
       html{scroll-behavior:smooth;}
@@ -104,10 +111,10 @@ function GlobalStyles() {
       .stagger>*:nth-child(2){animation-delay:60ms}
       .stagger>*:nth-child(3){animation-delay:90ms}
       .stagger>*:nth-child(4){animation-delay:120ms}
-      .stagger>*:nth-child(5){animation-delay:150ms}
-      .stagger>*:nth-child(6){animation-delay:180ms}
-      .stagger>*:nth-child(7){animation-delay:210ms}
-      .stagger>*:nth-child(n+8){animation-delay:240ms}
+      .stagger>*:nth-child(5){animation-delay:120ms}
+      .stagger>*:nth-child(6){animation-delay:144ms}
+      .stagger>*:nth-child(7){animation-delay:168ms}
+      .stagger>*:nth-child(n+8){animation-delay:190ms}
 
       /* Transição de tela */
       .screen{animation:fadeUp 0.3s var(--ease-out) both;}
@@ -146,7 +153,7 @@ function GlobalStyles() {
 
       /* Pill nav */
       .pill{
-        transition:background 180ms ease,border-color 180ms ease,color 180ms ease;
+        transition:background 160ms ease,border-color 160ms ease,color 160ms ease,transform 160ms cubic-bezier(0.16,1,0.3,1);
         cursor:pointer;
       }
 
@@ -170,7 +177,8 @@ function GlobalStyles() {
 
       /* prefers-reduced-motion (skill: acessibilidade) */
       @media(prefers-reduced-motion:reduce){
-        *{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}
+        *{animation:none!important;}
+        *{transition:opacity 150ms ease,color 150ms ease!important;}
       }
 
       /* Scroll calendário — sem scrollbar */
@@ -193,10 +201,17 @@ function GlobalStyles() {
         padding:5px 10px;min-width:50px;text-align:center;
       }
 
-      /* Liquid glass inner border (skill) */
+      /* Liquid glass — refração com inner border (skill seção 4) */
       .glass{
-        border:0.5px solid rgba(255,255,255,0.06);
-        box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+        border:0.5px solid rgba(255,255,255,0.07);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.2),0 1px 3px rgba(0,0,0,0.4);
+      }
+      /* Card com liquid glass completo */
+      .card-glass{
+        background:linear-gradient(160deg,rgba(22,22,22,0.95) 0%,rgba(12,12,12,0.98) 100%);
+        border:0.5px solid rgba(255,255,255,0.07);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.5);
+        backdrop-filter:blur(0px);
       }
     `}</style>
   );
@@ -206,11 +221,11 @@ function GlobalStyles() {
 function Banner() {
   return (
     <div style={{width:"100%",background:DARK,display:"flex",alignItems:"stretch",justifyContent:"space-between",minHeight:110,position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse 60% 80% at 50% 50%,rgba(216,9,27,0.07) 0%,transparent 70%)",pointerEvents:"none",zIndex:1}}/>
-      <div style={{position:"absolute",bottom:0,left:0,right:0,height:1,background:"linear-gradient(90deg,transparent,rgba(216,9,27,0.35) 30%,rgba(216,9,27,0.35) 70%,transparent)",zIndex:2}}/>
+      
+      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"0.5px",background:"rgba(255,255,255,0.06)",zIndex:2}}/>
       <img src={SUPA+"/listras%20esquerda.png"} alt="" style={{height:140,width:80,objectFit:"contain",objectPosition:"left",display:"block",flexShrink:0,position:"relative",zIndex:3}}/>
       <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:3}}>
-        <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:100,width:"auto",objectFit:"contain",filter:"drop-shadow(0 4px 20px rgba(216,9,27,0.3))"}}/>
+        <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:100,width:"auto",objectFit:"contain",opacity:0.95}}/>
       </div>
       <img src={SUPA+"/listras%20direita.png"} alt="" style={{height:140,width:80,objectFit:"cover",objectPosition:"top",display:"block",flexShrink:0,position:"relative",zIndex:3}}/>
     </div>
@@ -344,7 +359,7 @@ export default function App() {
 
           <button className="btn fade-up" style={{
             width:"100%",border:"none",padding:"16px",
-            fontSize:12,fontWeight:700,letterSpacing:3,
+            fontSize:12,fontWeight:700,letterSpacing:2,
             background:`linear-gradient(135deg,${RED},#a30614)`,
             color:"#fff",
             borderRadius:6,animationDelay:"160ms",
@@ -360,7 +375,7 @@ export default function App() {
         <div className="fade-up" style={{padding:"1.5rem 1.5rem 0.5rem",textAlign:"center",animationDelay:"200ms"}}>
           <div style={{fontSize:9,color:"#333",letterSpacing:2,marginBottom:14,fontWeight:600,textTransform:"uppercase"}}>Parceiros</div>
           <div style={{marginBottom:"1rem"}}>
-            <img src={LOGO_PRETA} alt="Bel Lube" style={{maxHeight:44,objectFit:"contain"}}/>
+            <img src={SUPA+"/bel%20lube%20logo.png"} alt="Bel Lube" style={{maxHeight:44,objectFit:"contain",filter:"brightness(0)"}}/>
           </div>
           <div style={{display:"flex",justifyContent:"center",gap:24,marginBottom:"1.25rem"}}>
             <img src={SUPA+"/ipiranga%20logo.png"} alt="Ipiranga" style={{maxHeight:22,objectFit:"contain",filter:"brightness(0)"}}/>
@@ -414,7 +429,7 @@ export default function App() {
         {/* Navbar */}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontFamily:FO,fontSize:18,fontWeight:800,color:RED,letterSpacing:3,textShadow:"0 0 24px rgba(216,9,27,0.45)"}}>BET LUBE</div>
+            <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:28,width:"auto",objectFit:"contain"}}/>
             <div style={{width:1,height:16,background:BORDER2}}/>
             <div>
               <div style={{fontSize:13,fontWeight:600,color:"#e8e8e8",lineHeight:1.2}}>{isAdmin?"Admin":user.nome}</div>
@@ -441,14 +456,14 @@ export default function App() {
               <div key={label} className="card glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:SH_MD}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
                 <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:FO}}>{label}</div>
-                <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1,textShadow:cor===YELLOW?"0 0 20px rgba(255,209,1,0.35)":"none"}}>{val}</div>
+                <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1,textShadow:"none"}}>{val}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* Nav pills */}
-        <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]]
             :[["jogos","Palpites"],["ranking","Ranking"]]
@@ -496,51 +511,146 @@ export default function App() {
 }
 
 /* ─── VISUAIS CARROSSEL ──────────────────────────────────────────────────── */
+
+// Slide 1: Bem-vindo — troféu da copa estilizado com listras
 function Visual1() {
   return (
-    <svg width="110" height="110" viewBox="0 0 110 110">
-      <circle cx="55" cy="55" r="46" fill="none" stroke={YELLOW} strokeWidth="1.5" strokeDasharray="4 5" opacity="0.35">
-        <animateTransform attributeName="transform" type="rotate" from="0 55 55" to="360 55 55" dur="22s" repeatCount="indefinite"/>
+    <svg width="130" height="130" viewBox="0 0 130 130" className="scale-in">
+      {/* Base do troféu */}
+      <rect x="50" y="100" width="30" height="6" rx="3" fill={YELLOW} opacity="0.9"/>
+      <rect x="44" y="106" width="42" height="5" rx="2.5" fill={YELLOW} opacity="0.7"/>
+      {/* Haste */}
+      <rect x="61" y="82" width="8" height="20" rx="2" fill={YELLOW} opacity="0.8"/>
+      {/* Copa */}
+      <path d="M42 30 Q42 80 65 82 Q88 80 88 30 Z" fill={YELLOW}/>
+      {/* Reflexo */}
+      <path d="M52 35 Q50 58 58 70" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="3" strokeLinecap="round"/>
+      {/* Alças */}
+      <path d="M42 38 Q28 38 28 52 Q28 64 42 62" fill="none" stroke={YELLOW} strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
+      <path d="M88 38 Q102 38 102 52 Q102 64 88 62" fill="none" stroke={YELLOW} strokeWidth="4" strokeLinecap="round" opacity="0.8"/>
+      {/* Estrelas animadas */}
+      <circle cx="25" cy="22" r="2.5" fill={RED} opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/>
       </circle>
-      <circle cx="55" cy="55" r="30" fill={YELLOW}/>
-      <path d="M47 46 L47 66 L67 56 Z" fill={DARK}/>
+      <circle cx="105" cy="30" r="2" fill={RED} opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="18" cy="60" r="1.5" fill={YELLOW} opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="112" cy="55" r="2" fill={YELLOW} opacity="0.5">
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      {/* Listras vermelho na copa (identidade Bet Lube) */}
+      <clipPath id="c1"><path d="M42 30 Q42 80 65 82 Q88 80 88 30 Z"/></clipPath>
+      <rect x="42" y="30" width="8" height="52" fill={RED} opacity="0.25" clipPath="url(#c1)"/>
+      <rect x="80" y="30" width="8" height="52" fill={RED} opacity="0.25" clipPath="url(#c1)"/>
     </svg>
   );
 }
+
+// Slide 2: Como pontuar — placar de futebol com 3 cenários
 function Visual2() {
   return (
-    <div style={{display:"flex",gap:14,alignItems:"center"}}>
-      {[["3",YELLOW,"PTS"],["1","#e8e8e8","PT"],["0","#2a2a2a","PTS"]].map(([n,bg,l],i)=>(
-        <div key={i} className="scale-in" style={{textAlign:"center",animationDelay:`${80+i*80}ms`}}>
-          <div style={{background:bg,color:bg==="2a2a2a"?"#555":DARK,width:56,height:56,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,fontWeight:400,fontFamily:FD}}>{n}</div>
-          <div style={{fontSize:8,color:"#555",marginTop:5,letterSpacing:1,fontWeight:600}}>{l}</div>
+    <div style={{display:"flex",flexDirection:"column",gap:8,width:200}} className="scale-in">
+      {[
+        {p1:"1",p2:"1",label:"+3 EXATO",cor:YELLOW,bg:"rgba(255,209,1,0.12)",border:"rgba(255,209,1,0.3)"},
+        {p1:"2",p2:"0",label:"+1 VENCEDOR",cor:"#d0d0d0",bg:"rgba(255,255,255,0.06)",border:"rgba(255,255,255,0.15)"},
+        {p1:"0",p2:"3",label:"ERROU",cor:"#444",bg:"rgba(0,0,0,0.2)",border:"rgba(255,255,255,0.06)"},
+      ].map(({p1,p2,label,cor,bg,border},i)=>(
+        <div key={i} className="scale-in" style={{
+          animationDelay:`${i*80}ms`,
+          display:"flex",alignItems:"center",gap:10,
+          background:bg,border:`0.5px solid ${border}`,
+          borderRadius:10,padding:"8px 12px",
+        }}>
+          <div style={{display:"flex",alignItems:"center",gap:6,flex:1}}>
+            <div style={{width:28,height:28,borderRadius:6,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:18,color:"#fff"}}>{p1}</div>
+            <span style={{fontSize:11,color:"#444"}}>×</span>
+            <div style={{width:28,height:28,borderRadius:6,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:18,color:"#fff"}}>{p2}</div>
+          </div>
+          <span style={{fontSize:9,fontWeight:700,letterSpacing:1,color:cor}}>{label}</span>
         </div>
       ))}
     </div>
   );
 }
+
+// Slide 3: Ranking — pódio com barras animadas
 function Visual3() {
   return (
-    <div style={{display:"flex",alignItems:"flex-end",gap:5}}>
-      {[{h:46,cor:"#C0C0C0",pos:"2"},{h:70,cor:YELLOW,pos:"1"},{h:34,cor:"#CD7F32",pos:"3"}].map((b,i)=>(
-        <div key={i} className="scale-in" style={{animationDelay:`${80+i*80}ms`}}>
-          <div style={{background:b.cor,width:44,height:b.h,borderRadius:"6px 6px 0 0",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:22,color:DARK}}>{b.pos}</div>
+    <div style={{display:"flex",alignItems:"flex-end",gap:6,height:90}} className="scale-in">
+      {[
+        {h:55,cor:"#C0C0C0",pos:"2",delay:"80ms"},
+        {h:85,cor:YELLOW,pos:"1",delay:"0ms"},
+        {h:40,cor:"#CD7F32",pos:"3",delay:"160ms"},
+      ].map((b,i)=>(
+        <div key={i} style={{textAlign:"center",animationDelay:b.delay}}>
+          <div style={{
+            fontFamily:FD,fontSize:10,color:b.cor,marginBottom:4,letterSpacing:0.5
+          }}>{i===1?"1º":i===0?"2º":"3º"}</div>
+          <div style={{
+            width:50,height:b.h,borderRadius:"8px 8px 0 0",
+            background:`linear-gradient(180deg,${b.cor} 0%,${b.cor}99 100%)`,
+            display:"flex",alignItems:"center",justifyContent:"center",
+            boxShadow:`0 0 12px ${b.cor}33`,
+          }}>
+            <span style={{fontFamily:FD,fontSize:26,color:"rgba(0,0,0,0.65)"}}>{b.pos}</span>
+          </div>
+          {/* Listras marca */}
+          <div style={{width:50,height:4,background:i===1?RED:"rgba(255,255,255,0.1)"}}/>
         </div>
       ))}
     </div>
   );
 }
+
+// Slide 4: Atenção — relógio com ponteiros e conta regressiva
 function Visual4() {
   return (
-    <svg width="90" height="90" viewBox="0 0 90 90" className="scale-in">
-      <circle cx="45" cy="45" r="40" fill="none" stroke={RED} strokeWidth="2"/>
-      <rect x="41" y="22" width="7" height="30" rx="2" fill={RED}/>
-      <circle cx="45" cy="64" r="4" fill={RED}/>
+    <svg width="120" height="120" viewBox="0 0 120 120" className="scale-in">
+      {/* Fundo do relógio */}
+      <circle cx="60" cy="62" r="42" fill="rgba(216,9,27,0.08)" stroke={RED} strokeWidth="1.5" opacity="0.8"/>
+      <circle cx="60" cy="62" r="36" fill="rgba(0,0,0,0.3)"/>
+      {/* Marcas de hora */}
+      {[0,30,60,90,120,150,180,210,240,270,300,330].map((ang,i)=>{
+        const rad = (ang-90)*Math.PI/180;
+        const r1 = i%3===0?28:30, r2=33;
+        return <line key={i}
+          x1={60+r1*Math.cos(rad)} y1={62+r1*Math.sin(rad)}
+          x2={60+r2*Math.cos(rad)} y2={62+r2*Math.sin(rad)}
+          stroke={i%3===0?"rgba(255,255,255,0.5)":"rgba(255,255,255,0.2)"} strokeWidth={i%3===0?2:1}
+        />;
+      })}
+      {/* Ponteiro minutos — posição crítica (quase no zero) */}
+      <line x1="60" y1="62" x2="60" y2="34" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 60 62" to="360 60 62" dur="60s" repeatCount="indefinite"/>
+      </line>
+      {/* Ponteiro horas */}
+      <line x1="60" y1="62" x2="75" y2="50" stroke="rgba(255,255,255,0.6)" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Centro */}
+      <circle cx="60" cy="62" r="4" fill={RED}/>
+      <circle cx="60" cy="62" r="2" fill="#fff"/>
+      {/* Texto APITO */}
+      <text x="60" y="78" textAnchor="middle" fontSize="7" fill={RED} fontWeight="700" letterSpacing="2" fontFamily="FIFATournament,sans-serif">APITA</text>
+      {/* Coroa/botão topo */}
+      <rect x="57" y="18" width="6" height="8" rx="3" fill={RED} opacity="0.9"/>
     </svg>
   );
 }
+
+// Slide 5: Logo final
 function Visual5() {
-  return <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:120,width:"auto",objectFit:"contain"}} className="scale-in"/>;
+  return (
+    <div style={{textAlign:"center"}} className="scale-in">
+      <img src={LOGO_BRANCA} alt="Bet Lube" style={{height:110,width:"auto",objectFit:"contain"}}/>
+      <div style={{marginTop:12,display:"flex",justifyContent:"center",gap:4}}>
+        {[RED,YELLOW,RED].map((c,i)=>(
+          <div key={i} style={{width:i===1?24:8,height:3,borderRadius:2,background:c,transition:"width 300ms"}}/>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /* ─── CARROSSEL ──────────────────────────────────────────────────────────── */
@@ -549,15 +659,15 @@ function Carrossel({ slides, onFim }) {
   const slide = slides[atual];
   const isUltimo = atual===slides.length-1;
   return (
-    <div className="scale-in" style={{background:"#fff",borderRadius:20,width:"100%",maxWidth:460,overflow:"hidden",boxShadow:"0 32px 80px rgba(0,0,0,0.9),0 0 0 0.5px rgba(255,255,255,0.06)"}}>
+    <div className="scale-in" style={{background:"rgba(255,255,255,0.97)",borderRadius:20,width:"100%",maxWidth:460,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.7),0 0 0 0.5px rgba(255,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.8)"}}>
       {/* Visual area */}
-      <div style={{background:"#09090f",minHeight:190,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+      <div style={{background:"linear-gradient(160deg,#0d0d14,#080810)",minHeight:190,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",borderBottom:"0.5px solid rgba(255,255,255,0.06)"}}>
         <button className="btn" onClick={onFim} style={{position:"absolute",top:12,right:12,background:"rgba(255,255,255,0.07)",border:"none",borderRadius:"50%",width:30,height:30,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>×</button>
         <div key={atual} className="fade-up">{slide.visual}</div>
       </div>
       {/* Texto */}
       <div style={{padding:"1.4rem 1.6rem 0.8rem"}}>
-        <div key={"t"+atual} className="fade-up" style={{fontSize:22,fontWeight:400,color:DARK,marginBottom:8,fontFamily:FD,letterSpacing:1,lineHeight:1.1}}>{slide.titulo}</div>
+        <div key={"t"+atual} className="fade-up" style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:8,fontFamily:FO,letterSpacing:-0.5,lineHeight:1.15}}>{slide.titulo}</div>
         <div key={"d"+atual} className="fade-up" style={{fontSize:13,color:"#555",lineHeight:1.75,animationDelay:"40ms"}}>{slide.texto}</div>
       </div>
       {/* Controles */}
@@ -588,12 +698,12 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
 
   const rankFiltrado = ranking.filter(c=>c.tipo===aba);
   const podio = rankFiltrado.slice(0,3);
-  const resto  = rankFiltrado.slice(3);
+  const todos  = rankFiltrado; // lista completa incluindo pódio
 
   const MEDAL = [
-    {cor:"#FFD700",grad:"linear-gradient(145deg,#FFD700 0%,#997200 50%,#FFD700 100%)",glow:"0 6px 24px rgba(255,215,0,0.4),inset 0 1px 0 rgba(255,255,255,0.35)",border:"rgba(255,215,0,0.55)",h:112,pos:"1"},
-    {cor:"#C0C0C0",grad:"linear-gradient(145deg,#C0C0C0 0%,#686868 50%,#C0C0C0 100%)",glow:"0 6px 24px rgba(192,192,192,0.3),inset 0 1px 0 rgba(255,255,255,0.25)",border:"rgba(192,192,192,0.45)",h:82,pos:"2"},
-    {cor:"#CD7F32",grad:"linear-gradient(145deg,#CD7F32 0%,#7A3E18 50%,#CD7F32 100%)",glow:"0 6px 24px rgba(205,127,50,0.3),inset 0 1px 0 rgba(255,255,255,0.2)",border:"rgba(205,127,50,0.45)",h:64,pos:"3"},
+    {cor:"#FFD700",grad:"linear-gradient(145deg,#FFD700 0%,#997200 50%,#FFD700 100%)",glow:"inset 0 1px 0 rgba(255,255,255,0.25),inset 0 -1px 0 rgba(0,0,0,0.15)",border:"rgba(255,215,0,0.55)",h:112,pos:"1"},
+    {cor:"#C0C0C0",grad:"linear-gradient(145deg,#C0C0C0 0%,#686868 50%,#C0C0C0 100%)",glow:"inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.1)",border:"rgba(192,192,192,0.45)",h:82,pos:"2"},
+    {cor:"#CD7F32",grad:"linear-gradient(145deg,#CD7F32 0%,#7A3E18 50%,#CD7F32 100%)",glow:"inset 0 1px 0 rgba(255,255,255,0.18),inset 0 -1px 0 rgba(0,0,0,0.1)",border:"rgba(205,127,50,0.45)",h:64,pos:"3"},
   ];
 
   return (
@@ -645,7 +755,7 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
                     {isMe?"Você":c.nome.split(" ")[0]}
                   </div>
                   {/* Pontos */}
-                  <div style={{fontSize:18,fontWeight:400,color:m.cor,marginBottom:7,fontFamily:FD,textShadow:`0 0 14px ${m.cor}55`}}>
+                  <div style={{fontSize:18,fontWeight:400,color:m.cor,marginBottom:7,fontFamily:FD,textShadow:"none"}}>
                     {c.pts}<span style={{fontSize:9,opacity:0.6,marginLeft:1}}>pts</span>
                   </div>
                   {/* Coluna */}
@@ -664,29 +774,36 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
         </div>
       )}
 
-      {/* Lista geral */}
-      {resto.length>0&&(
+      {/* Lista completa — todos os participantes */}
+      {todos.length>0&&(
         <>
-          <div style={{fontSize:9,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"0 0 10px",textTransform:"uppercase"}}>Classificação geral</div>
+          <div style={{fontSize:9,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"4px 0 10px",textTransform:"uppercase",fontFamily:FO}}>Classificação completa</div>
           <div className="stagger">
-            {resto.map((c,i)=>{
+            {todos.map((c,i)=>{
               const isMe = c.id===myId;
+              const MEDAL_COLORS = ["#FFD700","#C0C0C0","#CD7F32"];
+              const isTop3 = i < 3;
               return (
-                <div key={c.id} className="card" style={{
+                <div key={c.id} className="card card-glass" style={{
                   borderRadius:11,padding:"12px 15px",marginBottom:7,
                   display:"flex",alignItems:"center",gap:13,
-                  background:isMe?"linear-gradient(135deg,#180303,#0e0e0e)":"linear-gradient(160deg,#131313,#0c0c0c)",
-                  border:`0.5px solid ${isMe?"rgba(216,9,27,0.5)":BORDER2}`,
-                  boxShadow:isMe?`${SH_MD},0 0 16px rgba(216,9,27,0.1)`:SH_SM,
+                  background:isMe?"linear-gradient(135deg,#160202,#0c0c0c)":isTop3?"linear-gradient(135deg,#131108,#0c0c0c)":"linear-gradient(160deg,#111,#0c0c0c)",
+                  border:`0.5px solid ${isMe?"rgba(216,9,27,0.4)":isTop3?`${MEDAL_COLORS[i]}22`:BORDER2}`,
+                  boxShadow:isMe?`${SH_SM},0 0 10px rgba(216,9,27,0.07)`:SH_SM,
                 }}>
-                  <span style={{fontSize:15,fontWeight:400,color:DIM,minWidth:28,fontFamily:FD}}>{i+4}º</span>
+                  <div style={{minWidth:32,textAlign:"center"}}>
+                    {isTop3
+                      ? <div style={{width:26,height:26,borderRadius:"50%",background:MEDAL_COLORS[i],display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.7)",fontFamily:FD}}>{i+1}</div>
+                      : <span style={{fontSize:14,fontWeight:400,color:DIM,fontFamily:FD}}>{i+1}º</span>
+                    }
+                  </div>
                   <div style={{flex:1}}>
-                    <div style={{fontWeight:500,fontSize:13,color:"#e8e8e8"}}>{c.nome}</div>
-                    <div style={{fontSize:10,color:DIM,marginTop:2}}>{c.acertos} exato(s)</div>
+                    <div style={{fontWeight:500,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
+                    <div style={{fontSize:10,color:DIM,marginTop:2}}>{c.acertos} acerto(s) exato(s)</div>
                   </div>
                   {isMe&&<span style={{fontSize:8,color:RED,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase"}}>Você</span>}
                   <div style={{textAlign:"right"}}>
-                    <div style={{fontWeight:400,fontSize:22,color:"#e8e8e8",fontFamily:FD}}>{c.pts}</div>
+                    <div style={{fontWeight:400,fontSize:22,color:isTop3?MEDAL_COLORS[i]:"#d0d0d0",fontFamily:FD}}>{c.pts}</div>
                     <div style={{fontSize:8,color:DIM,letterSpacing:1,textTransform:"uppercase"}}>pts</div>
                   </div>
                 </div>
@@ -772,7 +889,7 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
       )}
       {!loading && <>
       {/* Filtro rodada */}
-      <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
         {RODADAS.map(r=>(
           <button key={r.id} className="pill btn" onClick={()=>setRodada(r.id)} style={{
             padding:"5px 14px",borderRadius:20,
@@ -839,7 +956,7 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
           const pts    = p&&j.resultado_g1!=null ? calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2) : null;
           const isBR   = j.time1==="Brasil"||j.time2==="Brasil";
           return (
-            <div key={j.id} className={"card"+(isBR?" card-brasil":"")} style={{
+            <div key={j.id} className={"card card-glass"+(isBR?" card-brasil":"")} style={{
               borderRadius:14,padding:"14px",marginBottom:10,
               position:"relative",overflow:"hidden",
               border:isBR?"1px solid rgba(255,209,1,0.2)":`0.5px solid ${BORDER2}`,

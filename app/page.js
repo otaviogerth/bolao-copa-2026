@@ -269,6 +269,13 @@ export default function App() {
     flash("Palpite salvo");
   }
 
+  async function deletarPalpite(palpiteId) {
+    if (!palpiteId) return;
+    await supabase.from("palpites").delete().eq("id", palpiteId);
+    await carregarPalpites(user.id);
+    flash("Palpite removido");
+  }
+
   async function salvarResultado(jogoId,g1,g2) {
     await supabase.from("jogos").update({resultado_g1:parseInt(g1),resultado_g2:parseInt(g2),encerrado:true}).eq("id",jogoId);
     await carregarJogos();
@@ -436,12 +443,12 @@ export default function App() {
         {!isAdmin&&(
           <div className="stagger" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,padding:"12px 14px 0"}}>
             {[
-              {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,rgba(255,209,1,0.08),rgba(28,32,42,0.95))",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`},
-              {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,rgba(216,9,27,0.06),rgba(28,32,42,0.95))",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)"},
-            ].map(({label,val,cor,bg,topBar})=>(
+              {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,rgba(255,209,1,0.08),rgba(28,32,42,0.95))",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,labelFont:FB},
+              {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,rgba(216,9,27,0.06),rgba(28,32,42,0.95))",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)",labelFont:FB},
+            ].map(({label,val,cor,bg,topBar,labelFont})=>(
               <div key={label} className="card card-glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.09)`}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
-                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:FO}}>{label}</div>
+                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:labelFont||FO}}>{label}</div>
                 <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1}}>{val}</div>
               </div>
             ))}
@@ -492,7 +499,7 @@ export default function App() {
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user?.tipo}/></div>}
-        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} loading={loading}/></div>}
+        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
 
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,marginBottom:12,opacity:0.3}}>
@@ -728,7 +735,7 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
 }
 
 /* ─── LISTA DE JOGOS ─────────────────────────────────────────────────────── */
-function ListaJogos({ jogos, palpites, onSalvar, loading }) {
+function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
   const [rodada,setRodada] = useState("1");
   const [diaSel,setDiaSel] = useState(null);
   const calRef = useRef(null);
@@ -872,7 +879,7 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
               </div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
                 <div style={{flex:1}}>
-                  <Flag time={j.time1} size={42}/>
+                  <Flag time={j.time1} size={52}/>
                   <div style={{fontWeight:600,fontSize:12,marginTop:6,color:isBR&&j.time1==="Brasil"?YELLOW:"#e0e0e0",letterSpacing:0.2}}>{j.time1}</div>
                 </div>
                 <div style={{textAlign:"center",flex:"0 0 auto"}}>
@@ -888,11 +895,11 @@ function ListaJogos({ jogos, palpites, onSalvar, loading }) {
                       }
                     </div>
                   ):(
-                    <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} isBrasil={isBR}/>
+                    <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>
                   )}
                 </div>
                 <div style={{flex:1,textAlign:"right"}}>
-                  <div style={{display:"flex",justifyContent:"flex-end"}}><Flag time={j.time2} size={42}/></div>
+                  <div style={{display:"flex",justifyContent:"flex-end"}}><Flag time={j.time2} size={52}/></div>
                   <div style={{fontWeight:600,fontSize:12,marginTop:6,color:isBR&&j.time2==="Brasil"?YELLOW:"#e0e0e0",letterSpacing:0.2}}>{j.time2}</div>
                 </div>
               </div>
@@ -1000,7 +1007,7 @@ function ResultInput({ jogo, onSalvar }) {
 }
 
 /* ─── PALPITE INPUT — stepper +/- ───────────────────────────────────────── */
-function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
+function PalpiteInput({ jogoId, palpiteAtual, onSalvar, onDeletar, isBrasil }) {
   // null = vazio (não preencheu) | número = valor escolhido (0 é válido)
   const [g1, setG1] = useState(palpiteAtual != null ? palpiteAtual.g1 : null);
   const [g2, setG2] = useState(palpiteAtual != null ? palpiteAtual.g2 : null);
@@ -1108,30 +1115,57 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, isBrasil }) {
         />
       </div>
 
-      <button
-        className="btn"
-        style={{
-          border:"none",
-          borderRadius:20,
-          padding:"6px 20px",
-          fontSize:9,
-          fontWeight:700,
-          letterSpacing:1.5,
-          textTransform:"uppercase",
-          background: palpiteAtual
-            ? "linear-gradient(135deg,#5a020e,#3a0008)"
-            : `linear-gradient(135deg,${RED},#a30614)`,
-          color:"#fff",
-          opacity: pronto ? 1 : 0.35,
-          cursor: pronto ? "pointer" : "not-allowed",
-          boxShadow: pronto ? "0 3px 12px rgba(216,9,27,0.35)" : "none",
-          transition:"opacity 180ms ease, box-shadow 180ms ease",
-        }}
-        onClick={() => { if (pronto) onSalvar(jogoId, g1, g2); }}
-        disabled={!pronto}
-      >
-        {palpiteAtual ? "Atualizar" : "Salvar"}
-      </button>
+      <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+        <button
+          className="btn"
+          style={{
+            border:"none",
+            borderRadius:20,
+            padding:"6px 20px",
+            fontSize:9,
+            fontWeight:700,
+            letterSpacing:1.5,
+            textTransform:"uppercase",
+            background: palpiteAtual
+              ? "linear-gradient(135deg,#5a020e,#3a0008)"
+              : `linear-gradient(135deg,${RED},#a30614)`,
+            color:"#fff",
+            opacity: pronto ? 1 : 0.35,
+            cursor: pronto ? "pointer" : "not-allowed",
+            boxShadow: pronto ? "0 3px 12px rgba(216,9,27,0.35)" : "none",
+            transition:"opacity 180ms ease, box-shadow 180ms ease",
+          }}
+          onClick={() => { if (pronto) onSalvar(jogoId, g1, g2); }}
+          disabled={!pronto}
+        >
+          {palpiteAtual ? "Atualizar" : "Salvar"}
+        </button>
+
+        {/* Botão lixeira — só aparece se já tem palpite salvo */}
+        {palpiteAtual && (
+          <button
+            className="stepper-btn"
+            onClick={() => onDeletar && onDeletar()}
+            title="Remover palpite"
+            style={{
+              width:28, height:28,
+              borderRadius:8,
+              border:"1px solid rgba(255,255,255,0.08)",
+              background:"rgba(255,255,255,0.03)",
+              color:"#3a3a3a",
+              cursor:"pointer",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              transition:"border-color 160ms ease, color 160ms ease, background 160ms ease",
+            }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(216,9,27,0.4)";e.currentTarget.style.color="#D8091B";e.currentTarget.style.background="rgba(216,9,27,0.08)";}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.08)";e.currentTarget.style.color="#3a3a3a";e.currentTarget.style.background="rgba(255,255,255,0.03)";}}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1.5 3h9M4.5 3V2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1M9.5 3l-.5 7H3L2.5 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

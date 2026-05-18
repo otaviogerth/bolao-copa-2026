@@ -1,4 +1,14 @@
-export const metadata = { title: "Bolão Copa 2026 — Ipiranga & Texaco" };
+export const metadata = {
+  title: "BetLube",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#D8091B",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Bet Lube",
+  },
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">

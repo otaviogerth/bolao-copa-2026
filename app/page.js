@@ -223,6 +223,182 @@ function Banner() {
   );
 }
 
+/* ─── LISTA MATA-MATA (usuário) ─────────────────────────────────────────── */
+function ListaMataMata({ jogos, palpites, onSalvar }) {
+  const [faseSel,setFaseSel] = useState("16avos");
+  const [diaSel,setDiaSel]   = useState(null);
+  const calRef = useRef(null);
+
+  const FASES = [
+    {id:"16avos",  label:"Rodada de 32"},
+    {id:"oitavas", label:"Oitavas"},
+    {id:"quartas", label:"Quartas"},
+    {id:"semis",   label:"Semis"},
+    {id:"final",   label:"Final"},
+  ];
+
+  function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
+
+  const jogosFase    = jogos.filter(j=>j.fase===faseSel);
+  const jogosComData = jogosFase.filter(j=>j.data_hora);
+  const jogosSemData = jogosFase.filter(j=>!j.data_hora);
+  const todosOsDias  = [...new Set(jogosComData.map(j=>diaBR(j.data_hora)))].sort();
+
+  useEffect(()=>{
+    if(todosOsDias.length===0){setDiaSel(null);return;}
+    const hoje=diaBR(new Date().toISOString());
+    const proximo=todosOsDias.find(d=>d>=hoje)||todosOsDias[todosOsDias.length-1];
+    setDiaSel(proximo);
+  },[faseSel,jogos.length]); // eslint-disable-line
+
+  useEffect(()=>{
+    if(!calRef.current||!diaSel)return;
+    const btn=calRef.current.querySelector(`[data-dia="${diaSel}"]`);
+    if(btn)btn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  },[diaSel]);
+
+  const jogosDoDia = jogosComData
+    .filter(j=>diaBR(j.data_hora)===diaSel)
+    .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora));
+
+  function formatDiaLabel(iso){
+    const d=new Date(iso+"T12:00:00-03:00");
+    return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});
+  }
+  function formatHora(iso){
+    return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});
+  }
+  function formatCalDia(iso){
+    const d=new Date(iso+"T12:00:00-03:00");
+    return {
+      sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),
+      num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),
+      mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3),
+    };
+  }
+
+  function renderCard(j){
+    const p=palpites.find(x=>x.jogo_id===j.id);
+    const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2):null;
+    const time1=j.time1||"A definir";
+    const time2=j.time2||"A definir";
+    const definido=!!(j.time1&&j.time2);
+    return (
+      <div key={j.id} className="card" style={{
+        borderRadius:14,padding:"14px",marginBottom:10,
+        position:"relative",overflow:"hidden",
+        border:`0.5px solid ${BORDER2}`,
+        background:"linear-gradient(160deg,#131313,#0c0c0c)",
+        boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.03)`,
+      }}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13}}>
+          <div style={{background:"rgba(255,255,255,0.04)",color:DIM,fontSize:9,fontWeight:700,padding:"3px 8px",borderRadius:5,letterSpacing:1,border:"0.5px solid rgba(255,255,255,0.06)"}}>
+            {j.data_hora?formatHora(j.data_hora):"A definir"}
+          </div>
+          {pts!==null&&(
+            <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===3?"rgba(255,209,1,0.12)":pts===1?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===3?YELLOW:pts===1?"#bbb":"#444",border:pts===3?"0.5px solid rgba(255,209,1,0.25)":pts===1?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===3?"+3 EXATO":pts===1?"+1 VENCEDOR":"ERROU"}</span>
+          )}
+        </div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+          <div style={{flex:1}}>
+            {j.time1&&<Flag time={j.time1} size={52}/>}
+            <div style={{fontWeight:600,fontSize:12,marginTop:6,color:j.time1?"#e0e0e0":DIM,letterSpacing:0.2,fontStyle:j.time1?"normal":"italic"}}>{time1}</div>
+          </div>
+          <div style={{textAlign:"center",flex:"0 0 auto"}}>
+            {j.encerrado?(
+              <div>
+                <div className="score-box" style={{display:"inline-block",fontSize:26,fontWeight:400,color:"#fff",letterSpacing:4,fontFamily:FD}}>{j.resultado_g1} : {j.resultado_g2}</div>
+                {p&&<div style={{fontSize:10,color:DIM,marginTop:5,letterSpacing:0.4}}>Palpite {p.g1}—{p.g2}</div>}
+              </div>
+            ):definido?(
+              <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>{}} isBrasil={false}/>
+            ):(
+              <div style={{fontSize:11,color:DIM,fontStyle:"italic",padding:"0 8px"}}>—</div>
+            )}
+          </div>
+          <div style={{flex:1,textAlign:"right"}}>
+            {j.time2&&<div style={{display:"flex",justifyContent:"flex-end"}}><Flag time={j.time2} size={52}/></div>}
+            <div style={{fontWeight:600,fontSize:12,marginTop:6,color:j.time2?"#e0e0e0":DIM,letterSpacing:0.2,fontStyle:j.time2?"normal":"italic"}}>{time2}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{paddingTop:14}}>
+      <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
+        {FASES.map(f=>(
+          <button key={f.id} className="pill btn" onClick={()=>setFaseSel(f.id)} style={{
+            padding:"5px 14px",borderRadius:20,
+            border:faseSel===f.id?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
+            background:faseSel===f.id?`linear-gradient(135deg,${RED},#a30614)`:"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
+            color:faseSel===f.id?"#fff":MUTE,
+            fontSize:12,fontWeight:faseSel===f.id?600:500,
+            fontFamily:FB,
+            boxShadow:faseSel===f.id?"inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2)":"inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.1)",
+          }}>{f.label}</button>
+        ))}
+      </div>
+
+      {todosOsDias.length>0&&(
+        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:7,padding:"0 14px 14px",justifyContent:"center"}}>
+          {todosOsDias.map(dia=>{
+            const {sem,num,mes}=formatCalDia(dia);
+            const ativo=dia===diaSel;
+            return (
+              <button key={dia} data-dia={dia} className="btn" onClick={()=>setDiaSel(dia)} style={{
+                flexShrink:0,display:"flex",flexDirection:"column",alignItems:"center",
+                padding:"10px 14px",borderRadius:12,gap:2,minWidth:54,
+                border:ativo?`1.5px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
+                background:ativo?`linear-gradient(135deg,${RED},#a30614)`:"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
+                boxShadow:ativo?`0 4px 16px rgba(216,9,27,0.25),inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.2)`:"inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.15)",
+                cursor:"pointer",transition:"all 180ms var(--ease-out)",
+              }}>
+                <span style={{fontSize:9,fontWeight:700,color:ativo?"rgba(255,255,255,0.7)":DIM,letterSpacing:1}}>{sem}</span>
+                <span style={{fontSize:26,fontWeight:400,color:"#fff",fontFamily:FD,lineHeight:1.05}}>{num}</span>
+                <span style={{fontSize:9,fontWeight:600,color:ativo?"rgba(255,255,255,0.6)":DIM,letterSpacing:0.5}}>{mes}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {diaSel&&(
+        <div style={{display:"flex",alignItems:"center",gap:10,padding:"2px 14px 12px"}}>
+          <div style={{flex:1,height:"0.5px",background:BORDER}}/>
+          <span style={{fontSize:10,color:DIM,fontWeight:600,textTransform:"uppercase",whiteSpace:"nowrap",letterSpacing:1}}>
+            {formatDiaLabel(diaSel)}
+          </span>
+          <div style={{flex:1,height:"0.5px",background:BORDER}}/>
+        </div>
+      )}
+
+      <div className="stagger" style={{padding:"0 14px 24px"}}>
+        {jogosDoDia.length===0&&jogosSemData.length===0&&(
+          <div style={{textAlign:"center",padding:"3rem 1rem"}}>
+            <div style={{fontSize:13,color:DIM,fontFamily:FO,fontWeight:500}}>Nenhum jogo nesta fase</div>
+          </div>
+        )}
+        {jogosDoDia.map(j=>renderCard(j))}
+      </div>
+
+      {jogosSemData.length>0&&(
+        <div style={{padding:"0 14px 24px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,padding:"2px 0 12px"}}>
+            <div style={{flex:1,height:"0.5px",background:BORDER}}/>
+            <span style={{fontSize:10,color:DIM,fontWeight:600,textTransform:"uppercase",whiteSpace:"nowrap",letterSpacing:1}}>A DEFINIR</span>
+            <div style={{flex:1,height:"0.5px",background:BORDER}}/>
+          </div>
+          <div className="stagger">
+            {jogosSemData.map(j=>renderCard(j))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── APP ─────────────────────────────────────────────────────────────────── */
 export default function App() {
   const [user,setUser]         = useState(null);
@@ -458,7 +634,7 @@ export default function App() {
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]]
-            :[["jogos","Palpites"],["ranking","Ranking"]]
+            :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
           ).map(([t,l])=>(
             <button key={t} className="pill btn" style={{
               padding:"5px 14px",borderRadius:20,
@@ -499,6 +675,7 @@ export default function App() {
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user?.tipo}/></div>}
+        {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites} onSalvar={salvarPalpite}/></div>}
         {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
 
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>

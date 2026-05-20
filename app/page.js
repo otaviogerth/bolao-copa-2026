@@ -522,11 +522,11 @@ export default function App() {
           </div>
           <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms"}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
-            <input id="doc" autoComplete="username" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}/>
+            <input id="doc" name="username" autoComplete="username" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}/>
           </div>
           <div className="fade-up" style={{marginBottom:"2rem",animationDelay:"130ms"}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Senha</div>
-            <input id="senha" type="password" autoComplete="current-password" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}
+            <input id="senha" name="password" type="password" autoComplete="current-password" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}
               onKeyDown={e=>e.key==="Enter"&&login(document.getElementById("doc").value,document.getElementById("senha").value)}/>
           </div>
           {loginErr && (
@@ -566,7 +566,7 @@ export default function App() {
   if (tela==="boasvindas") {
     const slides=[
       {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
-      {visual:<Visual2/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2x1)? 3 pontos. Acertou só quem ganhou ou que empatou? 1 ponto. Errou tudo? 0 pontos. Quanto mais precisão, mais pontos."},
+      {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2x1)? 3 pontos. Acertou só quem ganhou ou que empatou? 1 ponto. Errou tudo? 0 pontos. Quanto mais precisão, mais pontos."},
       {visual:<Visual3/>,titulo:"Disputando o Top 10",texto:"Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco."},
       {visual:<Visual4/>,titulo:"Atenção",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
       {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites."},
@@ -710,6 +710,26 @@ function Visual1() {
       <rect x="42" y="30" width="8" height="52" fill={RED} opacity="0.25" clipPath="url(#c1)"/>
       <rect x="80" y="30" width="8" height="52" fill={RED} opacity="0.25" clipPath="url(#c1)"/>
     </svg>
+  );
+}
+
+function VisualPontos() {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:10,width:220}}>
+      {[
+        {icone:"3",label:"PLACAR EXATO",ex:"ex: você disse 2×1 e foi 2×1",cor:YELLOW},
+        {icone:"1",label:"RESULTADO CERTO",ex:"ex: você disse 2×1 e foi 3×1",cor:"#d0d0d0"},
+        {icone:"0",label:"ERROU",ex:"ex: você disse 2×1 e foi 0×1",cor:"#444"},
+      ].map(({icone,label,ex,cor})=>(
+        <div key={label} style={{display:"flex",alignItems:"center",gap:12,background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"10px 14px",border:"0.5px solid rgba(255,255,255,0.08)"}}>
+          <div style={{width:36,height:36,borderRadius:"50%",background:cor==="444"?"#1a1a1a":`${cor}22`,border:`1.5px solid ${cor==="444"?"#333":cor}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:20,color:cor,flexShrink:0}}>{icone}</div>
+          <div>
+            <div style={{fontSize:10,fontWeight:700,color:cor,letterSpacing:1}}>{label}</div>
+            <div style={{fontSize:10,color:DIM,marginTop:2}}>{ex}</div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

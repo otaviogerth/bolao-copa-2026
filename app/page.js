@@ -522,11 +522,11 @@ export default function App() {
           </div>
           <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms"}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
-            <input id="doc" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}/>
+            <input id="doc" autoComplete="username" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}/>
           </div>
           <div className="fade-up" style={{marginBottom:"2rem",animationDelay:"130ms"}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Senha</div>
-            <input id="senha" type="password" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}
+            <input id="senha" type="password" autoComplete="current-password" style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 0",background:"transparent",color:"#111",fontWeight:500}}
               onKeyDown={e=>e.key==="Enter"&&login(document.getElementById("doc").value,document.getElementById("senha").value)}/>
           </div>
           {loginErr && (
@@ -566,7 +566,7 @@ export default function App() {
   if (tela==="boasvindas") {
     const slides=[
       {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
-      {visual:<Visual2/>,titulo:"Como pontuar",texto:"3 pontos pelo placar exato, 1 ponto por acertar o vencedor ou empate. Quanto mais precisão, mais pontos — e mais perto do prêmio."},
+      {visual:<Visual2/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2x1)? 3 pontos. Acertou só quem ganhou ou que empatou? 1 ponto. Errou tudo? 0 pontos. Quanto mais precisão, mais pontos."},
       {visual:<Visual3/>,titulo:"Disputando o Top 10",texto:"Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco."},
       {visual:<Visual4/>,titulo:"Atenção",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
       {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites."},
@@ -622,7 +622,7 @@ export default function App() {
               {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,rgba(255,209,1,0.08),rgba(28,32,42,0.95))",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,labelFont:FB},
               {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,rgba(216,9,27,0.06),rgba(28,32,42,0.95))",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)",labelFont:FB},
             ].map(({label,val,cor,bg,topBar,labelFont})=>(
-              <div key={label} className="card card-glass" style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.09)`}}>
+              <div key={label} className="card card-glass" onClick={label==="Posição"?()=>setTela("ranking"):undefined} style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.09)`,cursor:label==="Posição"?"pointer":undefined}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
                 <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:labelFont||FO}}>{label}</div>
                 <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1}}>{val}</div>
@@ -637,9 +637,9 @@ export default function App() {
             :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
           ).map(([t,l])=>(
             <button key={t} className="pill btn" style={{
-              padding:"5px 14px",borderRadius:20,
+              padding:"7px 18px",borderRadius:20,
               border:tela===t?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
-              fontSize:12,
+              fontSize:13,
               background:tela===t?`linear-gradient(135deg,${RED},#a30614)`:"linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))",
               color:tela===t?"#fff":MUTE,
               fontWeight:tela===t?600:500,
@@ -681,8 +681,8 @@ export default function App() {
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,marginBottom:12,opacity:0.3}}>
             <img src={SUPA+"/ipiranga%20logo.png"} alt="" style={{height:16,filter:"brightness(0) invert(1)"}}/>
-            <img src={SUPA+"/texaco%20logo.png"}   alt="" style={{height:16,filter:"brightness(0) invert(1)"}}/>
             <img src={SUPA+"/bel%20lube%20logo.png"} alt="" style={{height:20,filter:"brightness(0) invert(1)"}}/>
+            <img src={SUPA+"/texaco%20logo.png"}   alt="" style={{height:16,filter:"brightness(0) invert(1)"}}/>
           </div>
           <div style={{fontSize:9,color:"#2a2a2a",letterSpacing:1}}>by <span style={{color:"#3a3a3a",fontWeight:600}}>Gerth Consultoria</span></div>
         </div>

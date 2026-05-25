@@ -600,7 +600,7 @@ export default function App() {
         <Banner/>
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:38,width:"auto",objectFit:"contain"}}/>
+            <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:120,width:"auto",objectFit:"contain"}}/>
             <div style={{width:1,height:16,background:BORDER2}}/>
             <div>
               <div style={{fontSize:13,fontWeight:600,color:"#e8e8e8",lineHeight:1.2}}>{isAdmin?"Admin":user.nome}</div>

@@ -311,6 +311,8 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
                 <div className="score-box" style={{display:"inline-block",fontSize:26,fontWeight:400,color:"#fff",letterSpacing:4,fontFamily:FD}}>{j.resultado_g1} : {j.resultado_g2}</div>
                 {p&&<div style={{fontSize:10,color:DIM,marginTop:5,letterSpacing:0.4}}>Palpite {p.g1}—{p.g2}</div>}
               </div>
+            ):new Date(j.data_hora)<=new Date()?(
+              <div style={{fontSize:10,color:DIM,fontStyle:"italic"}}>Em andamento</div>
             ):definido?(
               <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>{}} isBrasil={false}/>
             ):(
@@ -439,6 +441,8 @@ export default function App() {
   function flash(text,err)               { setMsg({text,err});setTimeout(()=>setMsg(""),2500); }
 
   async function salvarPalpite(jogoId,g1,g2) {
+    const jogo = jogos.find(j=>j.id===jogoId);
+    if (jogo && new Date(jogo.data_hora) <= new Date()) { flash("Jogo já começou — aposta bloqueada",true); return; }
     const exist = palpites.find(p=>p.jogo_id===jogoId);
     if (exist) await supabase.from("palpites").update({g1:parseInt(g1),g2:parseInt(g2)}).eq("id",exist.id);
     else       await supabase.from("palpites").insert({cliente_id:user.id,jogo_id:jogoId,g1:parseInt(g1),g2:parseInt(g2)});
@@ -1057,7 +1061,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
         )}
         {jogosDoDia.map(j=>{
           const p=palpites.find(x=>x.jogo_id===j.id);
-          const passou=j.encerrado;
+          const passou=j.encerrado||new Date(j.data_hora)<=new Date();
           const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2):null;
           const isBR=j.time1==="Brasil"||j.time2==="Brasil";
           return (

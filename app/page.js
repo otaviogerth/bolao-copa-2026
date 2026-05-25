@@ -233,8 +233,9 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
     {id:"16avos",  label:"Rodada de 32"},
     {id:"oitavas", label:"Oitavas"},
     {id:"quartas", label:"Quartas"},
-    {id:"semis",   label:"Semis"},
-    {id:"final",   label:"Final"},
+    {id:"semis",    label:"Semis"},
+    {id:"terceiro", label:"3º Lugar"},
+    {id:"final",    label:"Final"},
   ];
 
   function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}

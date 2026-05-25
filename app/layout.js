@@ -1,10 +1,10 @@
 export const metadata = {
-  title: "BetLube",
+  title: "Bolão Bel Lube",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "BetLube",
+    title: "Bolão Bel Lube",
   },
 };
 

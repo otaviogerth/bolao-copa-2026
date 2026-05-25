@@ -19,7 +19,7 @@ const MUTE   = "#8b95a8";
 const SUPA   = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
 const LOGO_BRANCA   = SUPA + "/bet%20lube%20branca.png";
 const LOGO_PRETA    = SUPA + "/bet%20lube%20preta.png";
-const LOGO_VERMELHA = SUPA + "/bet%20lube%20vermelha.png";
+const LOGO_VERMELHA = "/bet lube vermelha.png";
 
 const FD = "'FIFATournament','Impact',sans-serif";
 const FO = "'FIFATournament','Impact',sans-serif";

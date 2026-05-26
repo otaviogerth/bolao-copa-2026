@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolão Bel Lube — Copa 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111318;--red:#D8091B;--gold:#C9A84C;
+  --br-green:#009C3B;--br-yellow:#FFDF00;
+  --white:#fff;--muted:rgba(255,255,255,.55);
+}
+html{scroll-snap-type:y mandatory;overflow-y:scroll;background:var(--bg);scrollbar-width:none}
+html::-webkit-scrollbar{display:none}
+body{font-family:'Ubuntu',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden}
+
+/* ── SLIDE BASE ── */
+.slide{
+  min-height:100vh;scroll-snap-align:start;
+  position:relative;display:flex;flex-direction:column;
+  justify-content:center;overflow:hidden;
+  padding:5rem 6rem 4rem;
+}
+
+/* ── NAV DOTS ── */
+.nav-dots{
+  position:fixed;right:1.8rem;top:50%;transform:translateY(-50%);
+  z-index:1000;display:flex;flex-direction:column;gap:.9rem;
+}
+.nav-dot{
+  position:relative;width:8px;height:8px;border-radius:50%;
+  background:rgba(255,255,255,.2);cursor:pointer;
+  transition:all .3s;border:none;outline:none;
+}
+.nav-dot.active{background:var(--gold);transform:scale(1.6)}
+.nav-dot:hover{background:var(--white)}
+.nav-dot .dot-label{
+  position:absolute;right:1.6rem;top:50%;transform:translateY(-50%);
+  background:rgba(17,19,24,.92);border:1px solid rgba(201,168,76,.3);
+  color:var(--gold);font-family:'Ubuntu',sans-serif;font-size:.68rem;
+  font-weight:500;letter-spacing:.06em;padding:.3rem .7rem;
+  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.nav-dot:hover .dot-label{opacity:1}
+
+/* ── FOOTER ── */
+.slide-footer{
+  position:absolute;bottom:1.5rem;left:0;right:0;
+  padding:0 6rem;display:flex;align-items:center;gap:0;
+}
+.footer-line{flex:1;height:1px;background:rgba(255,255,255,.07)}
+.footer-num{
+  font-family:'Bebas Neue',sans-serif;font-size:.8rem;
+  color:rgba(255,255,255,.18);padding:0 1rem;letter-spacing:.2em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.87)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+@keyframes drawX{from{transform-origin:left;transform:scaleX(0)}to{transform:scaleX(1)}}
+
+.au{opacity:0;animation:fadeUp .65s ease forwards}
+.ai{opacity:0;animation:fadeIn .65s ease forwards}
+.ar{opacity:0;animation:slideRight .65s ease forwards}
+.as{opacity:0;animation:scaleIn .55s ease forwards}
+.d1{animation-delay:.12s}.d2{animation-delay:.26s}.d3{animation-delay:.4s}
+.d4{animation-delay:.54s}.d5{animation-delay:.68s}.d6{animation-delay:.82s}
+.anim-hidden{opacity:0;animation:none!important}
+
+/* ── GLASS ── */
+.glass{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+
+/* ── UTILITIES ── */
+.tag-label{
+  font-family:'Ubuntu',sans-serif;font-size:.68rem;font-weight:700;
+  letter-spacing:.32em;text-transform:uppercase;color:var(--red);
+  margin-bottom:.9rem;display:block;
+}
+.red-bar{height:3px;background:var(--red);width:56px;margin-bottom:1.4rem;transform-origin:left}
+
+/* ══════════════════════════════════════
+   SLIDE 1 — CAPA
+══════════════════════════════════════ */
+#s1{
+  align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(ellipse 75% 55% at 50% 52%,rgba(216,9,27,.1) 0%,transparent 68%);
+}
+#s1 .stripe{position:absolute;width:1px;background:var(--red);opacity:.12;top:0;bottom:0}
+#s1 .s-l{left:12%}#s1 .s-r{right:12%}
+#s1 .watermark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(6rem,20vw,16rem);line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.1);
+  user-select:none;pointer-events:none;white-space:nowrap;z-index:0;
+}
+#s1 .capa-inner{position:relative;z-index:1}
+#s1 .logo-main{
+  width:clamp(180px,32vw,360px);height:auto;
+  filter:drop-shadow(0 0 50px rgba(216,9,27,.28));
+}
+#s1 .subtitle{
+  font-size:clamp(.7rem,1.4vw,.95rem);font-weight:300;
+  letter-spacing:.38em;text-transform:uppercase;color:var(--muted);
+  margin-top:1.6rem;line-height:1.6;
+}
+#s1 .badge{
+  display:inline-flex;align-items:center;gap:.55rem;margin-top:2rem;
+  border:1px solid var(--gold);padding:.4rem 1.3rem;
+  font-size:.72rem;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold);
+}
+#s1 .badge .live{
+  width:6px;height:6px;border-radius:50%;background:var(--gold);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 2 — O PRODUTO
+══════════════════════════════════════ */
+#s2{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+#s2 .left{position:relative}
+#s2 .ghost-num{
+  position:absolute;top:-4rem;left:-2.5rem;z-index:0;
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(7rem,18vw,15rem);
+  line-height:1;color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.12);
+  user-select:none;pointer-events:none;
+}
+#s2 .content{position:relative;z-index:1}
+#s2 h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.4rem,5vw,4.2rem);line-height:1;margin-bottom:1.4rem;
+}
+#s2 p{
+  font-size:.95rem;font-weight:300;line-height:1.72;
+  color:rgba(255,255,255,.72);max-width:400px;margin-bottom:1.5rem;
+}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.5rem}
+.feat-item{padding:1.1rem 1.2rem}
+.feat-item .fi-title{
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;
+  color:var(--gold);letter-spacing:.05em;margin-bottom:.25rem;
+}
+.feat-item p{font-size:.78rem;color:var(--muted);line-height:1.5;max-width:unset;margin:0}
+
+#s2 .phone-wrap{display:flex;align-items:center;justify-content:center}
+.phone{
+  width:clamp(160px,20vw,260px);aspect-ratio:9/19;border-radius:2.4rem;
+  border:1.5px solid rgba(201,168,76,.28);background:rgba(255,255,255,.025);
+  position:relative;overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04);
+}
+.phone::before{
+  content:'';position:absolute;top:.7rem;left:50%;transform:translateX(-50%);
+  width:28%;height:4px;background:rgba(201,168,76,.35);border-radius:2px;
+}
+.phone-screen{
+  position:absolute;inset:.9rem;padding-top:1.6rem;
+  display:flex;flex-direction:column;gap:.45rem;
+}
+.pb{height:7px;border-radius:3px;background:rgba(216,9,27,.45)}
+.pb.g{background:rgba(201,168,76,.38)}
+.pb.s{width:62%;height:4px}.pb.xs{width:40%;height:4px}
+.pc{height:48px;border-radius:4px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06);margin-top:.2rem}
+
+/* ══════════════════════════════════════
+   SLIDE 3 — FUNCIONALIDADES
+══════════════════════════════════════ */
+#s3{padding-top:6rem}
+#s3 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);line-height:1;margin-bottom:2.5rem}
+.funcs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.fc{padding:1.7rem;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red)}
+.fc .fn{
+  font-family:'Bebas Neue',sans-serif;font-size:3.2rem;line-height:1;
+  color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.18);margin-bottom:.4rem;
+}
+.fc h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.6rem}
+.fc p{font-size:.8rem;font-weight:300;color:rgba(255,255,255,.6);line-height:1.6}
+
+/* ══════════════════════════════════════
+   SLIDE 4 — PÚBLICO-ALVO
+══════════════════════════════════════ */
+#s4{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.big-stat .sn{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(5.5rem,14vw,12rem);
+  line-height:.9;color:var(--red);display:block;
+}
+.big-stat .sn2{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,7vw,6rem);
+  line-height:.9;color:var(--gold);display:block;margin-top:.5rem;
+}
+.big-stat .sl{
+  font-size:.85rem;font-weight:300;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem;display:block;
+}
+.stat-sep{height:1px;background:rgba(255,255,255,.08);margin:1.8rem 0}
+#s4 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4.5vw,3.6rem);line-height:1.05;margin-bottom:1.4rem}
+#s4 p{font-size:.92rem;font-weight:300;line-height:1.72;color:rgba(255,255,255,.7);margin-bottom:1.2rem}
+.aud-tags{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:.5rem}
+.aud-tag{
+  padding:.38rem .95rem;border:1px solid rgba(201,168,76,.32);
+  font-size:.72rem;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold);
+}
+
+/* ══════════════════════════════════════
+   SLIDE 5 — PONTUAÇÃO
+══════════════════════════════════════ */
+#s5{position:relative}
+#s5 .bg-grid{
+  position:absolute;inset:0;opacity:.025;
+  background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:55px 55px;
+}
+#s5 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);line-height:1;margin-bottom:2.5rem;position:relative;z-index:1}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;position:relative;z-index:1;margin-bottom:1.8rem}
+.sc{padding:2rem;text-align:center}
+.sc .pts{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,5.5rem);line-height:1;display:block}
+.sc .pts.gold{color:var(--gold)}.sc .pts.red{color:var(--red)}.sc .pts.dim{color:rgba(255,255,255,.18)}
+.sc .slbl{font-size:.78rem;font-weight:400;color:rgba(255,255,255,.52);margin-top:.45rem;line-height:1.45}
+.brazil-box{
+  position:relative;z-index:1;padding:1.8rem 2.2rem;
+  background:linear-gradient(130deg,rgba(0,156,59,.13),rgba(255,223,0,.07));
+  border:1px solid rgba(255,223,0,.28);
+  display:flex;align-items:center;gap:1.8rem;
+}
+.bz-icon{width:56px;height:56px;flex-shrink:0}
+.brazil-box h3{
+  font-family:'Bebas Neue',sans-serif;font-size:1.9rem;
+  letter-spacing:.05em;color:var(--br-yellow);margin-bottom:.3rem;
+}
+.brazil-box p{font-size:.82rem;color:rgba(255,255,255,.68);font-weight:300;line-height:1.5}
+
+/* ══════════════════════════════════════
+   SLIDE 6 — AUTOMAÇÃO
+══════════════════════════════════════ */
+#s6{display:grid;grid-template-columns:1.15fr .85fr;gap:5rem;align-items:center}
+#s6 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5.5vw,4.2rem);line-height:1;margin-bottom:2rem}
+.auto-steps{display:flex;flex-direction:column;gap:1.4rem}
+.a-step{display:flex;align-items:flex-start;gap:1.1rem}
+.a-icon{
+  width:40px;height:40px;flex-shrink:0;
+  border:1px solid rgba(201,168,76,.28);
+  display:flex;align-items:center;justify-content:center;
+}
+.a-icon svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:1.5}
+.a-content h4{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.25rem}
+.a-content p{font-size:.8rem;font-weight:300;color:rgba(255,255,255,.58);line-height:1.5}
+.big-zero{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(7rem,17vw,14rem);
+  line-height:1;color:transparent;-webkit-text-stroke:2px var(--red);text-align:center;
+}
+.zero-cap{
+  font-size:.78rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--muted);text-align:center;margin-top:-.8rem;line-height:1.6;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 7 — POR QUE FAZ SENTIDO
+══════════════════════════════════════ */
+#s7 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);line-height:1;margin-bottom:2.5rem}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.rc{padding:1.8rem;position:relative;overflow:hidden}
+.rc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent)}
+.rc .rn{
+  position:absolute;top:.3rem;right:.8rem;
+  font-family:'Bebas Neue',sans-serif;font-size:3.8rem;
+  color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.15);user-select:none;
+}
+.rc h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.05em;margin-bottom:.6rem}
+.rc p{font-size:.8rem;font-weight:300;color:rgba(255,255,255,.58);line-height:1.6}
+
+/* ══════════════════════════════════════
+   SLIDE 8 — CRONOGRAMA
+══════════════════════════════════════ */
+#s8 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);line-height:1;margin-bottom:3rem}
+.timeline{position:relative;padding-left:1.8rem}
+.timeline::before{
+  content:'';position:absolute;left:0;top:.5rem;bottom:.5rem;
+  width:2px;background:linear-gradient(180deg,var(--red),rgba(216,9,27,.08));
+}
+.tl-item{position:relative;padding-left:2.2rem;padding-bottom:2.2rem}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{
+  position:absolute;left:-1.8rem;top:.35rem;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--red);transform:translateX(-3.5px);
+}
+.tl-dot.gold{background:var(--gold)}
+.tl-date{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.14em;color:var(--gold);margin-bottom:.15rem}
+.tl-title{font-size:.98rem;font-weight:500}
+.tl-desc{font-size:.78rem;font-weight:300;color:var(--muted);margin-top:.15rem}
+
+/* ══════════════════════════════════════
+   SLIDE 9 — VISÃO DE FUTURO
+══════════════════════════════════════ */
+#s9{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+#s9 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5.5vw,4.2rem);line-height:1;margin-bottom:1.4rem}
+#s9 .ft{font-size:.92rem;font-weight:300;line-height:1.72;color:rgba(255,255,255,.68)}
+.fut-cards{display:flex;flex-direction:column;gap:1.1rem}
+.fut-c{padding:1.3rem;display:flex;align-items:center;gap:1.1rem}
+.fut-c .fci{
+  width:44px;height:44px;flex-shrink:0;
+  background:rgba(216,9,27,.12);border:1px solid rgba(216,9,27,.28);
+  display:flex;align-items:center;justify-content:center;
+}
+.fut-c .fci svg{width:20px;height:20px;stroke:var(--red);fill:none;stroke-width:1.5}
+.fut-c h4{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--gold);margin-bottom:.18rem}
+.fut-c p{font-size:.78rem;font-weight:300;color:var(--muted)}
+
+/* ══════════════════════════════════════
+   SLIDE 10 — PRÓXIMOS PASSOS
+══════════════════════════════════════ */
+#s10{
+  align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(ellipse 55% 48% at 50% 50%,rgba(201,168,76,.06) 0%,transparent 68%);
+}
+#s10 h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,7vw,5.5rem);line-height:1;margin-bottom:3rem}
+.steps-row{display:flex;gap:1.8rem;flex-wrap:wrap;justify-content:center;margin-bottom:2.2rem}
+.sb{padding:1.5rem 1.8rem;text-align:left;min-width:170px}
+.sb .sbn{font-family:'Bebas Neue',sans-serif;font-size:.82rem;color:var(--red);letter-spacing:.2em;margin-bottom:.45rem}
+.sb h4{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;margin-bottom:.28rem}
+.sb p{font-size:.76rem;color:var(--muted);font-weight:300;line-height:1.5}
+.date-box{
+  background:rgba(216,9,27,.1);border:1px solid rgba(216,9,27,.38);
+  padding:.9rem 2.4rem;margin-bottom:2.8rem;
+}
+.date-box span{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red);letter-spacing:.1em}
+#s10 .logo-bl{width:clamp(90px,13vw,148px);height:auto;opacity:.78}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .slide{padding:4rem 1.4rem 3rem}
+  #s2,#s4,#s6,#s9{grid-template-columns:1fr;gap:2rem}
+  .funcs,.score-grid,.reasons{grid-template-columns:1fr}
+  .slide-footer{padding:0 1.4rem}
+  #s2 .phone-wrap,#s4 .big-stat{display:none}
+  .nav-dots{right:.65rem}
+  #s1 .watermark{font-size:22vw}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV DOTS -->
+<nav class="nav-dots" id="navDots">
+  <button class="nav-dot active" data-i="0"><span class="dot-label">Capa</span></button>
+  <button class="nav-dot" data-i="1"><span class="dot-label">O Produto</span></button>
+  <button class="nav-dot" data-i="2"><span class="dot-label">Funcionalidades</span></button>
+  <button class="nav-dot" data-i="3"><span class="dot-label">Público-Alvo</span></button>
+  <button class="nav-dot" data-i="4"><span class="dot-label">Pontuação</span></button>
+  <button class="nav-dot" data-i="5"><span class="dot-label">Automação</span></button>
+  <button class="nav-dot" data-i="6"><span class="dot-label">Por Que Faz Sentido</span></button>
+  <button class="nav-dot" data-i="7"><span class="dot-label">Cronograma</span></button>
+  <button class="nav-dot" data-i="8"><span class="dot-label">Visão de Futuro</span></button>
+  <button class="nav-dot" data-i="9"><span class="dot-label">Próximos Passos</span></button>
+</nav>
+
+<!-- ══ SLIDE 1 — CAPA ══ -->
+<section class="slide" id="s1">
+  <div class="stripe s-l"></div>
+  <div class="stripe s-r"></div>
+  <div class="watermark">2026</div>
+  <div class="capa-inner">
+    <img src="/logo-bolao.png" alt="Bolão Bel Lube" class="logo-main anim-hidden as">
+    <p class="subtitle anim-hidden au d2">Copa do Mundo 2026<br>Apresentação para Diretoria e Marketing</p>
+    <div class="badge anim-hidden ai d3"><span class="live"></span>App em Produção</div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">01 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 2 — O PRODUTO ══ -->
+<section class="slide" id="s2">
+  <div class="left">
+    <div class="ghost-num">02</div>
+    <div class="content">
+      <span class="tag-label anim-hidden au">O Produto</span>
+      <h2 class="anim-hidden au d1">App Web<br>PWA da<br>Bel Lube</h2>
+      <div class="red-bar anim-hidden ai d2"></div>
+      <p class="anim-hidden au d2">
+        Plataforma digital exclusiva para clientes e colaboradores da Bel Lube.
+        Acessa direto pelo navegador, sem instalar nada.
+        Tema escuro premium com identidade visual da marca.
+      </p>
+      <div class="feat-grid">
+        <div class="feat-item glass anim-hidden au d3">
+          <div class="fi-title">Sem instalação</div>
+          <p>Funciona no navegador como app nativo</p>
+        </div>
+        <div class="feat-item glass anim-hidden au d4">
+          <div class="fi-title">Identidade</div>
+          <p>Cores, logo e visual 100% Bel Lube</p>
+        </div>
+        <div class="feat-item glass anim-hidden au d4">
+          <div class="fi-title">Tema Escuro</div>
+          <p>Interface premium para todos os dispositivos</p>
+        </div>
+        <div class="feat-item glass anim-hidden au d5">
+          <div class="fi-title">Responsivo</div>
+          <p>Celular, tablet ou desktop</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-wrap anim-hidden as d2">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="pb"></div>
+        <div class="pb s g"></div>
+        <div class="pc"></div>
+        <div class="pc"></div>
+        <div class="pb xs"></div>
+        <div class="pc"></div>
+      </div>
+    </div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">02 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 3 — FUNCIONALIDADES ══ -->
+<section class="slide" id="s3">
+  <span class="tag-label anim-hidden au">Funcionalidades</span>
+  <h2 class="anim-hidden au d1">O que o app oferece</h2>
+  <div class="funcs">
+    <div class="fc glass anim-hidden au d1"><div class="fn">48</div><h3>Fase de Grupos</h3><p>Palpites para todos os 48 jogos em 12 grupos da Copa do Mundo</p></div>
+    <div class="fc glass anim-hidden au d2"><div class="fn">32</div><h3>Mata-Mata</h3><p>Cobertura completa das 32 partidas eliminatórias do 16avos até a Final</p></div>
+    <div class="fc glass anim-hidden au d2"><div class="fn">ET</div><h3>Prorrogação</h3><p>Palpites com prorrogação e pênaltis nas fases eliminatórias</p></div>
+    <div class="fc glass anim-hidden au d3"><div class="fn">RK</div><h3>Ranking em Tempo Real</h3><p>Classificação atualizada automaticamente após cada jogo</p></div>
+    <div class="fc glass anim-hidden au d4"><div class="fn">BQ</div><h3>Bloqueio Automático</h3><p>Apostas encerradas quando o jogo começa — sem trapaça</p></div>
+    <div class="fc glass anim-hidden au d5"><div class="fn">ID</div><h3>Login Individual</h3><p>Acesso personalizado por CPF ou CNPJ para cada participante</p></div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">03 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 4 — PÚBLICO-ALVO ══ -->
+<section class="slide" id="s4">
+  <div class="big-stat anim-hidden as">
+    <span class="sn">100+</span>
+    <span class="sl">Clientes Bel Lube</span>
+    <div class="stat-sep"></div>
+    <span class="sn2">+ Todos</span>
+    <span class="sl">os Colaboradores</span>
+  </div>
+  <div>
+    <span class="tag-label anim-hidden au">Público-Alvo</span>
+    <h2 class="anim-hidden au d1">Engajamento<br>Interno e<br>Externo</h2>
+    <p class="anim-hidden au d2">
+      O Bolão une clientes e equipe interna em uma mesma experiência.
+      Cada jogo é uma oportunidade de contato com a marca.
+    </p>
+    <p class="anim-hidden au d3">
+      Durante 39 dias de Copa, a Bel Lube estará no celular de todos
+      os participantes — diariamente.
+    </p>
+    <div class="aud-tags">
+      <span class="aud-tag anim-hidden au d3">Clientes</span>
+      <span class="aud-tag anim-hidden au d4">Colaboradores</span>
+      <span class="aud-tag anim-hidden au d4">Diretoria</span>
+      <span class="aud-tag anim-hidden au d5">Representantes</span>
+    </div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">04 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 5 — PONTUAÇÃO ══ -->
+<section class="slide" id="s5">
+  <div class="bg-grid"></div>
+  <span class="tag-label anim-hidden au" style="position:relative;z-index:1">Sistema de Pontuação</span>
+  <h2 class="anim-hidden au d1">Como Pontuar</h2>
+  <div class="score-grid">
+    <div class="sc glass anim-hidden as d1">
+      <span class="pts gold">10</span>
+      <div class="slbl">Placar exato<br>acertado</div>
+    </div>
+    <div class="sc glass anim-hidden as d2">
+      <span class="pts red">5</span>
+      <div class="slbl">Resultado correto<br>(vencedor ou empate)</div>
+    </div>
+    <div class="sc glass anim-hidden as d3">
+      <span class="pts dim">0</span>
+      <div class="slbl">Palpite<br>errado</div>
+    </div>
+  </div>
+  <div class="brazil-box anim-hidden au d4">
+    <svg class="bz-icon" viewBox="0 0 60 60" fill="none">
+      <circle cx="30" cy="30" r="29" fill="#009C3B" stroke="#FFDF00" stroke-width="1.5"/>
+      <path d="M30 13 L49 30 L30 47 L11 30 Z" fill="#002776" opacity="0.75"/>
+      <circle cx="30" cy="30" r="10" fill="#FFDF00" opacity="0.92"/>
+    </svg>
+    <div>
+      <h3>JOGOS DO BRASIL VALEM DOBRADO</h3>
+      <p>Toda partida da Seleção tem pontuação x2 — 20 pts pelo placar exato, 10 pts pelo resultado certo</p>
+    </div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">05 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 6 — AUTOMAÇÃO ══ -->
+<section class="slide" id="s6">
+  <div>
+    <span class="tag-label anim-hidden au">Automação Total</span>
+    <h2 class="anim-hidden au d1">Copa no piloto<br>automático</h2>
+    <div class="auto-steps">
+      <div class="a-step anim-hidden ar d2">
+        <div class="a-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="a-content"><h4>Resultados a cada 10 minutos</h4><p>API oficial integrada — placar atualizado automaticamente</p></div>
+      </div>
+      <div class="a-step anim-hidden ar d3">
+        <div class="a-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="a-content"><h4>Mata-mata gerado automaticamente</h4><p>Fases eliminatórias montadas sem nenhuma intervenção manual</p></div>
+      </div>
+      <div class="a-step anim-hidden ar d4">
+        <div class="a-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div class="a-content"><h4>Apostas bloqueadas automaticamente</h4><p>Encerradas no início de cada jogo — sem precisar intervir</p></div>
+      </div>
+      <div class="a-step anim-hidden ar d5">
+        <div class="a-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <div class="a-content"><h4>Ranking recalculado em tempo real</h4><p>Classificação atualizada após cada resultado — sem planilhas</p></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="big-zero anim-hidden as d2">0</div>
+    <p class="zero-cap anim-hidden ai d3">trabalho manual<br>durante a copa</p>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">06 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 7 — POR QUE FAZ SENTIDO ══ -->
+<section class="slide" id="s7">
+  <span class="tag-label anim-hidden au">Estratégia</span>
+  <h2 class="anim-hidden au d1">Por que isso<br>faz sentido<br>para a Bel Lube</h2>
+  <div class="reasons">
+    <div class="rc glass anim-hidden au d2"><span class="rn">39</span><h3>Ponto de contato diário</h3><p>39 dias de Copa com a marca no celular de clientes e funcionários — todos os dias</p></div>
+    <div class="rc glass anim-hidden au d3"><span class="rn">RT</span><h3>Retenção de clientes</h3><p>Engajamento recorrente cria laços emocionais com a marca além da relação comercial</p></div>
+    <div class="rc glass anim-hidden au d3"><span class="rn">MC</span><h3>Marca moderna</h3><p>Posiciona a Bel Lube como empresa inovadora e próxima das pessoas</p></div>
+    <div class="rc glass anim-hidden au d4"><span class="rn">R$0</span><h3>Custo zero de operação</h3><p>Totalmente automatizado — nenhum custo operacional adicional durante a Copa</p></div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">07 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 8 — CRONOGRAMA ══ -->
+<section class="slide" id="s8">
+  <span class="tag-label anim-hidden au">Cronograma</span>
+  <h2 class="anim-hidden au d1">Linha do Tempo</h2>
+  <div class="timeline">
+    <div class="tl-item anim-hidden ar d2">
+      <div class="tl-dot gold"></div>
+      <div class="tl-date">Maio 2026</div>
+      <div class="tl-title">Pronto e em produção</div>
+      <div class="tl-desc">App desenvolvido, testado e disponível para acesso</div>
+    </div>
+    <div class="tl-item anim-hidden ar d3">
+      <div class="tl-dot"></div>
+      <div class="tl-date">Até 10 / 06 / 2026</div>
+      <div class="tl-title">Divulgação interna</div>
+      <div class="tl-desc">Cadastro e comunicação para clientes e colaboradores</div>
+    </div>
+    <div class="tl-item anim-hidden ar d3">
+      <div class="tl-dot gold"></div>
+      <div class="tl-date">11 / 06 / 2026</div>
+      <div class="tl-title">Copa do Mundo começa</div>
+      <div class="tl-desc">Fase de grupos — 48 jogos ao longo de 18 dias</div>
+    </div>
+    <div class="tl-item anim-hidden ar d4">
+      <div class="tl-dot"></div>
+      <div class="tl-date">28 / 06 — 03 / 07 / 2026</div>
+      <div class="tl-title">Mata-mata automático</div>
+      <div class="tl-desc">32 jogos eliminatórios com chaveamento automático</div>
+    </div>
+    <div class="tl-item anim-hidden ar d5">
+      <div class="tl-dot gold"></div>
+      <div class="tl-date">19 / 07 / 2026</div>
+      <div class="tl-title">Final e premiação</div>
+      <div class="tl-desc">Grande Final da Copa e encerramento do Bolão Bel Lube</div>
+    </div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">08 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 9 — VISÃO DE FUTURO ══ -->
+<section class="slide" id="s9">
+  <div>
+    <span class="tag-label anim-hidden au">Visão de Futuro</span>
+    <h2 class="anim-hidden au d1">A Copa é<br>só o começo</h2>
+    <p class="ft anim-hidden au d2">
+      A plataforma foi construída para crescer.
+      Após a Copa 2026, o sistema pode ser expandido para outros
+      torneios e até licenciado para outras empresas do segmento
+      como uma solução white label.
+    </p>
+  </div>
+  <div class="fut-cards">
+    <div class="fut-c glass anim-hidden ar d2">
+      <div class="fci"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
+      <div><h4>Brasileirão 2026</h4><p>Bolão para o Campeonato Brasileiro com a mesma estrutura</p></div>
+    </div>
+    <div class="fut-c glass anim-hidden ar d3">
+      <div class="fci"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div><h4>Libertadores</h4><p>Expansão para o torneio continental mais importante da América</p></div>
+    </div>
+    <div class="fut-c glass anim-hidden ar d4">
+      <div class="fci"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div><h4>Plataforma White Label</h4><p>Licenciar para outras empresas do segmento de distribuição</p></div>
+    </div>
+  </div>
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">09 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<!-- ══ SLIDE 10 — PRÓXIMOS PASSOS ══ -->
+<section class="slide" id="s10">
+  <span class="tag-label anim-hidden au">Próximos Passos</span>
+  <h2 class="anim-hidden as d1">Vamos jogar?</h2>
+  <div class="steps-row">
+    <div class="sb glass anim-hidden au d2">
+      <div class="sbn">PASSO 01</div>
+      <h4>Aprovação</h4>
+      <p>Diretoria confirma participação no Bolão 2026</p>
+    </div>
+    <div class="sb glass anim-hidden au d3">
+      <div class="sbn">PASSO 02</div>
+      <h4>Divulgação</h4>
+      <p>Comunicar clientes e colaboradores com acesso ao app</p>
+    </div>
+    <div class="sb glass anim-hidden au d4">
+      <div class="sbn">PASSO 03</div>
+      <h4>Jogar!</h4>
+      <p>App pronto — só acessar e começar a apostar</p>
+    </div>
+  </div>
+  <div class="date-box anim-hidden ai d4">
+    <span>Copa começa em 11 / 06 / 2026</span>
+  </div>
+  <img src="/logo-bel-lube.png" alt="Bel Lube" class="logo-bl anim-hidden ai d5">
+  <footer class="slide-footer">
+    <span class="footer-line"></span><span class="footer-num">10 / 10</span><span class="footer-line"></span>
+  </footer>
+</section>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dots   = Array.from(document.querySelectorAll('.nav-dot'));
+
+  // IntersectionObserver triggers animations per slide
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      const idx = slides.indexOf(e.target);
+      dots.forEach((d,i) => d.classList.toggle('active', i === idx));
+      e.target.querySelectorAll('.anim-hidden').forEach(el => el.classList.remove('anim-hidden'));
+    });
+  }, {threshold: 0.35});
+
+  slides.forEach(s => io.observe(s));
+
+  // Dot click navigation
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => slides[i].scrollIntoView({behavior:'smooth'}));
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    const cur = slides.findIndex(s => {
+      const r = s.getBoundingClientRect();
+      return r.top >= -50 && r.top < window.innerHeight * .5;
+    });
+    if(e.key === 'ArrowDown' && cur < slides.length-1) slides[cur+1].scrollIntoView({behavior:'smooth'});
+    if(e.key === 'ArrowUp'   && cur > 0)               slides[cur-1].scrollIntoView({behavior:'smooth'});
+  });
+
+  // Parallax watermark
+  window.addEventListener('scroll', () => {
+    const wm = document.querySelector('#s1 .watermark');
+    if(wm) wm.style.transform = `translate(-50%, calc(-50% + ${window.scrollY * .14}px))`;
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>

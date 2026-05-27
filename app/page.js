@@ -490,7 +490,7 @@ export default function App() {
     setUser(u);
     await carregarJogos();
     if (u.doc === "admin") { await carregarClientes(); setTela("admin"); }
-    else { await carregarPalpites(u.id); setTela("boasvindas"); }
+    else { await carregarPalpites(u.id); setTela(u.palpite_campeao ? "jogos" : "boasvindas"); }
     setLoading(false);
   }
 
@@ -686,7 +686,7 @@ export default function App() {
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
             <TelaCampeao
               user={user}
-              onConfirmar={(nome)=>{setUser({...user,palpite_campeao:nome});setTela("jogos");}}
+              onConfirmar={(nome)=>{setUser(prev=>({...prev,palpite_campeao:nome}));setTela("jogos");}}
             />
           </div>
         </div>
@@ -944,7 +944,8 @@ function TelaCampeao({ user, onConfirmar }) {
   async function confirmar() {
     if (!selecionado || salvando) return;
     setSalvando(true);
-    await supabase.from("clientes").update({ palpite_campeao: selecionado }).eq("id", user.id);
+    const { error } = await supabase.from("clientes").update({ palpite_campeao: selecionado }).eq("id", user.id);
+    if (error) { setSalvando(false); return; }
     onConfirmar(selecionado);
   }
 

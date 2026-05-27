@@ -490,7 +490,7 @@ export default function App() {
     setUser(u);
     await carregarJogos();
     if (u.doc === "admin") { await carregarClientes(); setTela("admin"); }
-    else { await carregarPalpites(u.id); setTela(u.palpite_campeao ? "jogos" : "boasvindas"); }
+    else { await carregarPalpites(u.id); setTela("boasvindas"); }
     setLoading(false);
   }
 

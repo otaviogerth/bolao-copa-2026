@@ -473,6 +473,10 @@ export default function App() {
 
   const isAdmin = user?.doc === "admin";
 
+  useEffect(()=>{
+    if (tela==="campeao" && user?.palpite_campeao) setTela("jogos");
+  },[tela,user]);
+
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
     const docStr = doc.trim();

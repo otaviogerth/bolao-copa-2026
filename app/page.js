@@ -29,6 +29,57 @@ const SH_SM = "0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.4)";
 const SH_MD = "0 4px 16px rgba(0,0,0,0.6),0 1px 4px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03)";
 const SH_LG = "0 8px 40px rgba(0,0,0,0.75),0 2px 8px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04)";
 
+const TIMES_COPA = [
+  {nome:"África do Sul",  bandeira:"🇿🇦"},
+  {nome:"Alemanha",       bandeira:"🇩🇪"},
+  {nome:"Arábia Saudita", bandeira:"🇸🇦"},
+  {nome:"Argélia",        bandeira:"🇩🇿"},
+  {nome:"Argentina",      bandeira:"🇦🇷"},
+  {nome:"Austrália",      bandeira:"🇦🇺"},
+  {nome:"Áustria",        bandeira:"🇦🇹"},
+  {nome:"Bélgica",        bandeira:"🇧🇪"},
+  {nome:"Bósnia",         bandeira:"🇧🇦"},
+  {nome:"Brasil",         bandeira:"🇧🇷"},
+  {nome:"Cabo Verde",     bandeira:"🇨🇻"},
+  {nome:"Canadá",         bandeira:"🇨🇦"},
+  {nome:"Colômbia",       bandeira:"🇨🇴"},
+  {nome:"Coreia do Sul",  bandeira:"🇰🇷"},
+  {nome:"Costa do Marfim",bandeira:"🇨🇮"},
+  {nome:"Croácia",        bandeira:"🇭🇷"},
+  {nome:"Curaçao",        bandeira:"🇨🇼"},
+  {nome:"Egito",          bandeira:"🇪🇬"},
+  {nome:"Equador",        bandeira:"🇪🇨"},
+  {nome:"Escócia",        bandeira:"🏴󠁧󠁢󠁳󠁣󠁴󠁿"},
+  {nome:"Espanha",        bandeira:"🇪🇸"},
+  {nome:"Estados Unidos", bandeira:"🇺🇸"},
+  {nome:"França",         bandeira:"🇫🇷"},
+  {nome:"Gana",           bandeira:"🇬🇭"},
+  {nome:"Haiti",          bandeira:"🇭🇹"},
+  {nome:"Holanda",        bandeira:"🇳🇱"},
+  {nome:"Inglaterra",     bandeira:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"},
+  {nome:"Irã",            bandeira:"🇮🇷"},
+  {nome:"Iraque",         bandeira:"🇮🇶"},
+  {nome:"Japão",          bandeira:"🇯🇵"},
+  {nome:"Jordânia",       bandeira:"🇯🇴"},
+  {nome:"Marrocos",       bandeira:"🇲🇦"},
+  {nome:"México",         bandeira:"🇲🇽"},
+  {nome:"Nova Zelândia",  bandeira:"🇳🇿"},
+  {nome:"Noruega",        bandeira:"🇳🇴"},
+  {nome:"Panamá",         bandeira:"🇵🇦"},
+  {nome:"Paraguai",       bandeira:"🇵🇾"},
+  {nome:"Portugal",       bandeira:"🇵🇹"},
+  {nome:"Qatar",          bandeira:"🇶🇦"},
+  {nome:"RD Congo",       bandeira:"🇨🇩"},
+  {nome:"Rep. Tcheca",    bandeira:"🇨🇿"},
+  {nome:"Senegal",        bandeira:"🇸🇳"},
+  {nome:"Suécia",         bandeira:"🇸🇪"},
+  {nome:"Suíça",          bandeira:"🇨🇭"},
+  {nome:"Tunísia",        bandeira:"🇹🇳"},
+  {nome:"Turquia",        bandeira:"🇹🇷"},
+  {nome:"Uruguai",        bandeira:"🇺🇾"},
+  {nome:"Uzbequistão",    bandeira:"🇺🇿"},
+];
+
 const CODIGOS = {
   "México":"mx","África do Sul":"za","Coreia do Sul":"kr","Rep. Tcheca":"cz",
   "Canadá":"ca","Bósnia":"ba","Qatar":"qa","Suíça":"ch",
@@ -171,6 +222,8 @@ function GlobalStyles() {
 
       .cal-scroll{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
       .cal-scroll::-webkit-scrollbar{display:none;}
+      .team-list{overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+      .team-list::-webkit-scrollbar{display:none;}
 
       .nav-bar{
         border-bottom:1px solid transparent;
@@ -488,17 +541,32 @@ export default function App() {
     flash("Todos os resultados foram zerados");
   }
 
+  const finalCopa = jogos.find(j=>j.id===190);
+  const vencedorFinal = finalCopa?.encerrado
+    ? (finalCopa.resultado_g1>finalCopa.resultado_g2 ? finalCopa.time1
+       : finalCopa.resultado_g2>finalCopa.resultado_g1 ? finalCopa.time2 : null)
+    : null;
+
   const ranking = clientes.filter(c=>c.doc!=="admin").map(c=>{
-    let pts=0,acertos=0;
+    let pts=0,acertos=0,acertosVencedor=0;
     jogos.forEach(j=>{
       const p=palpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
       if (!p||j.resultado_g1==null) return;
       const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
       const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
-      pts+=pp; if(pp===(isBrasil?20:10))acertos++;
+      pts+=pp;
+      if(pp===(isBrasil?20:10)) acertos++;
+      else if(pp===(isBrasil?10:5)) acertosVencedor++;
     });
-    return {...c,pts,acertos};
-  }).sort((a,b)=>b.pts-a.pts||b.acertos-a.acertos);
+    const acertouCampeao = vencedorFinal && c.palpite_campeao===vencedorFinal ? 1 : 0;
+    return {...c,pts,acertos,acertosVencedor,acertouCampeao};
+  }).sort((a,b)=>
+    b.pts-a.pts ||
+    b.acertos-a.acertos ||
+    b.acertosVencedor-a.acertosVencedor ||
+    b.acertouCampeao-a.acertouCampeao ||
+    a.id-b.id
+  );
 
   const meuRank = user ? ranking.findIndex(r=>r.id===user.id)+1 : 0;
   const meusPts = user ? (ranking.find(r=>r.id===user.id)||{}).pts||0 : 0;
@@ -595,7 +663,27 @@ export default function App() {
             </div>
           </div>
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
-            <Carrossel slides={slides} onFim={()=>setTela("jogos")}/>
+            <Carrossel slides={slides} onFim={()=>setTela(user.palpite_campeao?"jogos":"campeao")}/>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  /* ── CAMPEÃO ── */
+  if (tela==="campeao") {
+    return (
+      <>
+        <GlobalStyles/>
+        <div style={{position:"relative",fontFamily:FB,minHeight:"100vh",overflow:"hidden",background:DARK}}>
+          <div style={{pointerEvents:"none",userSelect:"none",opacity:0.15,filter:"blur(3px)"}}>
+            <Banner/>
+          </div>
+          <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
+            <TelaCampeao
+              user={user}
+              onConfirmar={(nome)=>{setUser({...user,palpite_campeao:nome});setTela("jogos");}}
+            />
           </div>
         </div>
       </>
@@ -815,6 +903,141 @@ function Visual5() {
         {[RED,YELLOW,RED].map((c,i)=>(
           <div key={i} style={{width:i===1?24:8,height:3,borderRadius:2,background:c}}/>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── VISUAL CAMPEÃO ────────────────────────────────────────────────────── */
+function VisualCampeao() {
+  return (
+    <svg width="110" height="110" viewBox="0 0 110 110" className="scale-in">
+      <rect x="42" y="88" width="26" height="5" rx="2.5" fill={YELLOW} opacity="0.9"/>
+      <rect x="37" y="93" width="36" height="4" rx="2" fill={YELLOW} opacity="0.7"/>
+      <rect x="52" y="72" width="6" height="18" rx="2" fill={YELLOW} opacity="0.8"/>
+      <path d="M30 22 Q30 68 55 70 Q80 68 80 22 Z" fill={YELLOW}/>
+      <path d="M30 30 Q16 30 16 46 Q16 58 30 56" fill="none" stroke={YELLOW} strokeWidth="5" strokeLinecap="round" opacity="0.8"/>
+      <path d="M80 30 Q94 30 94 46 Q94 58 80 56" fill="none" stroke={YELLOW} strokeWidth="5" strokeLinecap="round" opacity="0.8"/>
+      <polygon points="55,36 57.5,43 65,43 59,47.5 61.5,55 55,50.5 48.5,55 51,47.5 45,43 52.5,43" fill={RED} opacity="0.9"/>
+      <clipPath id="cup"><path d="M30 22 Q30 68 55 70 Q80 68 80 22 Z"/></clipPath>
+      <rect x="30" y="22" width="8" height="48" fill="rgba(255,255,255,0.15)" clipPath="url(#cup)"/>
+      <circle cx="28" cy="16" r="2.5" fill={RED} opacity="0.7"><animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.2s" repeatCount="indefinite"/></circle>
+      <circle cx="82" cy="20" r="2" fill={YELLOW} opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="1.8s" repeatCount="indefinite"/></circle>
+    </svg>
+  );
+}
+
+/* ─── TELA CAMPEÃO ───────────────────────────────────────────────────────── */
+function TelaCampeao({ user, onConfirmar }) {
+  const [busca, setBusca] = useState("");
+  const [selecionado, setSelecionado] = useState(user.palpite_campeao || null);
+  const [salvando, setSalvando] = useState(false);
+
+  const timesFiltrados = TIMES_COPA.filter(t =>
+    t.nome.toLowerCase().includes(busca.toLowerCase())
+  );
+
+  async function confirmar() {
+    if (!selecionado || salvando) return;
+    setSalvando(true);
+    await supabase.from("clientes").update({ palpite_campeao: selecionado }).eq("id", user.id);
+    onConfirmar(selecionado);
+  }
+
+  return (
+    <div className="scale-in" style={{
+      background:"rgba(255,255,255,0.97)", borderRadius:20,
+      width:"100%", maxWidth:460, overflow:"hidden",
+      boxShadow:"0 24px 60px rgba(0,0,0,0.7),0 0 0 0.5px rgba(255,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.8)",
+      display:"flex", flexDirection:"column", maxHeight:"90dvh",
+    }}>
+      <div style={{
+        background:"linear-gradient(160deg,#0d0d14,#080810)",
+        minHeight:130, display:"flex", alignItems:"center",
+        justifyContent:"center", flexShrink:0,
+        borderBottom:"0.5px solid rgba(255,255,255,0.06)",
+      }}>
+        <VisualCampeao/>
+      </div>
+
+      <div style={{padding:"1.25rem 1.5rem 0.75rem", flexShrink:0}}>
+        <div style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:4,fontFamily:FO,letterSpacing:-0.5,lineHeight:1.15}}>
+          Quem vai ser campeão?
+        </div>
+        <div style={{fontSize:13,color:"#555",lineHeight:1.75}}>
+          Seu palpite vale como critério de desempate no ranking.
+        </div>
+      </div>
+
+      <div style={{padding:"0 1.5rem 0.5rem", flexShrink:0}}>
+        <input
+          value={busca}
+          onChange={e=>setBusca(e.target.value)}
+          placeholder="Buscar seleção..."
+          style={{
+            width:"100%", boxSizing:"border-box",
+            padding:"9px 12px", borderRadius:8,
+            border:"1.5px solid #e0e0e0", fontSize:13,
+            background:"#f8f8f8", color:"#111",
+            fontFamily:FB, outline:"none",
+            transition:"border-color 180ms ease",
+          }}
+          onFocus={e=>e.target.style.borderColor=RED}
+          onBlur={e=>e.target.style.borderColor="#e0e0e0"}
+        />
+      </div>
+
+      <div className="team-list" style={{
+        flex:1, margin:"0 1.5rem", minHeight:0,
+        borderRadius:8, border:"1px solid #ebebeb", overflow:"hidden",
+        overflowY:"auto",
+      }}>
+        {timesFiltrados.map((t,i)=>{
+          const sel=selecionado===t.nome;
+          return (
+            <div key={t.nome} onClick={()=>setSelecionado(t.nome)} style={{
+              display:"flex", alignItems:"center", gap:11,
+              padding:"9px 13px", cursor:"pointer",
+              background: sel ? RED : "transparent",
+              borderBottom: i<timesFiltrados.length-1 ? "0.5px solid #f0f0f0" : "none",
+              transition:"background 140ms ease",
+            }}>
+              <span style={{fontSize:22,lineHeight:1,flexShrink:0}}>{t.bandeira}</span>
+              <span style={{
+                fontSize:13, fontFamily:FB,
+                fontWeight:sel?600:400,
+                color:sel?"#fff":"#1a1a1a",
+                flex:1,
+              }}>{t.nome}</span>
+              {sel&&(
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7l4 4 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </div>
+          );
+        })}
+        {timesFiltrados.length===0&&(
+          <div style={{padding:"2rem",textAlign:"center",color:"#bbb",fontSize:13,fontFamily:FB}}>
+            Nenhuma seleção encontrada
+          </div>
+        )}
+      </div>
+
+      <div style={{padding:"0.75rem 1.5rem 1.25rem", flexShrink:0}}>
+        <button className="btn" onClick={confirmar} disabled={!selecionado||salvando} style={{
+          width:"100%", border:"none", padding:"14px",
+          fontSize:12, fontWeight:700, letterSpacing:2,
+          textTransform:"uppercase", fontFamily:FB,
+          background: selecionado&&!salvando ? `linear-gradient(135deg,${RED},#a30614)` : "#e8e8e8",
+          color: selecionado&&!salvando ? "#fff" : "#aaa",
+          borderRadius:8,
+          boxShadow: selecionado&&!salvando ? "0 4px 20px rgba(216,9,27,0.35)" : "none",
+          cursor: selecionado&&!salvando ? "pointer" : "not-allowed",
+          transition:"all 200ms ease",
+        }}>
+          {salvando?"SALVANDO...":selecionado?`CONFIRMAR — ${selecionado.toUpperCase()}`:"SELECIONE UMA SELEÇÃO"}
+        </button>
       </div>
     </div>
   );

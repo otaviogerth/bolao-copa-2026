@@ -686,7 +686,7 @@ export default function App() {
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
             <TelaCampeao
               user={user}
-              onConfirmar={(nome)=>{setUser(prev=>({...prev,palpite_campeao:nome}));setTela("jogos");}}
+              onConfirmar={(nome,falhou)=>{setUser(prev=>({...prev,palpite_campeao:nome}));setTela("jogos");if(falhou)flash("Palpite registrado, mas não foi salvo no servidor — tente novamente mais tarde.",true);}}
             />
           </div>
         </div>
@@ -945,8 +945,8 @@ function TelaCampeao({ user, onConfirmar }) {
     if (!selecionado || salvando) return;
     setSalvando(true);
     const { error } = await supabase.from("clientes").update({ palpite_campeao: selecionado }).eq("id", user.id);
-    if (error) { setSalvando(false); return; }
-    onConfirmar(selecionado);
+    if (error) console.error("Falha ao salvar palpite do campeão:", error);
+    onConfirmar(selecionado, !!error);
   }
 
   return (

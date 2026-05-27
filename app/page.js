@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -11,18 +11,15 @@ const RED    = "#D8091B";
 const YELLOW = "#FFD101";
 const DARK   = "#111318";
 const CARD   = "#181c24";
-const CARD2  = "#1a1e28";
 const BORDER = "#252a36";
 const BORDER2= "#2e3444";
 const DIM    = "#6b7280";
 const MUTE   = "#8b95a8";
 const SUPA   = "https://gdkvezigujpaqqavablu.supabase.co/storage/v1/object/public/assets";
 const LOGO_BRANCA   = SUPA + "/bet%20lube%20branca.png";
-const LOGO_PRETA    = SUPA + "/bet%20lube%20preta.png";
 const LOGO_VERMELHA = "/bet lube vermelha.png";
 
 const FD = "'FIFATournament','Impact',sans-serif";
-const FO = "'FIFATournament','Impact',sans-serif";
 const FB = "'Ubuntu',sans-serif";
 
 const SH_SM = "0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.4)";
@@ -207,7 +204,6 @@ function GlobalStyles() {
       input:focus{border-color:${RED}!important;box-shadow:0 0 0 3px rgba(216,9,27,0.14)!important;}
       ::selection{background:${RED};color:#fff;}
 
-      @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
       .skeleton{
         background:linear-gradient(90deg,#1a1a1a 25%,#222 50%,#1a1a1a 75%);
         background-size:200% 100%;
@@ -247,7 +243,6 @@ function GlobalStyles() {
         background:linear-gradient(160deg,rgba(28,32,42,0.97) 0%,rgba(20,24,34,0.99) 100%);
         border:0.5px solid rgba(255,255,255,0.08);
         box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.2),0 4px 16px rgba(0,0,0,0.35);
-        backdrop-filter:blur(0px);
       }
 
       /* Stepper btn — sem o hover genérico do .btn para não brigar */
@@ -277,6 +272,12 @@ function Banner() {
   );
 }
 
+/* ─── UTILITÁRIOS DE DATA ────────────────────────────────────────────────── */
+function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
+function formatDiaLabel(iso){const d=new Date(iso+"T12:00:00-03:00");return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});}
+function formatHora(iso){return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});}
+function formatCalDia(iso){const d=new Date(iso+"T12:00:00-03:00");return {sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3)};}
+
 /* ─── LISTA MATA-MATA (usuário) ─────────────────────────────────────────── */
 function ListaMataMata({ jogos, palpites, onSalvar }) {
   const [faseSel,setFaseSel] = useState("16avos");
@@ -291,8 +292,6 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
     {id:"terceiro", label:"3º Lugar"},
     {id:"final",    label:"Final"},
   ];
-
-  function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
 
   const jogosFase    = jogos.filter(j=>j.fase===faseSel);
   const jogosComData = jogosFase.filter(j=>j.data_hora);
@@ -315,22 +314,6 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
   const jogosDoDia = jogosComData
     .filter(j=>diaBR(j.data_hora)===diaSel)
     .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora));
-
-  function formatDiaLabel(iso){
-    const d=new Date(iso+"T12:00:00-03:00");
-    return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});
-  }
-  function formatHora(iso){
-    return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});
-  }
-  function formatCalDia(iso){
-    const d=new Date(iso+"T12:00:00-03:00");
-    return {
-      sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),
-      num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),
-      mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3),
-    };
-  }
 
   function renderCard(j){
     const p=palpites.find(x=>x.jogo_id===j.id);
@@ -437,7 +420,7 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
       <div className="stagger" style={{padding:"0 14px 24px"}}>
         {jogosDoDia.length===0&&jogosSemData.length===0&&(
           <div style={{textAlign:"center",padding:"3rem 1rem"}}>
-            <div style={{fontSize:13,color:DIM,fontFamily:FO,fontWeight:500}}>Nenhum jogo nesta fase</div>
+            <div style={{fontSize:13,color:DIM,fontFamily:FD,fontWeight:500}}>Nenhum jogo nesta fase</div>
           </div>
         )}
         {jogosDoDia.map(j=>renderCard(j))}
@@ -468,7 +451,7 @@ export default function App() {
   const [jogos,setJogos]       = useState([]);
   const [palpites,setPalpites] = useState([]);
   const [clientes,setClientes] = useState([]);
-  const [msg,setMsg]           = useState("");
+  const [msg,setMsg]           = useState(null);
   const [competicao,setCompeticao] = useState("cliente");
 
   const isAdmin = user?.doc === "admin";
@@ -488,9 +471,8 @@ export default function App() {
     if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
     const u = data[0];
     setUser(u);
-    await carregarJogos();
-    if (u.doc === "admin") { await carregarClientes(); setTela("admin"); }
-    else { await carregarPalpites(u.id); setTela("boasvindas"); }
+    if (u.doc === "admin") { await Promise.all([carregarJogos(),carregarClientes()]); setTela("admin"); }
+    else { await Promise.all([carregarJogos(),carregarPalpites(u.id)]); setTela("boasvindas"); }
     setLoading(false);
   }
 
@@ -538,39 +520,42 @@ export default function App() {
 
   async function zerarResultados() {
     if (!confirm("Zerar TODOS os resultados? Os palpites serão mantidos.")) return;
-    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).eq("encerrado",true);
-    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).not("resultado_g1","is",null);
-    await supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).not("resultado_g2","is",null);
+    await Promise.all([
+      supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).eq("encerrado",true),
+      supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).not("resultado_g1","is",null),
+      supabase.from("jogos").update({resultado_g1:null,resultado_g2:null,encerrado:false}).not("resultado_g2","is",null),
+    ]);
     await carregarJogos();
     flash("Todos os resultados foram zerados");
   }
 
-  const finalCopa = jogos.find(j=>j.id===190);
-  const vencedorFinal = finalCopa?.encerrado
-    ? (finalCopa.resultado_g1>finalCopa.resultado_g2 ? finalCopa.time1
-       : finalCopa.resultado_g2>finalCopa.resultado_g1 ? finalCopa.time2 : null)
-    : null;
-
-  const ranking = clientes.filter(c=>c.doc!=="admin").map(c=>{
-    let pts=0,acertos=0,acertosVencedor=0;
-    jogos.forEach(j=>{
-      const p=palpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
-      if (!p||j.resultado_g1==null) return;
-      const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
-      const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
-      pts+=pp;
-      if(pp===(isBrasil?20:10)) acertos++;
-      else if(pp===(isBrasil?10:5)) acertosVencedor++;
-    });
-    const acertouCampeao = vencedorFinal && c.palpite_campeao===vencedorFinal ? 1 : 0;
-    return {...c,pts,acertos,acertosVencedor,acertouCampeao};
-  }).sort((a,b)=>
-    b.pts-a.pts ||
-    b.acertos-a.acertos ||
-    b.acertosVencedor-a.acertosVencedor ||
-    b.acertouCampeao-a.acertouCampeao ||
-    a.id-b.id
-  );
+  const ranking = useMemo(()=>{
+    const finalCopa = jogos.find(j=>j.id===190);
+    const vencedorFinal = finalCopa?.encerrado
+      ? (finalCopa.resultado_g1>finalCopa.resultado_g2 ? finalCopa.time1
+         : finalCopa.resultado_g2>finalCopa.resultado_g1 ? finalCopa.time2 : null)
+      : null;
+    return clientes.filter(c=>c.doc!=="admin").map(c=>{
+      let pts=0,acertos=0,acertosVencedor=0;
+      jogos.forEach(j=>{
+        const p=palpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
+        if (!p||j.resultado_g1==null) return;
+        const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
+        const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
+        pts+=pp;
+        if(pp===(isBrasil?20:10)) acertos++;
+        else if(pp===(isBrasil?10:5)) acertosVencedor++;
+      });
+      const acertouCampeao = vencedorFinal && c.palpite_campeao===vencedorFinal ? 1 : 0;
+      return {...c,pts,acertos,acertosVencedor,acertouCampeao};
+    }).sort((a,b)=>
+      b.pts-a.pts ||
+      b.acertos-a.acertos ||
+      b.acertosVencedor-a.acertosVencedor ||
+      b.acertouCampeao-a.acertouCampeao ||
+      a.id-b.id
+    );
+  },[clientes,jogos,palpites]);
 
   const meuRank = user ? ranking.findIndex(r=>r.id===user.id)+1 : 0;
   const meusPts = user ? (ranking.find(r=>r.id===user.id)||{}).pts||0 : 0;
@@ -582,7 +567,7 @@ export default function App() {
       <div style={{fontFamily:FB,background:"#f8f7f5",minHeight:"100dvh",display:"flex",flexDirection:"column"}}>
         <div className="fade-up"><Banner/></div>
         <div style={{flex:1,padding:"2rem 1.5rem 1rem",maxWidth:440,width:"100%",margin:"0 auto"}}>
-          <div className="fade-up" style={{fontFamily:FO,fontSize:52,fontWeight:800,color:"#111",letterSpacing:-1,lineHeight:1,marginBottom:4}}>LOGIN</div>
+          <div className="fade-up" style={{fontFamily:FD,fontSize:52,fontWeight:800,color:"#111",letterSpacing:-1,lineHeight:1,marginBottom:4}}>LOGIN</div>
           <div className="fade-up" style={{fontSize:12,color:MUTE,marginBottom:"1.75rem",animationDelay:"40ms",letterSpacing:0.3}}>
             Selecione sua competição para entrar
           </div>
@@ -726,7 +711,7 @@ export default function App() {
             ].map(({label,val,cor,bg,topBar,labelFont})=>(
               <div key={label} className="card card-glass" onClick={label==="Posição"?()=>setTela("ranking"):undefined} style={{borderRadius:12,padding:"14px 16px",background:bg,position:"relative",overflow:"hidden",boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.09)`,cursor:label==="Posição"?"pointer":undefined}}>
                 <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:topBar,opacity:0.7}}/>
-                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:labelFont||FO}}>{label}</div>
+                <div style={{fontSize:9,color:DIM,marginBottom:7,letterSpacing:2,textTransform:"uppercase",fontWeight:700,fontFamily:labelFont||FD}}>{label}</div>
                 <div style={{fontSize:38,fontWeight:400,color:cor,lineHeight:1,fontFamily:FD,letterSpacing:1}}>{val}</div>
               </div>
             ))}
@@ -751,7 +736,7 @@ export default function App() {
               setTela(t);
               if(t==="clientes")await carregarClientes();
               if(t==="resultados")await carregarJogos();
-              if(t==="ranking"){await carregarJogos();await carregarClientes();await carregarTodosPalpites();}
+              if(t==="ranking"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
             }}>{l}</button>
           ))}
         </div>
@@ -763,7 +748,7 @@ export default function App() {
             </div>
             <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM,position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,rgba(216,9,27,0.4),transparent)"}}/>
-              <div style={{fontSize:12,fontWeight:700,color:"#e0e0e0",marginBottom:4,fontFamily:FO}}>Ferramentas de teste</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#e0e0e0",marginBottom:4,fontFamily:FD}}>Ferramentas de teste</div>
               <div style={{fontSize:11,color:MUTE,marginBottom:14,lineHeight:1.6}}>Use apenas em ambiente de testes. Zerar resultados mantém todos os palpites intactos.</div>
               <button className="btn" onClick={zerarResultados} style={{
                 border:"1px solid rgba(216,9,27,0.4)",borderRadius:8,padding:"10px 18px",
@@ -830,27 +815,6 @@ function VisualPontos() {
             <div style={{fontSize:10,fontWeight:700,color:cor,letterSpacing:1}}>{label}</div>
             <div style={{fontSize:10,color:DIM,marginTop:2}}>{ex}</div>
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Visual2() {
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:8,width:200}} className="scale-in">
-      {[
-        {p1:"1",p2:"1",label:"+10 EXATO",cor:YELLOW,bg:"rgba(255,209,1,0.12)",border:"rgba(255,209,1,0.3)"},
-        {p1:"2",p2:"0",label:"+5 VENCEDOR",cor:"#d0d0d0",bg:"rgba(255,255,255,0.06)",border:"rgba(255,255,255,0.15)"},
-        {p1:"0",p2:"3",label:"ERROU",cor:"#444",bg:"rgba(0,0,0,0.2)",border:"rgba(255,255,255,0.06)"},
-      ].map(({p1,p2,label,cor,bg,border},i)=>(
-        <div key={i} className="scale-in" style={{animationDelay:`${i*80}ms`,display:"flex",alignItems:"center",gap:10,background:bg,border:`0.5px solid ${border}`,borderRadius:10,padding:"8px 12px"}}>
-          <div style={{display:"flex",alignItems:"center",gap:6,flex:1}}>
-            <div style={{width:28,height:28,borderRadius:6,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:18,color:"#fff"}}>{p1}</div>
-            <span style={{fontSize:11,color:"#444"}}>×</span>
-            <div style={{width:28,height:28,borderRadius:6,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:18,color:"#fff"}}>{p2}</div>
-          </div>
-          <span style={{fontSize:9,fontWeight:700,letterSpacing:1,color:cor}}>{label}</span>
         </div>
       ))}
     </div>
@@ -966,7 +930,7 @@ function TelaCampeao({ user, onConfirmar }) {
       </div>
 
       <div style={{padding:"1.25rem 1.5rem 0.75rem", flexShrink:0}}>
-        <div style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:4,fontFamily:FO,letterSpacing:-0.5,lineHeight:1.15}}>
+        <div style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:4,fontFamily:FD,letterSpacing:-0.5,lineHeight:1.15}}>
           Quem vai ser campeão?
         </div>
         <div style={{fontSize:13,color:"#555",lineHeight:1.75}}>
@@ -1060,7 +1024,7 @@ function Carrossel({ slides, onFim }) {
         <div key={atual} className="fade-up">{slide.visual}</div>
       </div>
       <div style={{padding:"1.4rem 1.6rem 0.8rem"}}>
-        <div key={"t"+atual} className="fade-up" style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:8,fontFamily:FO,letterSpacing:-0.5,lineHeight:1.15}}>{slide.titulo}</div>
+        <div key={"t"+atual} className="fade-up" style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:8,fontFamily:FD,letterSpacing:-0.5,lineHeight:1.15}}>{slide.titulo}</div>
         <div key={"d"+atual} className="fade-up" style={{fontSize:13,color:"#555",lineHeight:1.75,animationDelay:"40ms"}}>{slide.texto}</div>
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.5rem 1.6rem 0.9rem"}}>
@@ -1137,7 +1101,7 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
       )}
       {todos.length>0&&(
         <>
-          <div style={{fontSize:9,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"4px 0 10px",textTransform:"uppercase",fontFamily:FO}}>Classificação completa</div>
+          <div style={{fontSize:9,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"4px 0 10px",textTransform:"uppercase",fontFamily:FD}}>Classificação completa</div>
           <div className="stagger">
             {todos.map((c,i)=>{
               const isMe=c.id===myId;
@@ -1182,7 +1146,6 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
     {id:"3",label:"3ª Rodada",inicio:"2026-06-24",fim:"2026-06-28"},
   ];
 
-  function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
   const filtradosRodada = jogos.filter(j=>{const r=RODADAS.find(x=>x.id===rodada);const d=diaBR(j.data_hora);return d>=r.inicio&&d<=r.fim;});
   const todosOsDias = [...new Set(filtradosRodada.map(j=>diaBR(j.data_hora)))].sort();
 
@@ -1202,22 +1165,6 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
   const jogosDoDia = filtradosRodada
     .filter(j=>diaBR(j.data_hora)===diaSel)
     .sort((a,b)=>new Date(a.data_hora)-new Date(b.data_hora));
-
-  function formatDiaLabel(iso){
-    const d=new Date(iso+"T12:00:00-03:00");
-    return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});
-  }
-  function formatHora(iso){
-    return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});
-  }
-  function formatCalDia(iso){
-    const d=new Date(iso+"T12:00:00-03:00");
-    return {
-      sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),
-      num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),
-      mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3),
-    };
-  }
 
   return (
     <div style={{paddingTop:14}}>
@@ -1289,7 +1236,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
               <circle cx="24" cy="24" r="20" fill="none" stroke="#fff" strokeWidth="2"/>
               <path d="M16 24h16M24 16v16" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
             </svg>
-            <div style={{fontSize:13,color:DIM,fontFamily:FO,fontWeight:500}}>Nenhum jogo nesta data</div>
+            <div style={{fontSize:13,color:DIM,fontFamily:FD,fontWeight:500}}>Nenhum jogo nesta data</div>
             <div style={{fontSize:11,color:"#333",marginTop:4}}>Selecione outro dia no calendário</div>
           </div>
         )}

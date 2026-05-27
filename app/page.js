@@ -58,11 +58,12 @@ function Flag({ time, size = 32 }) {
   );
 }
 
-function calcPontos(g1, g2, rg1, rg2) {
+function calcPontos(g1, g2, rg1, rg2, isBrasil = false) {
   if (rg1 == null || rg2 == null) return null;
-  if (g1 === rg1 && g2 === rg2) return 3;
+  const mult = isBrasil ? 2 : 1;
+  if (g1 === rg1 && g2 === rg2) return 10 * mult;
   const v = (a, b) => a > b ? 1 : b > a ? 2 : 0;
-  return v(g1, g2) === v(rg1, rg2) ? 1 : 0;
+  return v(g1, g2) === v(rg1, rg2) ? 5 * mult : 0;
 }
 
 function formatDoc(doc) {
@@ -280,7 +281,10 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
 
   function renderCard(j){
     const p=palpites.find(x=>x.jogo_id===j.id);
-    const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2):null;
+    const isBR=j.time1==="Brasil"||j.time2==="Brasil";
+    const ptMax=isBR?20:10;
+    const ptMid=isBR?10:5;
+    const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR):null;
     const time1=j.time1||"A definir";
     const time2=j.time2||"A definir";
     const definido=!!(j.time1&&j.time2);
@@ -297,7 +301,7 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
             {j.data_hora?formatHora(j.data_hora):"A definir"}
           </div>
           {pts!==null&&(
-            <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===3?"rgba(255,209,1,0.12)":pts===1?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===3?YELLOW:pts===1?"#bbb":"#444",border:pts===3?"0.5px solid rgba(255,209,1,0.25)":pts===1?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===3?"+3 EXATO":pts===1?"+1 VENCEDOR":"ERROU"}</span>
+            <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===ptMax?"rgba(255,209,1,0.12)":pts===ptMid?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===ptMax?YELLOW:pts===ptMid?"#bbb":"#444",border:pts===ptMax?"0.5px solid rgba(255,209,1,0.25)":pts===ptMid?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===ptMax?`+${ptMax} EXATO`:pts===ptMid?`+${ptMid} VENCEDOR`:"ERROU"}</span>
           )}
         </div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
@@ -489,8 +493,9 @@ export default function App() {
     jogos.forEach(j=>{
       const p=palpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
       if (!p||j.resultado_g1==null) return;
-      const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2);
-      pts+=pp; if(pp===3)acertos++;
+      const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
+      const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
+      pts+=pp; if(pp===(isBrasil?20:10))acertos++;
     });
     return {...c,pts,acertos};
   }).sort((a,b)=>b.pts-a.pts||b.acertos-a.acertos);
@@ -571,7 +576,7 @@ export default function App() {
   if (tela==="boasvindas") {
     const slides=[
       {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
-      {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2x1)? 3 pontos. Acertou só quem ganhou ou que empatou? 1 ponto. Errou tudo? 0 pontos. Quanto mais precisão, mais pontos."},
+      {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2×1)? 10 pontos. Acertou só quem ganhou ou que empatou? 5 pontos. Errou? 0 pontos. Nos jogos do Brasil, a pontuação é dobrada — 20pts pelo exato, 10pts pelo vencedor."},
       {visual:<Visual3/>,titulo:"Disputando o Top 10",texto:"Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco."},
       {visual:<Visual4/>,titulo:"Atenção",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
       {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites."},
@@ -722,12 +727,13 @@ function VisualPontos() {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:10,width:220}}>
       {[
-        {icone:"3",label:"PLACAR EXATO",ex:"ex: você disse 2×1 e foi 2×1",cor:YELLOW},
-        {icone:"1",label:"RESULTADO CERTO",ex:"ex: você disse 2×1 e foi 3×1",cor:"#d0d0d0"},
+        {icone:"10",label:"PLACAR EXATO",ex:"ex: você disse 2×1 e foi 2×1",cor:YELLOW},
+        {icone:"5",label:"RESULTADO CERTO",ex:"ex: você disse 2×1 e foi 3×1",cor:"#d0d0d0"},
+        {icone:"×2",label:"JOGOS DO BRASIL",ex:"pontuação dobrada em todo jogo",cor:"#4ade80"},
         {icone:"0",label:"ERROU",ex:"ex: você disse 2×1 e foi 0×1",cor:"#444"},
       ].map(({icone,label,ex,cor})=>(
         <div key={label} style={{display:"flex",alignItems:"center",gap:12,background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"10px 14px",border:"0.5px solid rgba(255,255,255,0.08)"}}>
-          <div style={{width:36,height:36,borderRadius:"50%",background:cor==="444"?"#1a1a1a":`${cor}22`,border:`1.5px solid ${cor==="444"?"#333":cor}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:20,color:cor,flexShrink:0}}>{icone}</div>
+          <div style={{width:36,height:36,borderRadius:"50%",background:cor==="#444"?"#1a1a1a":`${cor}22`,border:`1.5px solid ${cor==="#444"?"#333":cor}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:icone.length>2?13:20,color:cor,flexShrink:0}}>{icone}</div>
           <div>
             <div style={{fontSize:10,fontWeight:700,color:cor,letterSpacing:1}}>{label}</div>
             <div style={{fontSize:10,color:DIM,marginTop:2}}>{ex}</div>
@@ -742,8 +748,8 @@ function Visual2() {
   return (
     <div style={{display:"flex",flexDirection:"column",gap:8,width:200}} className="scale-in">
       {[
-        {p1:"1",p2:"1",label:"+3 EXATO",cor:YELLOW,bg:"rgba(255,209,1,0.12)",border:"rgba(255,209,1,0.3)"},
-        {p1:"2",p2:"0",label:"+1 VENCEDOR",cor:"#d0d0d0",bg:"rgba(255,255,255,0.06)",border:"rgba(255,255,255,0.15)"},
+        {p1:"1",p2:"1",label:"+10 EXATO",cor:YELLOW,bg:"rgba(255,209,1,0.12)",border:"rgba(255,209,1,0.3)"},
+        {p1:"2",p2:"0",label:"+5 VENCEDOR",cor:"#d0d0d0",bg:"rgba(255,255,255,0.06)",border:"rgba(255,255,255,0.15)"},
         {p1:"0",p2:"3",label:"ERROU",cor:"#444",bg:"rgba(0,0,0,0.2)",border:"rgba(255,255,255,0.06)"},
       ].map(({p1,p2,label,cor,bg,border},i)=>(
         <div key={i} className="scale-in" style={{animationDelay:`${i*80}ms`,display:"flex",alignItems:"center",gap:10,background:bg,border:`0.5px solid ${border}`,borderRadius:10,padding:"8px 12px"}}>
@@ -1062,8 +1068,10 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
         {jogosDoDia.map(j=>{
           const p=palpites.find(x=>x.jogo_id===j.id);
           const passou=j.encerrado||new Date(j.data_hora)<=new Date();
-          const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2):null;
           const isBR=j.time1==="Brasil"||j.time2==="Brasil";
+          const ptMax=isBR?20:10;
+          const ptMid=isBR?10:5;
+          const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR):null;
           return (
             <div key={j.id} className={"card card-glass"+(isBR?" card-brasil":"")} style={{
               borderRadius:14,padding:"14px",marginBottom:10,
@@ -1076,7 +1084,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13}}>
                 <div style={{background:isBR?"rgba(255,209,1,0.08)":"rgba(255,255,255,0.04)",color:isBR?YELLOW:DIM,fontSize:9,fontWeight:700,padding:"3px 8px",borderRadius:5,letterSpacing:1,border:isBR?"0.5px solid rgba(255,209,1,0.15)":"0.5px solid rgba(255,255,255,0.06)"}}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
                 {pts!==null&&(
-                  <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===3?"rgba(255,209,1,0.12)":pts===1?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===3?YELLOW:pts===1?"#bbb":"#444",border:pts===3?"0.5px solid rgba(255,209,1,0.25)":pts===1?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===3?"+3 EXATO":pts===1?"+1 VENCEDOR":"ERROU"}</span>
+                  <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===ptMax?"rgba(255,209,1,0.12)":pts===ptMid?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===ptMax?YELLOW:pts===ptMid?"#bbb":"#444",border:pts===ptMax?"0.5px solid rgba(255,209,1,0.25)":pts===ptMid?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===ptMax?`+${ptMax} EXATO`:pts===ptMid?`+${ptMid} VENCEDOR`:"ERROU"}</span>
                 )}
               </div>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>

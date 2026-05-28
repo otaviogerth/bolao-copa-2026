@@ -557,7 +557,8 @@ export default function App() {
     );
   },[clientes,jogos,palpites]);
 
-  const meuRank = user ? ranking.findIndex(r=>r.id===user.id)+1 : 0;
+  const rankingDoMeuTipo = user ? ranking.filter(r=>r.tipo===user.tipo) : ranking;
+  const meuRank = user ? rankingDoMeuTipo.findIndex(r=>r.id===user.id)+1 : 0;
   const meusPts = user ? (ranking.find(r=>r.id===user.id)||{}).pts||0 : 0;
 
   /* ── LOGIN ── */

@@ -327,6 +327,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar }) {
     return (
       <div key={j.id} className="card" style={{
         borderRadius:14,padding:"14px",marginBottom:10,
+        minHeight:176,
         position:"relative",overflow:"hidden",
         border:`0.5px solid ${BORDER2}`,
         background:"linear-gradient(160deg,#131313,#0c0c0c)",
@@ -354,7 +355,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar }) {
             ):new Date(j.data_hora)<=new Date()?(
               <div style={{fontSize:10,color:DIM,fontStyle:"italic"}}>Em andamento</div>
             ):definido?(
-              <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={false}/>
+              <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={false}/>
             ):(
               <div style={{fontSize:11,color:DIM,fontStyle:"italic",padding:"0 8px"}}>—</div>
             )}
@@ -1260,6 +1261,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
           return (
             <div key={j.id} className={"card card-glass"+(isBR?" card-brasil":"")} style={{
               borderRadius:14,padding:"14px",marginBottom:10,
+              minHeight:176,
               position:"relative",overflow:"hidden",
               border:isBR?"1px solid rgba(255,209,1,0.2)":`0.5px solid ${BORDER2}`,
               background:isBR?"linear-gradient(160deg,#161200,#0d0d0d)":"linear-gradient(160deg,#131313,#0c0c0c)",
@@ -1290,7 +1292,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
                       }
                     </div>
                   ):(
-                    <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>
+                    <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>
                   )}
                 </div>
                 <div style={{flex:1,textAlign:"right"}}>

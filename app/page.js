@@ -279,7 +279,7 @@ function formatHora(iso){return new Date(iso).toLocaleTimeString("pt-BR",{timeZo
 function formatCalDia(iso){const d=new Date(iso+"T12:00:00-03:00");return {sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3)};}
 
 /* ─── LISTA MATA-MATA (usuário) ─────────────────────────────────────────── */
-function ListaMataMata({ jogos, palpites, onSalvar }) {
+function ListaMataMata({ jogos, palpites, onSalvar, onDeletar }) {
   const [faseSel,setFaseSel] = useState("16avos");
   const [diaSel,setDiaSel]   = useState(null);
   const calRef = useRef(null);
@@ -354,7 +354,7 @@ function ListaMataMata({ jogos, palpites, onSalvar }) {
             ):new Date(j.data_hora)<=new Date()?(
               <div style={{fontSize:10,color:DIM,fontStyle:"italic"}}>Em andamento</div>
             ):definido?(
-              <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>{}} isBrasil={false}/>
+              <PalpiteInput jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={false}/>
             ):(
               <div style={{fontSize:11,color:DIM,fontStyle:"italic",padding:"0 8px"}}>—</div>
             )}
@@ -468,7 +468,12 @@ export default function App() {
     let q = supabase.from("clientes").select("*").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true);
     if (docLimpo.toLowerCase() !== "admin") q = q.eq("tipo", competicao);
     const { data, error } = await q.limit(1);
-    if (error || !data.length) { setLoginErr("CPF/CNPJ ou senha incorretos."); setLoading(false); return; }
+    if (error || !data.length) {
+      const outroTipo=competicao==="cliente"?"funcionario":"cliente";
+      const {data:alt}=await supabase.from("clientes").select("id").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true).eq("tipo",outroTipo).limit(1);
+      setLoginErr(alt?.length?`Selecione "${outroTipo==="funcionario"?"FUNCIONÁRIOS":"CLIENTES"}" para entrar.`:"CPF/CNPJ ou senha incorretos.");
+      setLoading(false); return;
+    }
     const u = data[0];
     setUser(u);
     if (u.doc === "admin") { await Promise.all([carregarJogos(),carregarClientes()]); setTela("admin"); }
@@ -481,12 +486,12 @@ export default function App() {
   async function carregarClientes()      { const {data}=await supabase.from("clientes").select("*").order("nome"); setClientes(data||[]); }
   async function carregarTodosPalpites() { const {data}=await supabase.from("palpites").select("*"); setPalpites(data||[]); }
   function logout()                      { setUser(null);setTela("login");setJogos([]);setPalpites([]);setClientes([]); }
-  function flash(text,err)               { setMsg({text,err});setTimeout(()=>setMsg(""),2500); }
+  function flash(text,err)               { setMsg({text,err});setTimeout(()=>setMsg(null),2500); }
 
   async function salvarPalpite(jogoId,g1,g2) {
     const jogo = jogos.find(j=>j.id===jogoId);
     if (jogo && new Date(jogo.data_hora) <= new Date()) { flash("Jogo já começou — aposta bloqueada",true); return; }
-    const exist = palpites.find(p=>p.jogo_id===jogoId);
+    const exist = palpites.find(p=>p.jogo_id===jogoId&&p.cliente_id===user.id);
     if (exist) await supabase.from("palpites").update({g1:parseInt(g1),g2:parseInt(g2)}).eq("id",exist.id);
     else       await supabase.from("palpites").insert({cliente_id:user.id,jogo_id:jogoId,g1:parseInt(g1),g2:parseInt(g2)});
     await carregarPalpites(user.id);
@@ -530,7 +535,7 @@ export default function App() {
   }
 
   const ranking = useMemo(()=>{
-    const finalCopa = jogos.find(j=>j.id===190);
+    const finalCopa = jogos.find(j=>j.fase==="final");
     const vencedorFinal = finalCopa?.encerrado
       ? (finalCopa.resultado_g1>finalCopa.resultado_g2 ? finalCopa.time1
          : finalCopa.resultado_g2>finalCopa.resultado_g1 ? finalCopa.time2 : null)
@@ -738,6 +743,7 @@ export default function App() {
               if(t==="clientes")await carregarClientes();
               if(t==="resultados")await carregarJogos();
               if(t==="ranking"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
+              if((t==="jogos"||t==="matamata")&&!isAdmin){await carregarPalpites(user.id);}
             }}>{l}</button>
           ))}
         </div>
@@ -763,8 +769,8 @@ export default function App() {
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user?.tipo}/></div>}
-        {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites} onSalvar={salvarPalpite}/></div>}
-        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
+        {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite}/></div>}
+        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
 
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,marginBottom:12,opacity:0.3}}>

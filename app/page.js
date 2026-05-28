@@ -1030,7 +1030,7 @@ function Carrossel({ slides, onFim }) {
   const isUltimo = atual===slides.length-1;
   return (
     <div className="scale-in" style={{background:"rgba(255,255,255,0.97)",borderRadius:20,width:"100%",maxWidth:460,overflow:"hidden",boxShadow:"0 24px 60px rgba(0,0,0,0.7),0 0 0 0.5px rgba(255,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.8)"}}>
-      <div style={{background:"linear-gradient(160deg,#0d0d14,#080810)",minHeight:190,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",borderBottom:"0.5px solid rgba(255,255,255,0.06)"}}>
+      <div style={{background:"linear-gradient(160deg,#0d0d14,#080810)",height:280,display:"flex",alignItems:"center",justifyContent:"center",position:"relative",borderBottom:"0.5px solid rgba(255,255,255,0.06)",overflow:"hidden"}}>
         <button className="btn" onClick={onFim} style={{position:"absolute",top:12,right:12,background:"rgba(255,255,255,0.07)",border:"none",borderRadius:"50%",width:30,height:30,cursor:"pointer",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>×</button>
         <div key={atual} className="fade-up">{slide.visual}</div>
       </div>

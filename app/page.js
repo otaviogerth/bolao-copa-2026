@@ -449,8 +449,9 @@ export default function App() {
   const [loginErr,setLoginErr] = useState("");
   const [loading,setLoading]   = useState(false);
   const [jogos,setJogos]       = useState([]);
-  const [palpites,setPalpites] = useState([]);
-  const [clientes,setClientes] = useState([]);
+  const [palpites,setPalpites]           = useState([]);
+  const [todosPalpites,setTodosPalpites] = useState([]);
+  const [clientes,setClientes]           = useState([]);
   const [msg,setMsg]           = useState(null);
   const [competicao,setCompeticao] = useState("cliente");
 
@@ -477,15 +478,15 @@ export default function App() {
     const u = data[0];
     setUser(u);
     if (u.doc === "admin") { await Promise.all([carregarJogos(),carregarClientes()]); setTela("admin"); }
-    else { await Promise.all([carregarJogos(),carregarPalpites(u.id)]); setTela("boasvindas"); }
+    else { await Promise.all([carregarJogos(),carregarPalpites(u.id),carregarClientes(),carregarTodosPalpites()]); setTela("boasvindas"); }
     setLoading(false);
   }
 
   async function carregarJogos()         { const {data}=await supabase.from("jogos").select("*").order("data_hora"); setJogos(data||[]); }
   async function carregarPalpites(id)    { const {data}=await supabase.from("palpites").select("*").eq("cliente_id",id); setPalpites(data||[]); }
   async function carregarClientes()      { const {data}=await supabase.from("clientes").select("*").order("nome"); setClientes(data||[]); }
-  async function carregarTodosPalpites() { const {data}=await supabase.from("palpites").select("*"); setPalpites(data||[]); }
-  function logout()                      { setUser(null);setTela("login");setJogos([]);setPalpites([]);setClientes([]); }
+  async function carregarTodosPalpites() { const {data}=await supabase.from("palpites").select("*"); setTodosPalpites(data||[]); }
+  function logout()                      { setUser(null);setTela("login");setJogos([]);setPalpites([]);setTodosPalpites([]);setClientes([]); }
   function flash(text,err)               { setMsg({text,err});setTimeout(()=>setMsg(null),2500); }
 
   async function salvarPalpite(jogoId,g1,g2) {
@@ -500,6 +501,8 @@ export default function App() {
 
   async function deletarPalpite(palpiteId) {
     if (!palpiteId) return;
+    setPalpites(prev=>prev.filter(p=>p.id!==palpiteId));
+    setTodosPalpites(prev=>prev.filter(p=>p.id!==palpiteId));
     await supabase.from("palpites").delete().eq("id", palpiteId);
     await carregarPalpites(user.id);
     flash("Palpite removido");
@@ -543,7 +546,7 @@ export default function App() {
     return clientes.filter(c=>c.doc!=="admin").map(c=>{
       let pts=0,acertos=0,acertosVencedor=0;
       jogos.forEach(j=>{
-        const p=palpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
+        const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
         if (!p||j.resultado_g1==null) return;
         const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
         const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
@@ -560,7 +563,7 @@ export default function App() {
       b.acertouCampeao-a.acertouCampeao ||
       a.id-b.id
     );
-  },[clientes,jogos,palpites]);
+  },[clientes,jogos,todosPalpites]);
 
   const rankingDoMeuTipo = user ? ranking.filter(r=>r.tipo===user.tipo) : ranking;
   const meuRank = user ? rankingDoMeuTipo.findIndex(r=>r.id===user.id)+1 : 0;
@@ -1507,7 +1510,7 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, onDeletar, isBrasil }) {
         />
       </div>
 
-      <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:6, minHeight:28 }}>
         <button
           className="btn"
           style={{

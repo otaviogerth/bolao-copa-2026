@@ -646,7 +646,7 @@ export default function App() {
       {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2×1)? 10 pontos. Acertou só quem ganhou ou que empatou? 5 pontos. Errou? 0 pontos. Nos jogos do Brasil, a pontuação é dobrada — 20pts pelo exato, 10pts pelo vencedor."},
       {visual:<Visual3/>,titulo:"Disputando o Top 10",texto:"Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco."},
       {visual:<Visual4/>,titulo:"Cuidado",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
-      {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites."},
+      {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites.",subtexto:"Seus dados são usados exclusivamente para este bolão."},
     ];
     return (
       <>
@@ -1037,6 +1037,7 @@ function Carrossel({ slides, onFim }) {
       <div style={{padding:"1.4rem 1.6rem 0.8rem"}}>
         <div key={"t"+atual} className="fade-up" style={{fontSize:22,fontWeight:800,color:DARK,marginBottom:8,fontFamily:FD,letterSpacing:-0.5,lineHeight:1.15}}>{slide.titulo}</div>
         <div key={"d"+atual} className="fade-up" style={{fontSize:13,color:"#555",lineHeight:1.75,animationDelay:"40ms"}}>{slide.texto}</div>
+        {slide.subtexto&&<div key={"s"+atual} className="fade-up" style={{fontSize:11,color:"#aaa",marginTop:10,animationDelay:"80ms"}}>{slide.subtexto}</div>}
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.5rem 1.6rem 0.9rem"}}>
         <button className="btn" onClick={()=>setAtual(atual-1)} disabled={atual===0} style={{background:"transparent",border:`1px solid ${atual===0?"#eee":"#ddd"}`,width:38,height:38,borderRadius:"50%",cursor:atual===0?"default":"pointer",color:atual===0?"#ddd":"#333",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,opacity:atual===0?0.35:1}}>←</button>

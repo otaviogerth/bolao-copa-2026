@@ -849,28 +849,41 @@ function VisualPontos() {
 }
 
 function Visual3() {
-  const cols = [
-    {pos:"2º",val:"R$ 300",num:"2",h:62,cor:"#cdd2db",delay:"80ms"},
-    {pos:"1º",val:"R$ 500",num:"1",h:92,cor:YELLOW,   delay:"0ms"},
-    {pos:"3º",val:"R$ 200",num:"3",h:46,cor:"#d08a3e", delay:"160ms"},
+  const premios = [
+    {pos:"1º",valor:"R$ 500,00",cor:YELLOW,size:24},
+    {pos:"2º",valor:"R$ 300,00",cor:"#cdd2db",size:20},
+    {pos:"3º",valor:"R$ 200,00",cor:"#d08a3e",size:18},
   ];
   return (
-    <div style={{display:"flex",alignItems:"flex-end",gap:7}} className="scale-in">
-      {cols.map((c,i)=>(
-        <div key={i} style={{textAlign:"center",animationDelay:c.delay,display:"flex",flexDirection:"column",alignItems:"center"}}>
-          <div style={{fontFamily:FD,fontSize:i===1?17:13,color:c.cor,lineHeight:1,marginBottom:3,letterSpacing:-0.3}}>{c.val}</div>
-          <div style={{fontSize:8,fontWeight:700,color:c.cor,opacity:0.7,letterSpacing:0.5,marginBottom:5}}>{c.pos}</div>
-          <div style={{
-            width:54,height:c.h,borderRadius:"6px 6px 0 0",
-            background:`linear-gradient(180deg,${c.cor} 0%,${c.cor}99 100%)`,
-            display:"flex",alignItems:"center",justifyContent:"center",
-            boxShadow:`0 0 14px ${c.cor}33,inset 0 1px 0 rgba(255,255,255,0.18)`,
-          }}>
-            <span style={{fontFamily:FD,fontSize:28,color:"rgba(0,0,0,0.65)",lineHeight:1}}>{c.num}</span>
-          </div>
-          <div style={{width:54,height:3,background:i===1?RED:c.cor,opacity:0.5}}/>
+    <div className="scale-in" style={{width:300,borderRadius:11,overflow:"hidden",boxShadow:SH_LG,background:CARD,border:`0.5px solid ${BORDER}`,position:"relative"}}>
+      <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${RED} 30%,${YELLOW} 70%,transparent)`,opacity:0.6}}/>
+      <div style={{padding:"14px 18px 0"}}>
+        <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:12}}>
+          <div style={{width:16,height:2,background:RED,borderRadius:1,flexShrink:0}}/>
+          <span style={{fontSize:8,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase"}}>Premiação</span>
         </div>
-      ))}
+        {premios.map((p,i)=>(
+          <div key={p.pos}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0"}}>
+              <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+                <span style={{fontFamily:FD,fontSize:22,fontWeight:400,color:p.cor,lineHeight:1}}>{p.pos}</span>
+                <span style={{fontSize:7,fontWeight:700,color:MUTE,letterSpacing:1.5,textTransform:"uppercase"}}>lugar</span>
+              </div>
+              <span style={{fontFamily:FD,fontSize:p.size,fontWeight:400,color:p.cor,lineHeight:1,letterSpacing:-0.5}}>{p.valor}</span>
+            </div>
+            {i < premios.length - 1 && <div style={{height:"0.5px",background:BORDER2}}/>}
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:8,background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,padding:"10px 18px"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
+          <div>
+            <div style={{fontSize:8,fontWeight:700,color:YELLOW,letterSpacing:2,textTransform:"uppercase",marginBottom:2}}>Acertou o Campeão</div>
+            <div style={{fontSize:9,color:DIM,lineHeight:1.4}}>Dividido entre os acertadores</div>
+          </div>
+          <span style={{fontFamily:FD,fontSize:22,fontWeight:400,color:YELLOW,lineHeight:1,flexShrink:0}}>R$ 500,00</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1085,46 +1098,23 @@ function Carrossel({ slides, onFim }) {
 
 /* ─── PREMIOS ────────────────────────────────────────────────────────────── */
 function PremiosCard() {
-  const premios = [
-    {pos:"1º",label:"LUGAR",valor:"R$ 500,00",size:36,cor:YELLOW},
-    {pos:"2º",label:"LUGAR",valor:"R$ 300,00",size:30,cor:"#cdd2db"},
-    {pos:"3º",label:"LUGAR",valor:"R$ 200,00",size:27,cor:"#d08a3e"},
-  ];
   return (
-    <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
-      <div style={{width:"100%",maxWidth:380}}>
-        <div className="card glass" style={{borderRadius:13,overflow:"hidden",boxShadow:SH_MD,position:"relative"}}>
-          <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${RED} 30%,${YELLOW} 70%,transparent)`,opacity:0.6}}/>
-          <div style={{padding:"1rem 1.25rem 0"}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-              <div style={{width:18,height:2,background:RED,borderRadius:1,flexShrink:0}}/>
-              <span style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase"}}>Premiação</span>
-            </div>
-            {premios.map((p,i)=>(
-              <div key={p.pos}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0"}}>
-                  <div style={{display:"flex",alignItems:"baseline",gap:5}}>
-                    <span style={{fontFamily:FD,fontSize:28,fontWeight:400,color:p.cor,lineHeight:1}}>{p.pos}</span>
-                    <span style={{fontSize:8,fontWeight:700,color:MUTE,letterSpacing:1.5,textTransform:"uppercase"}}>{p.label}</span>
-                  </div>
-                  <span style={{fontFamily:FD,fontSize:p.size,fontWeight:400,color:p.cor,lineHeight:1,letterSpacing:-0.5}}>{p.valor}</span>
-                </div>
-                {i < premios.length - 1 && (
-                  <div style={{height:"0.5px",background:BORDER2}}/>
-                )}
-              </div>
-            ))}
+    <div style={{display:"flex",alignItems:"stretch",borderRadius:9,overflow:"hidden",marginBottom:12,boxShadow:SH_SM,border:`0.5px solid ${BORDER}`,minHeight:42}}>
+      <div style={{background:CARD,display:"flex",alignItems:"center",gap:7,padding:"0 12px",flexShrink:0}}>
+        <div style={{width:14,height:2,background:RED,borderRadius:1}}/>
+        <span style={{fontSize:8,fontWeight:700,color:YELLOW,letterSpacing:2.5,textTransform:"uppercase",whiteSpace:"nowrap"}}>Prêmios</span>
+      </div>
+      <div style={{background:CARD,borderLeft:`0.5px solid ${BORDER2}`,display:"flex",alignItems:"center",flex:1,padding:"0 4px"}}>
+        {[["1º","R$500",YELLOW],["2º","R$300","#cdd2db"],["3º","R$200","#d08a3e"]].map(([pos,val,cor],i)=>(
+          <div key={pos} style={{display:"flex",alignItems:"baseline",gap:2,padding:"0 8px",borderRight:i<2?`0.5px solid ${BORDER2}`:undefined}}>
+            <span style={{fontFamily:FD,fontSize:11,color:cor,lineHeight:1}}>{pos}</span>
+            <span style={{fontFamily:FD,fontSize:15,color:cor,lineHeight:1,letterSpacing:-0.3}}>{val}</span>
           </div>
-          <div style={{marginTop:10,background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,padding:"12px 1.25rem"}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-              <div>
-                <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>Acertou o Campeão</div>
-                <div style={{fontSize:10,color:DIM,lineHeight:1.4}}>Dividido entre os acertadores</div>
-              </div>
-              <span style={{fontFamily:FD,fontSize:26,fontWeight:400,color:YELLOW,lineHeight:1,flexShrink:0}}>R$ 500,00</span>
-            </div>
-          </div>
-        </div>
+        ))}
+      </div>
+      <div style={{background:"#1d1407",borderLeft:`0.5px solid rgba(255,209,1,0.18)`,display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center",padding:"0 12px",flexShrink:0}}>
+        <div style={{fontSize:7,fontWeight:700,color:YELLOW,letterSpacing:1.5,textTransform:"uppercase",lineHeight:1.4}}>Campeão</div>
+        <div style={{fontFamily:FD,fontSize:13,color:YELLOW,lineHeight:1,letterSpacing:-0.2}}>R$500 *</div>
       </div>
     </div>
   );

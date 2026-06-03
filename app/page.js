@@ -619,7 +619,7 @@ export default function App() {
     const slides=[
       {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
       {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2×1)? 10 pontos. Acertou só quem ganhou ou que empatou? 5 pontos. Errou? 0 pontos. Nos jogos do Brasil, a pontuação é dobrada — 20pts pelo exato, 10pts pelo vencedor."},
-      {visual:<Visual3/>,titulo:"Disputando o Top 10",texto:"Acompanhe sua posição no ranking em tempo real. Os melhores colocados ao final da Copa ganham prêmios exclusivos em produtos Ipiranga e Texaco."},
+      {visual:<Visual3/>,titulo:"Premios",texto:"1º lugar: R$ 500,00  |  2º lugar: R$ 300,00  |  3º lugar: R$ 200,00. Quem acertar o campeao da Copa ganha R$ 500,00, dividido entre os acertadores."},
       {visual:<Visual4/>,titulo:"Cuidado",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
       {visual:<Visual5/>,titulo:"Tudo pronto",texto:"Você está pronto para jogar. Boa sorte — que vençam os melhores palpites.",subtexto:"Seus dados são usados exclusivamente para este bolão."},
     ];
@@ -1035,6 +1035,31 @@ function Carrossel({ slides, onFim }) {
   );
 }
 
+/* ─── PREMIOS ────────────────────────────────────────────────────────────── */
+function PremiosCard() {
+  return (
+    <div className="card glass" style={{borderRadius:13,padding:"1.25rem",marginBottom:16,position:"relative",overflow:"hidden",boxShadow:SH_SM}}>
+      <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,opacity:0.35}}/>
+      <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,marginBottom:12,textTransform:"uppercase",opacity:0.7}}>Premios</div>
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {[["1 lugar","R$ 500,00"],["2 lugar","R$ 300,00"],["3 lugar","R$ 200,00"]].map(([pos,val])=>(
+          <div key={pos} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <span style={{fontSize:13,color:"#e0e0e0",fontWeight:500}}>{pos}</span>
+            <span style={{fontSize:13,color:YELLOW,fontWeight:600,fontFamily:FD}}>{val}</span>
+          </div>
+        ))}
+        <div style={{marginTop:6,paddingTop:10,borderTop:`0.5px solid ${BORDER2}`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+            <span style={{fontSize:12,color:MUTE,flex:1,lineHeight:1.5}}>Acertou o campeao da Copa</span>
+            <span style={{fontSize:13,color:YELLOW,fontWeight:600,fontFamily:FD,whiteSpace:"nowrap"}}>R$ 500,00 *</span>
+          </div>
+          <div style={{fontSize:10,color:DIM,marginTop:5,lineHeight:1.5}}>* dividido entre todos os acertadores</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── RANKING ────────────────────────────────────────────────────────────── */
 function RankingView({ ranking, myId }) {
   const podio = ranking.slice(0,3);
@@ -1046,6 +1071,7 @@ function RankingView({ ranking, myId }) {
   ];
   return (
     <div style={{padding:"14px"}}>
+      <PremiosCard/>
       {ranking.length===0&&(
         <div style={{textAlign:"center",padding:"3rem 1rem",color:DIM,fontSize:13}}>Nenhum palpite registrado ainda.</div>
       )}

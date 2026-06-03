@@ -1078,23 +1078,45 @@ function Carrossel({ slides, onFim }) {
 
 /* ─── PREMIOS ────────────────────────────────────────────────────────────── */
 function PremiosCard() {
+  const premios = [
+    {pos:"1º",label:"LUGAR",valor:"R$ 500,00",size:36,cor:YELLOW},
+    {pos:"2º",label:"LUGAR",valor:"R$ 300,00",size:30,cor:"#cdd2db"},
+    {pos:"3º",label:"LUGAR",valor:"R$ 200,00",size:27,cor:"#d08a3e"},
+  ];
   return (
-    <div className="card glass" style={{borderRadius:13,padding:"1.25rem",marginBottom:16,position:"relative",overflow:"hidden",boxShadow:SH_SM}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,opacity:0.35}}/>
-      <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,marginBottom:12,textTransform:"uppercase",opacity:0.7}}>Premios</div>
-      <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {[["1 lugar","R$ 500,00"],["2 lugar","R$ 300,00"],["3 lugar","R$ 200,00"]].map(([pos,val])=>(
-          <div key={pos} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <span style={{fontSize:13,color:"#e0e0e0",fontWeight:500}}>{pos}</span>
-            <span style={{fontSize:13,color:YELLOW,fontWeight:600,fontFamily:FD}}>{val}</span>
+    <div style={{display:"flex",justifyContent:"center",marginBottom:16}}>
+      <div style={{width:"100%",maxWidth:380}}>
+        <div className="card glass" style={{borderRadius:13,overflow:"hidden",boxShadow:SH_MD,position:"relative"}}>
+          <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${RED} 30%,${YELLOW} 70%,transparent)`,opacity:0.6}}/>
+          <div style={{padding:"1rem 1.25rem 0"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <div style={{width:18,height:2,background:RED,borderRadius:1,flexShrink:0}}/>
+              <span style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase"}}>Premiacao</span>
+            </div>
+            {premios.map((p,i)=>(
+              <div key={p.pos}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0"}}>
+                  <div style={{display:"flex",alignItems:"baseline",gap:5}}>
+                    <span style={{fontFamily:FD,fontSize:28,fontWeight:400,color:p.cor,lineHeight:1}}>{p.pos}</span>
+                    <span style={{fontSize:8,fontWeight:700,color:MUTE,letterSpacing:1.5,textTransform:"uppercase"}}>{p.label}</span>
+                  </div>
+                  <span style={{fontFamily:FD,fontSize:p.size,fontWeight:400,color:p.cor,lineHeight:1,letterSpacing:-0.5}}>{p.valor}</span>
+                </div>
+                {i < premios.length - 1 && (
+                  <div style={{height:"0.5px",background:BORDER2}}/>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-        <div style={{marginTop:6,paddingTop:10,borderTop:`0.5px solid ${BORDER2}`}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
-            <span style={{fontSize:12,color:MUTE,flex:1,lineHeight:1.5}}>Acertou o campeao da Copa</span>
-            <span style={{fontSize:13,color:YELLOW,fontWeight:600,fontFamily:FD,whiteSpace:"nowrap"}}>R$ 500,00 *</span>
+          <div style={{marginTop:10,background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,padding:"12px 1.25rem"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+              <div>
+                <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>Acertou o Campeao</div>
+                <div style={{fontSize:10,color:DIM,lineHeight:1.4}}>Dividido entre os acertadores</div>
+              </div>
+              <span style={{fontFamily:FD,fontSize:26,fontWeight:400,color:YELLOW,lineHeight:1,flexShrink:0}}>R$ 500,00</span>
+            </div>
           </div>
-          <div style={{fontSize:10,color:DIM,marginTop:5,lineHeight:1.5}}>* dividido entre todos os acertadores</div>
         </div>
       </div>
     </div>

@@ -538,21 +538,23 @@ export default function App() {
 
   const ranking = useMemo(()=>{
     return clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario").map(c=>{
-      let pts=0,acertos=0,acertosVencedor=0;
+      let pts=0,acertos=0,acertosBrasil=0,acertosExatoVencedor=0;
       jogos.forEach(j=>{
         const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
         if (!p||j.resultado_g1==null) return;
         const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
         const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
         pts+=pp;
-        if(pp===(isBrasil?20:10)) acertos++;
-        else if(pp===(isBrasil?10:5)) acertosVencedor++;
+        const isExact = p.g1===j.resultado_g1 && p.g2===j.resultado_g2;
+        if(isExact) acertos++;
+        if(isExact && isBrasil) acertosBrasil++;
+        if(isExact && j.resultado_g1!==j.resultado_g2) acertosExatoVencedor++;
       });
-      return {...c,pts,acertos,acertosVencedor};
+      return {...c,pts,acertos,acertosBrasil,acertosExatoVencedor};
     }).sort((a,b)=>
       b.pts-a.pts ||
-      b.acertos-a.acertos ||
-      b.acertosVencedor-a.acertosVencedor ||
+      b.acertosBrasil-a.acertosBrasil ||
+      b.acertosExatoVencedor-a.acertosExatoVencedor ||
       a.id-b.id
     );
   },[clientes,jogos,todosPalpites]);

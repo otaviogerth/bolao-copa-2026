@@ -849,19 +849,26 @@ function VisualPontos() {
 }
 
 function Visual3() {
+  const cols = [
+    {pos:"2º",val:"R$ 300",num:"2",h:62,cor:"#cdd2db",delay:"80ms"},
+    {pos:"1º",val:"R$ 500",num:"1",h:92,cor:YELLOW,   delay:"0ms"},
+    {pos:"3º",val:"R$ 200",num:"3",h:46,cor:"#d08a3e", delay:"160ms"},
+  ];
   return (
-    <div style={{display:"flex",alignItems:"flex-end",gap:6,height:90}} className="scale-in">
-      {[
-        {h:55,cor:"#C0C0C0",pos:"2",delay:"80ms"},
-        {h:85,cor:YELLOW,pos:"1",delay:"0ms"},
-        {h:40,cor:"#CD7F32",pos:"3",delay:"160ms"},
-      ].map((b,i)=>(
-        <div key={i} style={{textAlign:"center",animationDelay:b.delay}}>
-          <div style={{fontFamily:FD,fontSize:10,color:b.cor,marginBottom:4,letterSpacing:0.5}}>{i===1?"1º":i===0?"2º":"3º"}</div>
-          <div style={{width:50,height:b.h,borderRadius:"8px 8px 0 0",background:`linear-gradient(180deg,${b.cor} 0%,${b.cor}99 100%)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 12px ${b.cor}33`}}>
-            <span style={{fontFamily:FD,fontSize:26,color:"rgba(0,0,0,0.65)"}}>{b.pos}</span>
+    <div style={{display:"flex",alignItems:"flex-end",gap:7}} className="scale-in">
+      {cols.map((c,i)=>(
+        <div key={i} style={{textAlign:"center",animationDelay:c.delay,display:"flex",flexDirection:"column",alignItems:"center"}}>
+          <div style={{fontFamily:FD,fontSize:i===1?17:13,color:c.cor,lineHeight:1,marginBottom:3,letterSpacing:-0.3}}>{c.val}</div>
+          <div style={{fontSize:8,fontWeight:700,color:c.cor,opacity:0.7,letterSpacing:0.5,marginBottom:5}}>{c.pos}</div>
+          <div style={{
+            width:54,height:c.h,borderRadius:"6px 6px 0 0",
+            background:`linear-gradient(180deg,${c.cor} 0%,${c.cor}99 100%)`,
+            display:"flex",alignItems:"center",justifyContent:"center",
+            boxShadow:`0 0 14px ${c.cor}33,inset 0 1px 0 rgba(255,255,255,0.18)`,
+          }}>
+            <span style={{fontFamily:FD,fontSize:28,color:"rgba(0,0,0,0.65)",lineHeight:1}}>{c.num}</span>
           </div>
-          <div style={{width:50,height:4,background:i===1?RED:"rgba(255,255,255,0.1)"}}/>
+          <div style={{width:54,height:3,background:i===1?RED:c.cor,opacity:0.5}}/>
         </div>
       ))}
     </div>
@@ -1091,7 +1098,7 @@ function PremiosCard() {
           <div style={{padding:"1rem 1.25rem 0"}}>
             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
               <div style={{width:18,height:2,background:RED,borderRadius:1,flexShrink:0}}/>
-              <span style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase"}}>Premiacao</span>
+              <span style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase"}}>Premiação</span>
             </div>
             {premios.map((p,i)=>(
               <div key={p.pos}>
@@ -1111,7 +1118,7 @@ function PremiosCard() {
           <div style={{marginTop:10,background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,padding:"12px 1.25rem"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
               <div>
-                <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>Acertou o Campeao</div>
+                <div style={{fontSize:9,fontWeight:700,color:YELLOW,letterSpacing:2,textTransform:"uppercase",marginBottom:3}}>Acertou o Campeão</div>
                 <div style={{fontSize:10,color:DIM,lineHeight:1.4}}>Dividido entre os acertadores</div>
               </div>
               <span style={{fontFamily:FD,fontSize:26,fontWeight:400,color:YELLOW,lineHeight:1,flexShrink:0}}>R$ 500,00</span>

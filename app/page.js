@@ -114,6 +114,14 @@ function calcPontos(g1, g2, rg1, rg2, isBrasil = false) {
   return v(g1, g2) === v(rg1, rg2) ? 5 * mult : 0;
 }
 
+function isHorarioComercialBrasilia(iso) {
+  // Brasil e permanentemente UTC-3 desde 2019
+  const d = new Date(new Date(iso).getTime() - 3 * 60 * 60 * 1000);
+  const dow = d.getUTCDay(); // 0=Dom, 6=Sab
+  const h = d.getUTCHours();
+  return dow >= 1 && dow <= 5 && h >= 8 && h < 18;
+}
+
 function formatDoc(doc) {
   const d = doc.replace(/\D/g, "");
   if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
@@ -455,12 +463,31 @@ export default function App() {
   const [clientes,setClientes]           = useState([]);
   const [msg,setMsg]           = useState(null);
   const [competicao,setCompeticao] = useState("funcionario");
+  const [horarioComercial,setHorarioComercial] = useState(false);
 
   const isAdmin = user?.doc === "admin";
 
   useEffect(()=>{
     if (tela==="campeao" && user?.palpite_campeao) setTela("jogos");
   },[tela,user]);
+
+  useEffect(()=>{
+    async function checkTime() {
+      try {
+        const r = await fetch("/api/time");
+        const { iso } = await r.json();
+        setHorarioComercial(isHorarioComercialBrasilia(iso));
+      } catch {}
+    }
+    checkTime();
+    const id = setInterval(checkTime, 60000);
+    return () => clearInterval(id);
+  },[]);
+
+  useEffect(()=>{
+    if (!horarioComercial || !user || user.doc === "admin") return;
+    if (["jogos","matamata","campeao"].includes(tela)) setTela("ranking");
+  },[horarioComercial, user]); // eslint-disable-line
 
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
@@ -639,7 +666,7 @@ export default function App() {
             </div>
           </div>
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
-            <Carrossel slides={slides} onFim={()=>setTela(user.palpite_campeao?"jogos":"campeao")}/>
+            <Carrossel slides={slides} onFim={()=>setTela(horarioComercial?"ranking":user.palpite_campeao?"jogos":"campeao")}/>
           </div>
         </div>
       </>
@@ -672,6 +699,16 @@ export default function App() {
       <GlobalStyles/>
       <div style={{fontFamily:FB,background:DARK,minHeight:"100vh",color:"#fff"}}>
         <Banner/>
+        {horarioComercial && user.doc !== "admin" && (
+          <div style={{
+            position:"sticky",top:0,zIndex:100,
+            background:"#1a1500",borderBottom:`0.5px solid rgba(255,209,1,0.25)`,
+            padding:"10px 16px",textAlign:"center",
+            color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
+          }}>
+            Periodo de trabalho (seg-sex 8h-18h). Apenas o ranking esta disponivel agora.
+          </div>
+        )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <img src={LOGO_VERMELHA} alt="Bet Lube" style={{height:120,width:"auto",objectFit:"contain"}}/>
@@ -708,7 +745,9 @@ export default function App() {
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]]
-            :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
+            :horarioComercial
+              ?[["ranking","Ranking"]]
+              :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
           ).map(([t,l])=>(
             <button key={t} className="pill btn" style={{
               padding:"7px 18px",borderRadius:20,

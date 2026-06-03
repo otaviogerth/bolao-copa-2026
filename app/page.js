@@ -454,7 +454,7 @@ export default function App() {
   const [todosPalpites,setTodosPalpites] = useState([]);
   const [clientes,setClientes]           = useState([]);
   const [msg,setMsg]           = useState(null);
-  const [competicao,setCompeticao] = useState("cliente");
+  const [competicao,setCompeticao] = useState("funcionario");
 
   const isAdmin = user?.doc === "admin";
 
@@ -471,9 +471,7 @@ export default function App() {
     if (docLimpo.toLowerCase() !== "admin") q = q.eq("tipo", competicao);
     const { data, error } = await q.limit(1);
     if (error || !data.length) {
-      const outroTipo=competicao==="cliente"?"funcionario":"cliente";
-      const {data:alt}=await supabase.from("clientes").select("id").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true).eq("tipo",outroTipo).limit(1);
-      setLoginErr(alt?.length?`Selecione "${outroTipo==="funcionario"?"FUNCIONÁRIOS":"CLIENTES"}" para entrar.`:"CPF/CNPJ ou senha incorretos.");
+      setLoginErr("CPF/CNPJ ou senha incorretos.");
       setLoading(false); return;
     }
     const u = data[0];
@@ -539,12 +537,7 @@ export default function App() {
   }
 
   const ranking = useMemo(()=>{
-    const finalCopa = jogos.find(j=>j.fase==="final");
-    const vencedorFinal = finalCopa?.encerrado
-      ? (finalCopa.resultado_g1>finalCopa.resultado_g2 ? finalCopa.time1
-         : finalCopa.resultado_g2>finalCopa.resultado_g1 ? finalCopa.time2 : null)
-      : null;
-    return clientes.filter(c=>c.doc!=="admin").map(c=>{
+    return clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario").map(c=>{
       let pts=0,acertos=0,acertosVencedor=0;
       jogos.forEach(j=>{
         const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
@@ -555,13 +548,11 @@ export default function App() {
         if(pp===(isBrasil?20:10)) acertos++;
         else if(pp===(isBrasil?10:5)) acertosVencedor++;
       });
-      const acertouCampeao = vencedorFinal && c.palpite_campeao===vencedorFinal ? 1 : 0;
-      return {...c,pts,acertos,acertosVencedor,acertouCampeao};
+      return {...c,pts,acertos,acertosVencedor};
     }).sort((a,b)=>
       b.pts-a.pts ||
       b.acertos-a.acertos ||
       b.acertosVencedor-a.acertosVencedor ||
-      b.acertouCampeao-a.acertouCampeao ||
       a.id-b.id
     );
   },[clientes,jogos,todosPalpites]);
@@ -579,23 +570,7 @@ export default function App() {
         <div style={{flex:1,padding:"2rem 1.5rem 1rem",maxWidth:440,width:"100%",margin:"0 auto"}}>
           <div className="fade-up" style={{fontFamily:FD,fontSize:52,fontWeight:800,color:"#111",letterSpacing:-1,lineHeight:1,marginBottom:4}}>LOGIN</div>
           <div className="fade-up" style={{fontSize:12,color:MUTE,marginBottom:"1.75rem",animationDelay:"40ms",letterSpacing:0.3}}>
-            Selecione sua competição para entrar
-          </div>
-          <div className="fade-up" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:"1.75rem",animationDelay:"70ms"}}>
-            {[["cliente","CLIENTES"],["funcionario","FUNCIONÁRIOS"]].map(([val,label])=>(
-              <button key={val} className="btn" onClick={()=>setCompeticao(val)} style={{
-                padding:"18px 10px",borderRadius:10,
-                border:`1.5px solid ${competicao===val ? RED : BORDER2}`,
-                background: competicao===val ? `linear-gradient(135deg,${RED},#a30614)` : "transparent",
-                color: competicao===val ? "#fff" : DIM,
-                fontFamily:FB, fontWeight:700, fontSize:9, letterSpacing:2,
-                textTransform:"uppercase", lineHeight:1.6, textAlign:"center",
-                boxShadow: competicao===val ? `0 4px 20px rgba(216,9,27,0.3),inset 0 1px 0 rgba(255,255,255,0.1)` : "none",
-              }}>
-                <div style={{fontSize:8,opacity:0.7,marginBottom:3}}>COMPETIÇÃO</div>
-                {label}
-              </button>
-            ))}
+            Bolao exclusivo para funcionarios
           </div>
           <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms"}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
@@ -772,7 +747,7 @@ export default function App() {
         )}
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
-        {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id} isAdmin={isAdmin} userTipo={user?.tipo}/></div>}
+        {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
         {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite}/></div>}
         {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
 
@@ -1061,11 +1036,9 @@ function Carrossel({ slides, onFim }) {
 }
 
 /* ─── RANKING ────────────────────────────────────────────────────────────── */
-function RankingView({ ranking, myId, isAdmin, userTipo }) {
-  const [aba,setAba] = useState(isAdmin?"cliente":(userTipo||"cliente"));
-  const rankFiltrado = ranking.filter(c=>c.tipo===aba);
-  const podio = rankFiltrado.slice(0,3);
-  const todos  = rankFiltrado;
+function RankingView({ ranking, myId }) {
+  const podio = ranking.slice(0,3);
+  const todos  = ranking;
   const MEDAL = [
     {cor:"#FFD700",grad:"linear-gradient(145deg,#FFD700 0%,#997200 50%,#FFD700 100%)",glow:"inset 0 1px 0 rgba(255,255,255,0.25),inset 0 -1px 0 rgba(0,0,0,0.15)",border:"rgba(255,215,0,0.55)",h:112,pos:"1"},
     {cor:"#C0C0C0",grad:"linear-gradient(145deg,#C0C0C0 0%,#686868 50%,#C0C0C0 100%)",glow:"inset 0 1px 0 rgba(255,255,255,0.2),inset 0 -1px 0 rgba(0,0,0,0.1)",border:"rgba(192,192,192,0.45)",h:82,pos:"2"},
@@ -1073,14 +1046,7 @@ function RankingView({ ranking, myId, isAdmin, userTipo }) {
   ];
   return (
     <div style={{padding:"14px"}}>
-      {isAdmin&&(
-        <div className="fade-up" style={{display:"flex",gap:6,marginBottom:16}}>
-          {[["cliente","Clientes"],["funcionario","Funcionários"]].map(([val,label])=>(
-            <button key={val} className="pill btn" onClick={()=>setAba(val)} style={{padding:"6px 16px",borderRadius:20,border:`0.5px solid ${aba===val?RED:BORDER2}`,background:aba===val?RED:"transparent",color:aba===val?"#fff":MUTE,fontSize:12,fontWeight:aba===val?600:500}}>{label}</button>
-          ))}
-        </div>
-      )}
-      {rankFiltrado.length===0&&(
+      {ranking.length===0&&(
         <div style={{textAlign:"center",padding:"3rem 1rem",color:DIM,fontSize:13}}>Nenhum palpite registrado ainda.</div>
       )}
       {podio.length>=1&&(

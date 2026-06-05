@@ -464,8 +464,10 @@ export default function App() {
   const [msg,setMsg]           = useState(null);
   const [competicao,setCompeticao] = useState("funcionario");
   const [horarioComercial,setHorarioComercial] = useState(false);
+  const [liberadoManual,setLiberadoManual]     = useState(false);
 
-  const isAdmin = user?.doc === "admin";
+  const isAdmin  = user?.doc === "admin";
+  const bloqueado = horarioComercial && !liberadoManual;
 
   useEffect(()=>{
     if (tela==="campeao" && user?.palpite_campeao) setTela("jogos");
@@ -478,6 +480,10 @@ export default function App() {
         const { iso } = await r.json();
         setHorarioComercial(isHorarioComercialBrasilia(iso));
       } catch {}
+      try {
+        const { data } = await supabase.from("configuracoes").select("liberado_manual").eq("id",1).single();
+        if (data) setLiberadoManual(data.liberado_manual);
+      } catch {}
     }
     checkTime();
     const id = setInterval(checkTime, 60000);
@@ -485,9 +491,9 @@ export default function App() {
   },[]);
 
   useEffect(()=>{
-    if (!horarioComercial || !user || user.doc === "admin") return;
+    if (!bloqueado || !user || user.doc === "admin") return;
     if (["jogos","matamata","campeao"].includes(tela)) setTela("ranking");
-  },[horarioComercial, user]); // eslint-disable-line
+  },[bloqueado, user]); // eslint-disable-line
 
   async function login(doc, senha) {
     setLoading(true); setLoginErr("");
@@ -550,6 +556,13 @@ export default function App() {
   async function toggleCliente(id,ativo) {
     await supabase.from("clientes").update({ativo:!ativo}).eq("id",id);
     await carregarClientes();
+  }
+
+  async function toggleLiberadoManual(novoValor) {
+    try {
+      await supabase.from("configuracoes").update({ liberado_manual: novoValor }).eq("id", 1);
+      setLiberadoManual(novoValor);
+    } catch {}
   }
 
   async function zerarResultados() {
@@ -666,7 +679,7 @@ export default function App() {
             </div>
           </div>
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
-            <Carrossel slides={slides} onFim={()=>setTela(horarioComercial?"ranking":user.palpite_campeao?"jogos":"campeao")}/>
+            <Carrossel slides={slides} onFim={()=>setTela(bloqueado?"ranking":user.palpite_campeao?"jogos":"campeao")}/>
           </div>
         </div>
       </>
@@ -699,7 +712,7 @@ export default function App() {
       <GlobalStyles/>
       <div style={{fontFamily:FB,background:DARK,minHeight:"100vh",color:"#fff"}}>
         <Banner/>
-        {horarioComercial && user.doc !== "admin" && (
+        {bloqueado && user.doc !== "admin" && (
           <div style={{
             position:"sticky",top:0,zIndex:100,
             background:"#1a1500",borderBottom:`0.5px solid rgba(255,209,1,0.25)`,
@@ -745,7 +758,7 @@ export default function App() {
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]]
-            :horarioComercial
+            :bloqueado
               ?[["ranking","Ranking"]]
               :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
           ).map(([t,l])=>(
@@ -773,6 +786,11 @@ export default function App() {
             <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM}}>
               <p style={{margin:0,fontSize:13,color:MUTE,lineHeight:1.7}}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
             </div>
+            <AdminControleHorario
+              horarioComercial={horarioComercial}
+              liberadoManual={liberadoManual}
+              onToggle={toggleLiberadoManual}
+            />
             <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM,position:"relative",overflow:"hidden"}}>
               <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,rgba(216,9,27,0.4),transparent)"}}/>
               <div style={{fontSize:12,fontWeight:700,color:"#e0e0e0",marginBottom:4,fontFamily:FD}}>Ferramentas de teste</div>
@@ -1116,6 +1134,81 @@ function PremiosCard() {
         <div style={{fontSize:7,fontWeight:700,color:YELLOW,letterSpacing:1.5,textTransform:"uppercase",lineHeight:1.4}}>Campeão</div>
         <div style={{fontFamily:FD,fontSize:13,color:YELLOW,lineHeight:1,letterSpacing:-0.2}}>R$500 *</div>
       </div>
+    </div>
+  );
+}
+
+/* ─── ADMIN CONTROLE HORARIO ─────────────────────────────────────────────── */
+function AdminControleHorario({ horarioComercial, liberadoManual, onToggle }) {
+  const [saving, setSaving] = useState(false);
+
+  async function handleToggle() {
+    setSaving(true);
+    try {
+      await onToggle(!liberadoManual);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const emHorario = horarioComercial;
+  const cor = liberadoManual ? YELLOW : emHorario ? RED : DIM;
+
+  return (
+    <div className="card glass" style={{
+      borderRadius:12,padding:"1.25rem",boxShadow:SH_SM,
+      position:"relative",overflow:"hidden",
+      border:`0.5px solid ${liberadoManual?"rgba(255,209,1,0.3)":BORDER}`,
+      transition:"border-color 0.4s",
+    }}>
+      <div style={{position:"absolute",top:0,left:0,right:0,height:2,
+        background:liberadoManual
+          ?`linear-gradient(90deg,transparent,${YELLOW},transparent)`
+          :`linear-gradient(90deg,transparent,${BORDER2},transparent)`,
+        opacity:liberadoManual?0.6:1,transition:"opacity 0.4s",
+      }}/>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+        <div style={{width:16,height:2,background:cor,borderRadius:1,flexShrink:0,transition:"background 0.3s"}}/>
+        <span style={{fontSize:9,fontWeight:700,color:cor,letterSpacing:3,textTransform:"uppercase",transition:"color 0.3s"}}>Controle de Acesso</span>
+      </div>
+      <div style={{marginBottom:16}}>
+        <div style={{
+          display:"inline-flex",alignItems:"center",gap:7,
+          background:liberadoManual?"rgba(255,209,1,0.07)":emHorario?"rgba(216,9,27,0.07)":"rgba(107,114,128,0.07)",
+          border:`0.5px solid ${liberadoManual?"rgba(255,209,1,0.22)":emHorario?"rgba(216,9,27,0.22)":"rgba(107,114,128,0.18)"}`,
+          borderRadius:7,padding:"7px 11px",
+        }}>
+          <div style={{
+            width:7,height:7,borderRadius:"50%",flexShrink:0,
+            background:cor,
+            boxShadow:liberadoManual?`0 0 7px ${YELLOW}90`:emHorario?`0 0 7px ${RED}90`:"none",
+            transition:"background 0.3s,box-shadow 0.3s",
+          }}/>
+          <span style={{fontSize:11,fontWeight:600,color:cor,fontFamily:FB,letterSpacing:0.3,transition:"color 0.3s"}}>
+            {liberadoManual
+              ?"Site liberado manualmente"
+              :emHorario
+                ?"Bloqueio ativo — horario comercial"
+                :"Bloqueio automatico (fora do horario)"}
+          </span>
+        </div>
+      </div>
+      <button
+        className="btn"
+        onClick={handleToggle}
+        disabled={saving}
+        style={{
+          borderRadius:8,padding:"10px 20px",
+          fontSize:12,fontWeight:700,letterSpacing:1,textTransform:"uppercase",
+          fontFamily:FB,cursor:saving?"not-allowed":"pointer",
+          opacity:saving?0.5:1,transition:"opacity 0.2s",
+          ...(liberadoManual
+            ?{border:"1px solid rgba(216,9,27,0.4)",background:"rgba(216,9,27,0.08)",color:RED}
+            :{border:"1px solid rgba(255,209,1,0.4)",background:"rgba(255,209,1,0.08)",color:YELLOW}),
+        }}
+      >
+        {saving?"Salvando...":liberadoManual?"Voltar ao bloqueio automatico":"Liberar site agora"}
+      </button>
     </div>
   );
 }

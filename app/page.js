@@ -1117,22 +1117,26 @@ function Carrossel({ slides, onFim }) {
 /* ─── PREMIOS ────────────────────────────────────────────────────────────── */
 function PremiosCard() {
   return (
-    <div style={{display:"flex",alignItems:"stretch",borderRadius:9,overflow:"hidden",marginBottom:12,boxShadow:SH_SM,border:`0.5px solid ${BORDER}`,minHeight:42}}>
-      <div style={{background:CARD,display:"flex",alignItems:"center",gap:7,padding:"0 12px",flexShrink:0}}>
-        <div style={{width:14,height:2,background:RED,borderRadius:1}}/>
-        <span style={{fontSize:8,fontWeight:700,color:YELLOW,letterSpacing:2.5,textTransform:"uppercase",whiteSpace:"nowrap"}}>Prêmios</span>
+    <div style={{borderRadius:9,overflow:"hidden",marginBottom:12,boxShadow:SH_SM,border:`0.5px solid ${BORDER}`,background:CARD}}>
+      {/* Linha 1: label + 1º 2º 3º */}
+      <div style={{display:"flex",alignItems:"stretch",minHeight:40}}>
+        <div style={{display:"flex",alignItems:"center",gap:7,padding:"0 12px",flexShrink:0}}>
+          <div style={{width:14,height:2,background:RED,borderRadius:1}}/>
+          <span style={{fontSize:8,fontWeight:700,color:YELLOW,letterSpacing:2.5,textTransform:"uppercase",whiteSpace:"nowrap"}}>Prêmios</span>
+        </div>
+        <div style={{borderLeft:`0.5px solid ${BORDER2}`,display:"flex",alignItems:"center",flex:1,padding:"0 4px"}}>
+          {[["1º","R$500",YELLOW],["2º","R$300","#cdd2db"],["3º","R$200","#d08a3e"]].map(([pos,val,cor],i)=>(
+            <div key={pos} style={{display:"flex",alignItems:"baseline",gap:2,padding:"0 8px",borderRight:i<2?`0.5px solid ${BORDER2}`:undefined}}>
+              <span style={{fontFamily:FD,fontSize:11,color:cor,lineHeight:1}}>{pos}</span>
+              <span style={{fontFamily:FD,fontSize:15,color:cor,lineHeight:1,letterSpacing:-0.3}}>{val}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{background:CARD,borderLeft:`0.5px solid ${BORDER2}`,display:"flex",alignItems:"center",flex:1,padding:"0 4px"}}>
-        {[["1º","R$500",YELLOW],["2º","R$300","#cdd2db"],["3º","R$200","#d08a3e"]].map(([pos,val,cor],i)=>(
-          <div key={pos} style={{display:"flex",alignItems:"baseline",gap:2,padding:"0 8px",borderRight:i<2?`0.5px solid ${BORDER2}`:undefined}}>
-            <span style={{fontFamily:FD,fontSize:11,color:cor,lineHeight:1}}>{pos}</span>
-            <span style={{fontFamily:FD,fontSize:15,color:cor,lineHeight:1,letterSpacing:-0.3}}>{val}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{background:"#1d1407",borderLeft:`0.5px solid rgba(255,209,1,0.18)`,display:"flex",alignItems:"center",flexDirection:"column",justifyContent:"center",padding:"0 12px",flexShrink:0}}>
-        <div style={{fontSize:7,fontWeight:700,color:YELLOW,letterSpacing:1.5,textTransform:"uppercase",lineHeight:1.4}}>Campeão</div>
-        <div style={{fontFamily:FD,fontSize:13,color:YELLOW,lineHeight:1,letterSpacing:-0.2}}>R$500 *</div>
+      {/* Linha 2: campeão — largura total */}
+      <div style={{background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"7px 12px",gap:8}}>
+        <span style={{fontSize:10,fontWeight:600,color:YELLOW,letterSpacing:0.5}}>Acertou o Campeão da Copa</span>
+        <span style={{fontFamily:FD,fontSize:14,color:YELLOW,lineHeight:1,letterSpacing:-0.2,whiteSpace:"nowrap"}}>R$500 *</span>
       </div>
     </div>
   );

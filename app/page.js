@@ -1134,9 +1134,12 @@ function PremiosCard() {
         </div>
       </div>
       {/* Linha 2: campeão — largura total */}
-      <div style={{background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"7px 12px",gap:8}}>
-        <span style={{fontSize:10,fontWeight:600,color:YELLOW,letterSpacing:0.5}}>Acertou o Campeão da Copa</span>
-        <span style={{fontFamily:FD,fontSize:14,color:YELLOW,lineHeight:1,letterSpacing:-0.2,whiteSpace:"nowrap"}}>R$500 *</span>
+      <div style={{background:"#1d1407",borderTop:`0.5px solid rgba(255,209,1,0.18)`,padding:"7px 12px"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+          <span style={{fontSize:10,fontWeight:600,color:YELLOW,letterSpacing:0.5}}>Acertou o Campeão da Copa</span>
+          <span style={{fontFamily:FD,fontSize:14,color:YELLOW,lineHeight:1,letterSpacing:-0.2,whiteSpace:"nowrap"}}>R$500</span>
+        </div>
+        <div style={{fontSize:9,color:DIM,marginTop:3,letterSpacing:0.2}}>* dividido entre os acertadores</div>
       </div>
     </div>
   );

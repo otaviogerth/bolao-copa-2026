@@ -462,7 +462,6 @@ export default function App() {
   const [todosPalpites,setTodosPalpites] = useState([]);
   const [clientes,setClientes]           = useState([]);
   const [msg,setMsg]           = useState(null);
-  const [competicao,setCompeticao] = useState("funcionario");
   const [horarioComercial,setHorarioComercial] = useState(false);
   const [liberadoManual,setLiberadoManual]     = useState(false);
 
@@ -501,7 +500,7 @@ export default function App() {
     const docNumerico = docStr.replace(/\D/g,"");
     const docLimpo = /^\d+$/.test(docNumerico) && docNumerico === docStr.replace(/[.\-\/]/g,"") ? docNumerico : docStr;
     let q = supabase.from("clientes").select("*").eq("doc",docLimpo).eq("senha",senha).eq("ativo",true);
-    if (docLimpo.toLowerCase() !== "admin") q = q.eq("tipo", competicao);
+    if (docLimpo.toLowerCase() !== "admin") q = q.eq("tipo", "funcionario");
     const { data, error } = await q.limit(1);
     if (error || !data.length) {
       setLoginErr("CPF/CNPJ ou senha incorretos.");
@@ -546,8 +545,8 @@ export default function App() {
     flash("Resultado salvo");
   }
 
-  async function addCliente(doc,nome,senha,tipo) {
-    const {error}=await supabase.from("clientes").insert({doc:doc.replace(/\D/g,""),nome,senha,ativo:true,tipo:tipo||"cliente"});
+  async function addCliente(doc,nome,senha) {
+    const {error}=await supabase.from("clientes").insert({doc:doc.replace(/\D/g,""),nome,senha,ativo:true,tipo:"funcionario"});
     if (error) { flash("Erro: CPF/CNPJ já cadastrado",true); return; }
     await carregarClientes();
     flash("Cliente adicionado");
@@ -659,7 +658,7 @@ export default function App() {
   /* ── BOAS-VINDAS ── */
   if (tela==="boasvindas") {
     const slides=[
-      {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos melhores clientes para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
+      {visual:<Visual1/>,titulo:`Bem-vindo, ${user.nome.split(" ")[0]}`,texto:"Você foi selecionado entre nossos funcionários para provar que entende de futebol. Faça seus palpites, suba no ranking e conquiste prêmios exclusivos."},
       {visual:<VisualPontos/>,titulo:"Como pontuar",texto:"Acertou o placar exato (ex: 2×1)? 10 pontos. Acertou só quem ganhou ou que empatou? 5 pontos. Errou? 0 pontos. Nos jogos do Brasil, a pontuação é dobrada — 20pts pelo exato, 10pts pelo vencedor."},
       {visual:<Visual3/>,titulo:"Premios",texto:"1º lugar: R$ 500,00  |  2º lugar: R$ 300,00  |  3º lugar: R$ 200,00. Quem acertar o campeao da Copa ganha R$ 500,00, dividido entre os acertadores."},
       {visual:<Visual4/>,titulo:"Cuidado",texto:"Os palpites fecham automaticamente no apito inicial de cada jogo. Sem exceções. Não deixe para a última hora — cada jogo é uma chance."},
@@ -757,7 +756,7 @@ export default function App() {
 
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
-            ?[["admin","Início"],["clientes","Clientes"],["resultados","Resultados"],["ranking","Ranking"]]
+            ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"]]
             :bloqueado
               ?[["ranking","Ranking"]]
               :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
@@ -784,7 +783,7 @@ export default function App() {
         {tela==="admin"&&(
           <div className="screen" style={{margin:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
             <div className="card glass" style={{borderRadius:12,padding:"1.25rem",boxShadow:SH_SM}}>
-              <p style={{margin:0,fontSize:13,color:MUTE,lineHeight:1.7}}>Use o menu acima para gerenciar clientes, inserir resultados e acompanhar o ranking.</p>
+              <p style={{margin:0,fontSize:13,color:MUTE,lineHeight:1.7}}>Use o menu acima para gerenciar funcionários, inserir resultados e acompanhar o ranking.</p>
             </div>
             <AdminControleHorario
               horarioComercial={horarioComercial}
@@ -1467,7 +1466,6 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
   const [doc,setDoc]   = useState("");
   const [nome,setNome] = useState("");
   const [senha,setSenha]= useState("");
-  const [tipo,setTipo] = useState("cliente");
   const inp = {width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`0.5px solid ${BORDER2}`,fontSize:13,background:"#131313",color:"#e8e8e8",fontFamily:FB};
   return (
     <div style={{padding:"14px"}}>
@@ -1478,12 +1476,8 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
           <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e=>setDoc(e.target.value)}/>
           <input style={inp} placeholder="Nome / Razão social" value={nome} onChange={e=>setNome(e.target.value)}/>
           <input style={inp} placeholder="Senha inicial" value={senha} onChange={e=>setSenha(e.target.value)}/>
-          <select style={{...inp,cursor:"pointer"}} value={tipo} onChange={e=>setTipo(e.target.value)}>
-            <option value="cliente">Cliente</option>
-            <option value="funcionario">Funcionário</option>
-          </select>
           <button className="btn" style={{border:"none",borderRadius:8,padding:"12px",fontSize:12,background:`linear-gradient(135deg,${RED},#a30614)`,color:"#fff",fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 4px 16px rgba(216,9,27,0.3)"}}
-            onClick={async()=>{await onAdd(doc,nome,senha,tipo);setDoc("");setNome("");setSenha("");setTipo("cliente");}}>
+            onClick={async()=>{await onAdd(doc,nome,senha,"funcionario");setDoc("");setNome("");setSenha("");}}>
             Adicionar
           </button>
         </div>

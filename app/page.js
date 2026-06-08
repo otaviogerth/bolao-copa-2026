@@ -1300,10 +1300,10 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
   const RODADAS = [
     {id:"1",label:"1ª Rodada",inicio:"2026-06-11",fim:"2026-06-17"},
     {id:"2",label:"2ª Rodada",inicio:"2026-06-18",fim:"2026-06-23"},
-    {id:"3",label:"3ª Rodada",inicio:"2026-06-24",fim:"2026-06-28"},
+    {id:"3",label:"3ª Rodada",inicio:"2026-06-24",fim:"2026-06-27"},
   ];
 
-  const filtradosRodada = jogos.filter(j=>{const r=RODADAS.find(x=>x.id===rodada);const d=diaBR(j.data_hora);return d>=r.inicio&&d<=r.fim;});
+  const filtradosRodada = jogos.filter(j=>{const r=RODADAS.find(x=>x.id===rodada);const d=diaBR(j.data_hora);return j.fase==="grupos"&&d>=r.inicio&&d<=r.fim;});
   const todosOsDias = [...new Set(filtradosRodada.map(j=>diaBR(j.data_hora)))].sort();
 
   useEffect(()=>{

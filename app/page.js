@@ -528,8 +528,10 @@ export default function App() {
     const jogo = jogos.find(j=>j.id===jogoId);
     if (jogo && new Date(jogo.data_hora) <= new Date()) { flash("Jogo já começou — aposta bloqueada",true); return; }
     const exist = palpites.find(p=>p.jogo_id===jogoId&&p.cliente_id===user.id);
-    if (exist) await supabase.from("palpites").update({g1:parseInt(g1),g2:parseInt(g2)}).eq("id",exist.id);
-    else       await supabase.from("palpites").insert({cliente_id:user.id,jogo_id:jogoId,g1:parseInt(g1),g2:parseInt(g2)});
+    const { error } = exist
+      ? await supabase.from("palpites").update({g1:parseInt(g1),g2:parseInt(g2)}).eq("id",exist.id)
+      : await supabase.from("palpites").insert({cliente_id:user.id,jogo_id:jogoId,g1:parseInt(g1),g2:parseInt(g2)});
+    if (error) { flash("Palpite não salvo — tente novamente",true); return; }
     await carregarPalpites(user.id);
     flash("Palpite salvo");
   }

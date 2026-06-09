@@ -764,7 +764,13 @@ export default function App() {
         )}
 
         {!isAdmin&&(
-          <div className="stagger" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,padding:"12px 14px 0"}}>
+          <div style={{padding:"12px 14px 0"}}>
+            <PremiosCard/>
+          </div>
+        )}
+
+        {!isAdmin&&(
+          <div className="stagger" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,padding:"0 14px 0"}}>
             {[
               {label:"Seus pontos",val:meusPts,cor:YELLOW,bg:"linear-gradient(135deg,rgba(255,209,1,0.08),rgba(28,32,42,0.95))",topBar:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,labelFont:FB},
               {label:"Posição",val:meuRank>0?meuRank+"º":"—",cor:"#e8e8e8",bg:"linear-gradient(135deg,rgba(216,9,27,0.06),rgba(28,32,42,0.95))",topBar:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)",labelFont:FB},
@@ -1254,7 +1260,6 @@ function RankingView({ ranking, myId }) {
   ];
   return (
     <div style={{padding:"14px"}}>
-      <PremiosCard/>
       {ranking.length===0&&(
         <div style={{textAlign:"center",padding:"3rem 1rem",color:DIM,fontSize:13}}>Nenhum palpite registrado ainda.</div>
       )}

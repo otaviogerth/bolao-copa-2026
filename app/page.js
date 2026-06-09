@@ -208,6 +208,8 @@ function GlobalStyles() {
       input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
       input[type="number"]{-moz-appearance:textfield;}
       input:focus,button:focus{outline:none;}
+      input::-ms-reveal{display:none;}
+      input::-webkit-contacts-auto-fill-button{display:none;}
       input{transition:border-color 180ms ease,box-shadow 180ms ease;font-family:${FB};}
       input:focus{border-color:${RED}!important;box-shadow:0 0 0 3px rgba(216,9,27,0.14)!important;}
       ::selection{background:${RED};color:#fff;}
@@ -619,8 +621,8 @@ export default function App() {
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
             <div style={{position:"relative"}}>
               <input id="doc" name="username" autoComplete="username"
-                type={showDoc?"text":"password"}
-                style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box"}}/>
+                type="text"
+                style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box",WebkitTextSecurity:showDoc?"none":"disc"}}/>
               <button type="button" onClick={()=>setShowDoc(v=>!v)}
                 style={{position:"absolute",right:0,bottom:8,background:"none",border:"none",cursor:"pointer",padding:4,color:"#999",display:"flex",alignItems:"center"}}>
                 {showDoc

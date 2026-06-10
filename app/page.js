@@ -790,7 +790,7 @@ export default function App() {
 
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
-            ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"]]
+            ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"]]
             :bloqueado
               ?[["ranking","Ranking"]]
               :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
@@ -809,6 +809,7 @@ export default function App() {
               if(t==="clientes")await carregarClientes();
               if(t==="resultados")await carregarJogos();
               if(t==="ranking"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
+              if(t==="palpites"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
               if((t==="jogos"||t==="matamata")&&!isAdmin){await carregarPalpites(user.id);}
             }}>{l}</button>
           ))}
@@ -838,6 +839,7 @@ export default function App() {
           </div>
         )}
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
+        {tela==="palpites"  &&<div className="screen"><AdminPalpites clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
         {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite}/></div>}
@@ -1532,6 +1534,70 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
               onClick={()=>onToggle(c.id,c.ativo)}>{c.ativo?"Desativar":"Ativar"}</button>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── ADMIN PALPITES ─────────────────────────────────────────────────────── */
+function AdminPalpites({ clientes, todosPalpites, jogos }) {
+  const funcionarios = clientes.filter(c => c.doc !== "admin" && c.ativo);
+  const totalJogos = jogos.length;
+  const comCampeao = funcionarios.filter(c => c.palpite_campeao).length;
+  const comPalpite = funcionarios.filter(c => todosPalpites.some(p => p.cliente_id === c.id)).length;
+
+  const lista = funcionarios
+    .map(c => ({
+      ...c,
+      qtd: todosPalpites.filter(p => p.cliente_id === c.id).length,
+    }))
+    .sort((a, b) => b.qtd - a.qtd);
+
+  return (
+    <div style={{padding:"14px"}}>
+      <div className="scale-in" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+        {[
+          {label:"Cadastrados",valor:funcionarios.length,cor:"#60a5fa"},
+          {label:"Apostaram",valor:comPalpite,cor:YELLOW},
+          {label:"Campeão",valor:comCampeao,cor:"#4ade80"},
+        ].map(({label,valor,cor})=>(
+          <div key={label} style={{borderRadius:10,padding:"12px 10px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
+            <div style={{fontSize:22,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
+            <div style={{fontSize:9,color:DIM,marginTop:4,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{fontSize:9,color:DIM,marginBottom:10,letterSpacing:2,textTransform:"uppercase",fontWeight:700}}>
+        {lista.length} funcionários ativos
+      </div>
+
+      <div className="stagger">
+        {lista.map(c => {
+          const pct = totalJogos > 0 ? Math.round((c.qtd / totalJogos) * 100) : 0;
+          return (
+            <div key={c.id} className="card" style={{borderRadius:11,padding:"12px 15px",marginBottom:7,boxShadow:SH_SM}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:500,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
+                  <div style={{fontSize:10,color:DIM,marginTop:2}}>
+                    {c.palpite_campeao
+                      ? <span style={{color:"#4ade80"}}>Campeão: {c.palpite_campeao}</span>
+                      : <span style={{color:"#555"}}>Sem palpite de campeão</span>
+                    }
+                  </div>
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <div style={{fontSize:16,fontWeight:700,color:c.qtd>0?YELLOW:"#333",fontFamily:FD,lineHeight:1}}>{c.qtd}</div>
+                  <div style={{fontSize:9,color:DIM,marginTop:2}}>/ {totalJogos} jogos</div>
+                </div>
+              </div>
+              <div style={{height:4,borderRadius:4,background:"rgba(255,255,255,0.06)",overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${pct}%`,borderRadius:4,background:pct===0?"transparent":`linear-gradient(90deg,${RED},${YELLOW})`,transition:"width 400ms ease"}}/>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

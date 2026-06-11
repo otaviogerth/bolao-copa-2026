@@ -494,6 +494,12 @@ export default function App() {
   },[]);
 
   useEffect(()=>{
+    if (!user || user.doc === "admin" || !["jogos","matamata"].includes(tela)) return;
+    const id = setInterval(()=>carregarJogos(), 60000);
+    return ()=>clearInterval(id);
+  },[user, tela]); // eslint-disable-line
+
+  useEffect(()=>{
     if (!bloqueado || !user || user.doc === "admin") return;
     if (["jogos","matamata","campeao"].includes(tela)) setTela("ranking");
   },[bloqueado, user]); // eslint-disable-line

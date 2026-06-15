@@ -1622,7 +1622,7 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
   );
 
   const isBR = jogo && (jogo.time1==="Brasil"||jogo.time2==="Brasil");
-  const funcionarios = clientes.filter(c=>c.doc!=="admin"&&c.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
+  const funcionarios = clientes.filter(c=>c.doc!=="admin"&&c.ativo);
 
   function formatData(iso){
     const d=new Date(iso);
@@ -1633,64 +1633,74 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
     const p = todosPalpites.find(x => x.cliente_id===c.id && x.jogo_id===jogo?.id);
     const pts = p ? calcPontos(p.g1, p.g2, jogo.resultado_g1, jogo.resultado_g2, isBR) : null;
     return { nome: c.nome, palpite: p ? `${p.g1}×${p.g2}` : null, pts };
+  }).sort((a,b) => {
+    if (b.pts === a.pts) return a.nome.localeCompare(b.nome);
+    if (b.pts === null) return -1;
+    if (a.pts === null) return 1;
+    return b.pts - a.pts;
   });
 
-  const COR_PTS = (pts) => pts === null ? DIM : pts === 0 ? "#444" : pts >= 10 ? YELLOW : "#60a5fa";
+  const COR_PTS = (pts) => pts === null ? "#333" : pts === 0 ? "#444" : pts >= 10 ? YELLOW : "#60a5fa";
 
   return (
-    <div style={{padding:"14px"}}>
-      {/* Seletor de jogo */}
-      <div style={{marginBottom:12,display:"flex",gap:6,flexWrap:"wrap"}}>
-        {encerrados.map(j=>(
-          <button key={j.id} className="pill btn" onClick={()=>setJogoSel(j.id)} style={{
-            padding:"5px 12px",borderRadius:20,fontSize:11,fontWeight:600,fontFamily:FB,
-            border:(jogo?.id===j.id)?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
-            background:(jogo?.id===j.id)?`linear-gradient(135deg,${RED},#a30614)`:"rgba(255,255,255,0.04)",
-            color:(jogo?.id===j.id)?"#fff":MUTE,
-          }}>
-            {j.time1} × {j.time2}
-          </button>
-        ))}
+    <div style={{display:"flex",height:"calc(100dvh - 120px)",overflow:"hidden"}}>
+      {/* Lista de jogos */}
+      <div style={{width:180,flexShrink:0,overflowY:"auto",borderRight:`0.5px solid ${BORDER2}`,padding:"10px 8px",display:"flex",flexDirection:"column",gap:4}}>
+        {encerrados.map(j=>{
+          const sel = jogo?.id===j.id;
+          return (
+            <button key={j.id} onClick={()=>setJogoSel(j.id)} style={{
+              textAlign:"left",padding:"9px 10px",borderRadius:9,border:"none",cursor:"pointer",
+              background:sel?`linear-gradient(135deg,${RED},#a30614)`:"transparent",
+              transition:"background 150ms ease",
+            }}>
+              <div style={{fontSize:11,fontWeight:600,color:sel?"#fff":"#d0d0d0",lineHeight:1.3}}>{j.time1}</div>
+              <div style={{fontSize:9,color:sel?"rgba(255,255,255,0.6)":DIM,margin:"2px 0"}}>×</div>
+              <div style={{fontSize:11,fontWeight:600,color:sel?"#fff":"#d0d0d0",lineHeight:1.3}}>{j.time2}</div>
+              <div style={{fontSize:9,color:sel?"rgba(255,255,255,0.5)":DIM,marginTop:4,fontFamily:FD}}>{j.resultado_g1}–{j.resultado_g2}</div>
+            </button>
+          );
+        })}
       </div>
 
+      {/* Painel direito */}
       {jogo && (
-        <>
-          {/* Cabeçalho do jogo */}
-          <div className="scale-in card" style={{borderRadius:12,padding:"12px 16px",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"space-between",boxShadow:SH_SM}}>
+        <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
+          {/* Cabeçalho */}
+          <div style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div>
-              <div style={{fontSize:15,fontWeight:700,color:"#e0e0e0"}}>{jogo.time1} × {jogo.time2}</div>
-              <div style={{fontSize:10,color:DIM,marginTop:2}}>{formatData(jogo.data_hora)}{isBR?" · 2×pts":""}</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#e0e0e0"}}>{jogo.time1} × {jogo.time2}</div>
+              <div style={{fontSize:10,color:DIM,marginTop:1}}>{formatData(jogo.data_hora)}{isBR?" · 2×pts":""}</div>
             </div>
-            <div style={{fontFamily:FD,fontSize:28,color:YELLOW,letterSpacing:2}}>{jogo.resultado_g1}–{jogo.resultado_g2}</div>
+            <div style={{fontFamily:FD,fontSize:26,color:YELLOW,letterSpacing:2}}>{jogo.resultado_g1}–{jogo.resultado_g2}</div>
           </div>
 
           {/* Resumo */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:12}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:10}}>
             {[
               {label:"Exatos",valor:linhas.filter(l=>l.pts!=null&&l.pts>=(isBR?20:10)).length,cor:YELLOW},
               {label:"Resultado",valor:linhas.filter(l=>l.pts!=null&&l.pts>0&&l.pts<(isBR?20:10)).length,cor:"#60a5fa"},
               {label:"Sem palpite",valor:linhas.filter(l=>l.palpite===null).length,cor:DIM},
             ].map(({label,valor,cor})=>(
-              <div key={label} style={{borderRadius:10,padding:"10px 8px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
-                <div style={{fontSize:20,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
-                <div style={{fontSize:9,color:DIM,marginTop:3,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
+              <div key={label} style={{borderRadius:8,padding:"8px 6px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`}}>
+                <div style={{fontSize:18,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
+                <div style={{fontSize:8,color:DIM,marginTop:3,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
               </div>
             ))}
           </div>
 
-          {/* Lista */}
-          <div className="stagger">
-            {linhas.map(({nome,palpite,pts})=>(
-              <div key={nome} style={{borderRadius:10,padding:"10px 14px",marginBottom:6,display:"flex",alignItems:"center",gap:10,background:"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
-                <div style={{flex:1,fontSize:12,color:"#d0d0d0",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
-                <div style={{fontSize:12,color:palpite??"#333",fontFamily:FD,minWidth:36,textAlign:"center"}}>{palpite??"—"}</div>
-                <div style={{minWidth:32,textAlign:"right",fontFamily:FD,fontSize:15,fontWeight:700,color:COR_PTS(pts)}}>
-                  {pts===null?"—":`${pts}pts`}
-                </div>
+          {/* Lista por pontuação */}
+          {linhas.map(({nome,palpite,pts},i)=>(
+            <div key={nome} style={{borderRadius:9,padding:"8px 12px",marginBottom:5,display:"flex",alignItems:"center",gap:8,background:"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${pts!=null&&pts>0?COR_PTS(pts)+"22":BORDER2}`}}>
+              <div style={{fontSize:10,color:DIM,fontFamily:FD,minWidth:16,textAlign:"right"}}>{i+1}</div>
+              <div style={{flex:1,fontSize:11,color:"#d0d0d0",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
+              <div style={{fontSize:11,color:palpite?"#aaa":"#2a2a2a",fontFamily:FD,minWidth:30,textAlign:"center"}}>{palpite??"—"}</div>
+              <div style={{minWidth:38,textAlign:"right",fontFamily:FD,fontSize:13,fontWeight:700,color:COR_PTS(pts)}}>
+                {pts===null?"—":`${pts}pts`}
               </div>
-            ))}
-          </div>
-        </>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

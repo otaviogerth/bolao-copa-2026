@@ -796,7 +796,7 @@ export default function App() {
 
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
-            ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"]]
+            ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"],["pontuacao","Pontuação"]]
             :bloqueado
               ?[["ranking","Ranking"]]
               :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
@@ -815,7 +815,7 @@ export default function App() {
               if(t==="clientes")await carregarClientes();
               if(t==="resultados")await carregarJogos();
               if(t==="ranking"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
-              if(t==="palpites"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
+              if(t==="palpites"||t==="pontuacao"){await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]);}
               if((t==="jogos"||t==="matamata")&&!isAdmin){await carregarPalpites(user.id);}
             }}>{l}</button>
           ))}
@@ -846,6 +846,7 @@ export default function App() {
         )}
         {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
         {tela==="palpites"  &&<div className="screen"><AdminPalpites clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
+        {tela==="pontuacao" &&<div className="screen"><AdminPontuacao clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
         {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite}/></div>}
@@ -1605,6 +1606,92 @@ function AdminPalpites({ clientes, todosPalpites, jogos }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/* ─── ADMIN PONTUAÇÃO ────────────────────────────────────────────────────── */
+function AdminPontuacao({ clientes, todosPalpites, jogos }) {
+  const [jogoSel, setJogoSel] = useState(null);
+
+  const encerrados = jogos.filter(j => j.encerrado).sort((a,b) => new Date(b.data_hora) - new Date(a.data_hora));
+  const jogo = jogoSel ? encerrados.find(j => j.id === jogoSel) : encerrados[0];
+
+  if (!encerrados.length) return (
+    <div style={{padding:"2rem",textAlign:"center",color:DIM,fontSize:13}}>Nenhum jogo encerrado ainda.</div>
+  );
+
+  const isBR = jogo && (jogo.time1==="Brasil"||jogo.time2==="Brasil");
+  const funcionarios = clientes.filter(c=>c.doc!=="admin"&&c.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
+
+  function formatData(iso){
+    const d=new Date(iso);
+    return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  const linhas = funcionarios.map(c => {
+    const p = todosPalpites.find(x => x.cliente_id===c.id && x.jogo_id===jogo?.id);
+    const pts = p ? calcPontos(p.g1, p.g2, jogo.resultado_g1, jogo.resultado_g2, isBR) : null;
+    return { nome: c.nome, palpite: p ? `${p.g1}×${p.g2}` : null, pts };
+  });
+
+  const COR_PTS = (pts) => pts === null ? DIM : pts === 0 ? "#444" : pts >= 10 ? YELLOW : "#60a5fa";
+
+  return (
+    <div style={{padding:"14px"}}>
+      {/* Seletor de jogo */}
+      <div style={{marginBottom:12,display:"flex",gap:6,flexWrap:"wrap"}}>
+        {encerrados.map(j=>(
+          <button key={j.id} className="pill btn" onClick={()=>setJogoSel(j.id)} style={{
+            padding:"5px 12px",borderRadius:20,fontSize:11,fontWeight:600,fontFamily:FB,
+            border:(jogo?.id===j.id)?`1px solid ${RED}`:"0.5px solid rgba(255,255,255,0.1)",
+            background:(jogo?.id===j.id)?`linear-gradient(135deg,${RED},#a30614)`:"rgba(255,255,255,0.04)",
+            color:(jogo?.id===j.id)?"#fff":MUTE,
+          }}>
+            {j.time1} × {j.time2}
+          </button>
+        ))}
+      </div>
+
+      {jogo && (
+        <>
+          {/* Cabeçalho do jogo */}
+          <div className="scale-in card" style={{borderRadius:12,padding:"12px 16px",marginBottom:12,display:"flex",alignItems:"center",justifyContent:"space-between",boxShadow:SH_SM}}>
+            <div>
+              <div style={{fontSize:15,fontWeight:700,color:"#e0e0e0"}}>{jogo.time1} × {jogo.time2}</div>
+              <div style={{fontSize:10,color:DIM,marginTop:2}}>{formatData(jogo.data_hora)}{isBR?" · 2×pts":""}</div>
+            </div>
+            <div style={{fontFamily:FD,fontSize:28,color:YELLOW,letterSpacing:2}}>{jogo.resultado_g1}–{jogo.resultado_g2}</div>
+          </div>
+
+          {/* Resumo */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:12}}>
+            {[
+              {label:"Exatos",valor:linhas.filter(l=>l.pts!=null&&l.pts>=(isBR?20:10)).length,cor:YELLOW},
+              {label:"Resultado",valor:linhas.filter(l=>l.pts!=null&&l.pts>0&&l.pts<(isBR?20:10)).length,cor:"#60a5fa"},
+              {label:"Sem palpite",valor:linhas.filter(l=>l.palpite===null).length,cor:DIM},
+            ].map(({label,valor,cor})=>(
+              <div key={label} style={{borderRadius:10,padding:"10px 8px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
+                <div style={{fontSize:20,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
+                <div style={{fontSize:9,color:DIM,marginTop:3,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Lista */}
+          <div className="stagger">
+            {linhas.map(({nome,palpite,pts})=>(
+              <div key={nome} style={{borderRadius:10,padding:"10px 14px",marginBottom:6,display:"flex",alignItems:"center",gap:10,background:"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
+                <div style={{flex:1,fontSize:12,color:"#d0d0d0",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
+                <div style={{fontSize:12,color:palpite??"#333",fontFamily:FD,minWidth:36,textAlign:"center"}}>{palpite??"—"}</div>
+                <div style={{minWidth:32,textAlign:"right",fontFamily:FD,fontSize:15,fontWeight:700,color:COR_PTS(pts)}}>
+                  {pts===null?"—":`${pts}pts`}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

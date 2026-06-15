@@ -289,7 +289,7 @@ function formatHora(iso){return new Date(iso).toLocaleTimeString("pt-BR",{timeZo
 function formatCalDia(iso){const d=new Date(iso+"T12:00:00-03:00");return {sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3)};}
 
 /* ─── LISTA MATA-MATA (usuário) ─────────────────────────────────────────── */
-function ListaMataMata({ jogos, palpites, onSalvar, onDeletar }) {
+function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
   const [faseSel,setFaseSel] = useState("16avos");
   const [diaSel,setDiaSel]   = useState(null);
   const calRef = useRef(null);
@@ -364,8 +364,13 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar }) {
               </div>
             ):new Date(j.data_hora)<=new Date()?(
               <div style={{fontSize:10,color:DIM,fontStyle:"italic"}}>Em andamento</div>
-            ):definido?(
+            ):definido&&!soLeitura?(
               <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={false}/>
+            ):definido?(
+              <div style={{textAlign:"center"}}>
+                {p?<div style={{fontSize:18,fontWeight:700,color:YELLOW,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
+                  :<div style={{fontSize:10,color:"#333",fontStyle:"italic"}}>Sem palpite</div>}
+              </div>
             ):(
               <div style={{fontSize:11,color:DIM,fontStyle:"italic",padding:"0 8px"}}>—</div>
             )}
@@ -501,7 +506,7 @@ export default function App() {
 
   useEffect(()=>{
     if (!bloqueado || !user || user.doc === "admin") return;
-    if (["jogos","matamata","campeao"].includes(tela)) setTela("ranking");
+    if (tela==="campeao") setTela("jogos");
   },[bloqueado, user]); // eslint-disable-line
 
   async function login(doc, senha) {
@@ -712,7 +717,7 @@ export default function App() {
             </div>
           </div>
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
-            <Carrossel slides={slides} onFim={()=>setTela(bloqueado?"ranking":user.palpite_campeao?"jogos":"campeao")}/>
+            <Carrossel slides={slides} onFim={()=>setTela(user.palpite_campeao||bloqueado?"jogos":"campeao")}/>
           </div>
         </div>
       </>
@@ -752,7 +757,7 @@ export default function App() {
             padding:"10px 16px",textAlign:"center",
             color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
           }}>
-            Periodo de trabalho (seg-sex 8h-18h). Apenas o ranking esta disponivel agora.
+            Periodo de trabalho (seg-sex 8h-18h). Visualizacao permitida, mas novos palpites estao bloqueados.
           </div>
         )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>
@@ -797,9 +802,7 @@ export default function App() {
         <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"],["pontuacao","Pontuação"]]
-            :bloqueado
-              ?[["ranking","Ranking"]]
-              :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
+            :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
           ).map(([t,l])=>(
             <button key={t} className="pill btn" style={{
               padding:"7px 18px",borderRadius:20,
@@ -849,8 +852,8 @@ export default function App() {
         {tela==="pontuacao" &&<div className="screen"><AdminPontuacao clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
-        {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite}/></div>}
-        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading}/></div>}
+        {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} soLeitura={bloqueado}/></div>}
+        {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading} soLeitura={bloqueado}/></div>}
 
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,marginBottom:12,opacity:0.3}}>
@@ -1340,7 +1343,7 @@ function RankingView({ ranking, myId }) {
 }
 
 /* ─── LISTA DE JOGOS ─────────────────────────────────────────────────────── */
-function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
+function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }) {
   const [rodada,setRodada] = useState("1");
   const [diaSel,setDiaSel] = useState(null);
   const calRef = useRef(null);
@@ -1484,6 +1487,11 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading }) {
                         ?<div style={{fontSize:10,color:DIM,marginTop:5,letterSpacing:0.4}}>Palpite {p.g1}—{p.g2}</div>
                         :<div style={{fontSize:10,color:"#252525",marginTop:5}}>Sem palpite</div>
                       }
+                    </div>
+                  ):soLeitura?(
+                    <div style={{textAlign:"center"}}>
+                      {p?<div style={{fontSize:18,fontWeight:700,color:isBR?YELLOW:RED,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
+                        :<div style={{fontSize:10,color:"#333",fontStyle:"italic"}}>Sem palpite</div>}
                     </div>
                   ):(
                     <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>

@@ -499,8 +499,24 @@ export default function App() {
   },[]);
 
   useEffect(()=>{
-    if (!user || user.doc === "admin" || !["jogos","matamata"].includes(tela)) return;
-    const id = setInterval(()=>carregarJogos(), 60000);
+    if (!user || user.doc === "admin" || !["jogos","matamata","ranking"].includes(tela)) return;
+    const id = setInterval(async ()=>{
+      await carregarJogos();
+      if (tela === "ranking") await carregarTodosPalpites();
+    }, 60000);
+    return ()=>clearInterval(id);
+  },[user, tela]); // eslint-disable-line
+
+  useEffect(()=>{
+    if (!user || user.doc === "admin") return;
+    const id = setInterval(()=>carregarTodosPalpites(), 60000);
+    return ()=>clearInterval(id);
+  },[user]); // eslint-disable-line
+
+  useEffect(()=>{
+    if (!user || user.doc !== "admin" || !["ranking","pontuacao","palpites"].includes(tela)) return;
+    const refresh = ()=>Promise.all([carregarJogos(),carregarTodosPalpites()]);
+    const id = setInterval(refresh, 30000);
     return ()=>clearInterval(id);
   },[user, tela]); // eslint-disable-line
 
@@ -523,7 +539,7 @@ export default function App() {
     }
     const u = data[0];
     setUser(u);
-    if (u.doc === "admin") { await Promise.all([carregarJogos(),carregarClientes()]); setTela("admin"); }
+    if (u.doc === "admin") { await Promise.all([carregarJogos(),carregarClientes(),carregarTodosPalpites()]); setTela("admin"); }
     else { await Promise.all([carregarJogos(),carregarPalpites(u.id),carregarClientes(),carregarTodosPalpites()]); setTela("boasvindas"); }
     setLoading(false);
   }
@@ -544,6 +560,7 @@ export default function App() {
       : await supabase.from("palpites").insert({cliente_id:user.id,jogo_id:jogoId,g1:parseInt(g1),g2:parseInt(g2)});
     if (error) { flash("Palpite não salvo — tente novamente",true); return; }
     await carregarPalpites(user.id);
+    await carregarTodosPalpites();
     flash("Palpite salvo");
   }
 
@@ -558,7 +575,7 @@ export default function App() {
 
   async function salvarResultado(jogoId,g1,g2) {
     await supabase.from("jogos").update({resultado_g1:parseInt(g1),resultado_g2:parseInt(g2),encerrado:true}).eq("id",jogoId);
-    await carregarJogos();
+    await Promise.all([carregarJogos(),carregarTodosPalpites()]);
     flash("Resultado salvo");
   }
 

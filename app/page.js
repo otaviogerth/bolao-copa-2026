@@ -547,7 +547,22 @@ export default function App() {
   async function carregarJogos()         { const {data}=await supabase.from("jogos").select("*").order("data_hora"); setJogos(data||[]); }
   async function carregarPalpites(id)    { const {data}=await supabase.from("palpites").select("*").eq("cliente_id",id); setPalpites(data||[]); }
   async function carregarClientes()      { const {data}=await supabase.from("clientes").select("*").order("nome"); setClientes(data||[]); }
-  async function carregarTodosPalpites() { const {data}=await supabase.from("palpites").select("*"); setTodosPalpites(data||[]); }
+  async function carregarTodosPalpites() {
+    let todos = [];
+    let from = 0;
+    const tamanho = 1000;
+    while (true) {
+      const { data, error } = await supabase
+        .from("palpites")
+        .select("*")
+        .range(from, from + tamanho - 1);
+      if (error || !data || data.length === 0) break;
+      todos = todos.concat(data);
+      if (data.length < tamanho) break;
+      from += tamanho;
+    }
+    setTodosPalpites(todos);
+  }
   function logout()                      { setUser(null);setTela("login");setJogos([]);setPalpites([]);setTodosPalpites([]);setClientes([]); }
   function flash(text,err)               { setMsg({text,err});setTimeout(()=>setMsg(null),2500); }
 

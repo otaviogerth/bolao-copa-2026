@@ -119,7 +119,10 @@ function isHorarioComercialBrasilia(iso) {
   const d = new Date(new Date(iso).getTime() - 3 * 60 * 60 * 1000);
   const dow = d.getUTCDay(); // 0=Dom, 6=Sab
   const h = d.getUTCHours();
-  return dow >= 1 && dow <= 5 && h >= 8 && h < 18;
+  const m = d.getUTCMinutes();
+  const totalMin = h * 60 + m;
+  const almoco = totalMin >= 11 * 60 + 30 && totalMin < 12 * 60 + 50;
+  return (dow >= 1 && dow <= 5 && h >= 8 && h < 18) || almoco;
 }
 
 function formatDoc(doc) {

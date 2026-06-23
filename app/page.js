@@ -118,11 +118,13 @@ function isHorarioComercialBrasilia(iso) {
   // Brasil e permanentemente UTC-3 desde 2019
   const d = new Date(new Date(iso).getTime() - 3 * 60 * 60 * 1000);
   const dow = d.getUTCDay(); // 0=Dom, 6=Sab
+  if (dow === 0 || dow === 6) return false; // sab e dom: aberto
   const h = d.getUTCHours();
   const m = d.getUTCMinutes();
   const totalMin = h * 60 + m;
-  const almoco = totalMin >= 11 * 60 + 30 && totalMin < 12 * 60 + 50;
-  return (dow >= 1 && dow <= 5 && h >= 8 && h < 18) || almoco;
+  const manha = totalMin >= 8 * 60 && totalMin < 12 * 60 + 30;  // 8h-12h30
+  const tarde = totalMin >= 13 * 60 && totalMin < 18 * 60;       // 13h-18h
+  return manha || tarde;
 }
 
 function formatDoc(doc) {
@@ -792,7 +794,7 @@ export default function App() {
             padding:"10px 16px",textAlign:"center",
             color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
           }}>
-            Palpites bloqueados: seg-sex 8h-18h e todos os dias 11h30-12h50. Visualizacao permitida.
+            Palpites bloqueados: seg-sex 8h-12h30 e 13h-18h. Fim de semana aberto. Visualizacao permitida.
           </div>
         )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>

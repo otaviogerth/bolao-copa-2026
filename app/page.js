@@ -792,7 +792,7 @@ export default function App() {
             padding:"10px 16px",textAlign:"center",
             color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
           }}>
-            Periodo de trabalho (seg-sex 8h-18h). Visualizacao permitida, mas novos palpites estao bloqueados.
+            Palpites bloqueados: seg-sex 8h-18h e todos os dias 11h30-12h50. Visualizacao permitida.
           </div>
         )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>

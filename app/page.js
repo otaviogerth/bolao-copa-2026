@@ -122,7 +122,7 @@ function isHorarioComercialBrasilia(iso) {
   const h = d.getUTCHours();
   const m = d.getUTCMinutes();
   const totalMin = h * 60 + m;
-  const manha = totalMin >= 8 * 60 && totalMin < 12 * 60 + 30;  // 8h-12h30
+  const manha = totalMin >= 8 * 60 && totalMin < 11 * 60 + 30;  // 8h-11h30
   const tarde = totalMin >= 13 * 60 && totalMin < 18 * 60;       // 13h-18h
   return manha || tarde;
 }
@@ -794,7 +794,7 @@ export default function App() {
             padding:"10px 16px",textAlign:"center",
             color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
           }}>
-            Palpites bloqueados: seg-sex 8h-12h30 e 13h-18h. Fim de semana aberto. Visualizacao permitida.
+            Palpites bloqueados: seg-sex 8h-11h30 e 13h-18h. Fim de semana aberto. Visualizacao permitida.
           </div>
         )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>

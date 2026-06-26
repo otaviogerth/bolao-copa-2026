@@ -117,14 +117,14 @@ function calcPontos(g1, g2, rg1, rg2, isBrasil = false) {
 function isHorarioComercialBrasilia(iso) {
   // Brasil e permanentemente UTC-3 desde 2019
   const d = new Date(new Date(iso).getTime() - 3 * 60 * 60 * 1000);
-  const dow = d.getUTCDay(); // 0=Dom, 6=Sab
-  if (dow === 0 || dow === 6) return false; // sab e dom: aberto
-  const h = d.getUTCHours();
-  const m = d.getUTCMinutes();
-  const totalMin = h * 60 + m;
-  const manha = totalMin >= 8 * 60 && totalMin < 11 * 60 + 30;  // 8h-11h30
-  const tarde = totalMin >= 13 * 60 && totalMin < 18 * 60;       // 13h-18h
-  return manha || tarde;
+  const diaSemana = d.getUTCDay(); // 0=Dom, 6=Sab
+  const horas = d.getUTCHours();
+  const minutos = d.getUTCMinutes();
+  const totalMinutos = horas * 60 + minutos;
+  const isWeekday = diaSemana >= 1 && diaSemana <= 5;
+  const isHorarioComercial = totalMinutos >= 480 && totalMinutos < 1080; // 08:00–18:00
+  const isAlmoco = totalMinutos >= 690 && totalMinutos < 770; // 11:30–12:50
+  return isWeekday && isHorarioComercial && !isAlmoco;
 }
 
 function formatDoc(doc) {
@@ -794,7 +794,7 @@ export default function App() {
             padding:"10px 16px",textAlign:"center",
             color:YELLOW,fontFamily:FB,fontSize:12,fontWeight:600,letterSpacing:0.3,
           }}>
-            Palpites bloqueados: seg-sex 8h-11h30 e 13h-18h. Fim de semana aberto. Visualizacao permitida.
+            Apostas encerradas no horário de trabalho — aberto das 08h às 11h30 e das 12h50 às 18h nos dias de semana, no intervalo de almoço (11h30–12h50) e o dia todo nos finais de semana.
           </div>
         )}
         <div className="nav-bar" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",background:DARK}}>

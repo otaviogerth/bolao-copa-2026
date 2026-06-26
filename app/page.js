@@ -155,6 +155,8 @@ function GlobalStyles() {
       @keyframes fadeUp   {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
       @keyframes scaleIn  {from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
       @keyframes shimmer  {0%{background-position:-200% 0}100%{background-position:200% 0}}
+      @keyframes shake    {0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}60%{transform:translateX(5px)}}
+      @keyframes spin     {to{transform:rotate(360deg)}}
 
       :root{
         --ease-out:cubic-bezier(0.16,1,0.3,1);
@@ -218,6 +220,8 @@ function GlobalStyles() {
       input::-webkit-contacts-auto-fill-button{display:none;}
       input{transition:border-color 180ms ease,box-shadow 180ms ease;font-family:${FB};}
       input:focus{border-color:${RED}!important;box-shadow:0 0 0 3px rgba(216,9,27,0.14)!important;}
+      .input-admin:focus{border-color:${RED}!important;box-shadow:0 0 0 3px rgba(216,9,27,0.14)!important;}
+      .result-input:focus{border-color:${YELLOW}!important;box-shadow:0 0 0 3px rgba(255,209,1,0.12)!important;}
       ::selection{background:${RED};color:#fff;}
 
       .skeleton{
@@ -347,11 +351,11 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
         minHeight:176,
         position:"relative",overflow:"hidden",
         border:`0.5px solid ${BORDER2}`,
-        background:"linear-gradient(160deg,#131313,#0c0c0c)",
+        background:`linear-gradient(160deg,${CARD},#141820)`,
         boxShadow:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.03)`,
       }}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13}}>
-          <div style={{background:"rgba(255,255,255,0.04)",color:DIM,fontSize:9,fontWeight:700,padding:"3px 8px",borderRadius:5,letterSpacing:1,border:"0.5px solid rgba(255,255,255,0.06)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <div style={{background:"rgba(255,255,255,0.04)",color:DIM,fontSize:9,fontWeight:700,padding:"4px 8px",borderRadius:5,letterSpacing:1,border:"0.5px solid rgba(255,255,255,0.08)"}}>
             {j.data_hora?formatHora(j.data_hora):"A definir"}
           </div>
           {pts!==null&&(
@@ -375,7 +379,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
               <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>
             ):definido?(
               <div style={{textAlign:"center"}}>
-                {p?<div style={{fontSize:18,fontWeight:700,color:YELLOW,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
+                {p?<div style={{fontSize:22,fontWeight:700,color:YELLOW,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
                   :<div style={{fontSize:10,color:"#333",fontStyle:"italic"}}>Sem palpite</div>}
               </div>
             ):(
@@ -393,7 +397,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
 
   return (
     <div style={{paddingTop:14}}>
-      <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
+      <div style={{display:"flex",gap:8,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
         {FASES.map(f=>(
           <button key={f.id} className="pill btn" onClick={()=>setFaseSel(f.id)} style={{
             padding:"5px 14px",borderRadius:20,
@@ -408,7 +412,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
       </div>
 
       {todosOsDias.length>0&&(
-        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:7,padding:"0 14px 14px",justifyContent:"center"}}>
+        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:8,padding:"0 14px 14px",justifyContent:"center"}}>
           {todosOsDias.map(dia=>{
             const {sem,num,mes}=formatCalDia(dia);
             const ativo=dia===diaSel;
@@ -670,12 +674,12 @@ export default function App() {
           <div className="fade-up" style={{fontSize:12,color:MUTE,marginBottom:"1.75rem",animationDelay:"40ms",letterSpacing:0.3}}>
             Bolao exclusivo para funcionarios
           </div>
-          <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms"}}>
+          <div className="fade-up" style={{marginBottom:"1.25rem",animationDelay:"100ms",animation:loginErr?"shake 0.35s ease":undefined}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>CPF ou CNPJ</div>
             <div style={{position:"relative"}}>
               <input id="doc" name="username" autoComplete="username"
                 type="text"
-                style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box",WebkitTextSecurity:showDoc?"none":"disc"}}/>
+                style={{width:"100%",border:"none",borderBottom:"1.5px solid "+(loginErr?RED:"#ddd"),outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box",WebkitTextSecurity:showDoc?"none":"disc",transition:"border-color 200ms ease"}}/>
               <button type="button" onClick={()=>setShowDoc(v=>!v)}
                 style={{position:"absolute",right:0,bottom:8,background:"none",border:"none",cursor:"pointer",padding:4,color:"#999",display:"flex",alignItems:"center"}}>
                 {showDoc
@@ -685,12 +689,12 @@ export default function App() {
               </button>
             </div>
           </div>
-          <div className="fade-up" style={{marginBottom:"2rem",animationDelay:"130ms"}}>
+          <div className="fade-up" style={{marginBottom:"2rem",animationDelay:"130ms",animation:loginErr?"shake 0.35s ease":undefined}}>
             <div style={{fontSize:10,color:"#999",marginBottom:8,fontWeight:600,letterSpacing:1,textTransform:"uppercase"}}>Senha</div>
             <div style={{position:"relative"}}>
               <input id="senha" name="password" autoComplete="current-password"
                 type={showSenha?"text":"password"}
-                style={{width:"100%",border:"none",borderBottom:"1.5px solid #ddd",outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box"}}
+                style={{width:"100%",border:"none",borderBottom:"1.5px solid "+(loginErr?RED:"#ddd"),outline:"none",fontSize:16,padding:"10px 36px 10px 0",background:"transparent",color:"#111",fontWeight:500,boxSizing:"border-box",transition:"border-color 200ms ease"}}
                 onKeyDown={e=>e.key==="Enter"&&login(document.getElementById("doc").value,document.getElementById("senha").value)}/>
               <button type="button" onClick={()=>setShowSenha(v=>!v)}
                 style={{position:"absolute",right:0,bottom:8,background:"none",border:"none",cursor:"pointer",padding:4,color:"#999",display:"flex",alignItems:"center"}}>
@@ -713,8 +717,17 @@ export default function App() {
             color:"#fff",borderRadius:6,animationDelay:"160ms",
             boxShadow:"0 4px 20px rgba(216,9,27,0.35)",
             opacity: loading ? 0.6 : 1,
+            display:"flex",alignItems:"center",justifyContent:"center",gap:8,
           }} onClick={()=>login(document.getElementById("doc").value,document.getElementById("senha").value)} disabled={loading}>
-            {loading?"ENTRANDO...":"ENTRAR"}
+            {loading?(
+              <>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{animation:"spin 0.7s linear infinite",flexShrink:0}}>
+                  <circle cx="7" cy="7" r="5" stroke="rgba(255,255,255,0.3)" strokeWidth="2"/>
+                  <path d="M7 2a5 5 0 0 1 5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                ENTRANDO...
+              </>
+            ):"ENTRAR"}
           </button>
         </div>
         <div className="fade-up" style={{padding:"1.5rem 1.5rem 0.5rem",textAlign:"center",animationDelay:"200ms"}}>
@@ -839,7 +852,7 @@ export default function App() {
           </div>
         )}
 
-        <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
+        <div style={{display:"flex",gap:8,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"],["pontuacao","Pontuação"]]
             :[["jogos","Fase de Grupos"],["matamata","Mata-Mata"],["ranking","Ranking"]]
@@ -1276,7 +1289,7 @@ function AdminControleHorario({ horarioComercial, liberadoManual, onToggle }) {
             boxShadow:liberadoManual?`0 0 7px ${YELLOW}90`:emHorario?`0 0 7px ${RED}90`:"none",
             transition:"background 0.3s,box-shadow 0.3s",
           }}/>
-          <span style={{fontSize:11,fontWeight:600,color:cor,fontFamily:FB,letterSpacing:0.3,transition:"color 0.3s"}}>
+          <span style={{fontSize:12,fontWeight:600,color:cor,fontFamily:FB,letterSpacing:0.3,transition:"color 0.3s"}}>
             {liberadoManual
               ?"Site liberado manualmente"
               :emHorario
@@ -1320,7 +1333,7 @@ function RankingView({ ranking, myId }) {
         <div style={{textAlign:"center",padding:"3rem 1rem",color:DIM,fontSize:13}}>Nenhum palpite registrado ainda.</div>
       )}
       {podio.length>=1&&(
-        <div className="scale-in" style={{borderRadius:16,padding:"1.5rem 1rem 0",marginBottom:20,overflow:"hidden",position:"relative",background:"linear-gradient(160deg,#131313,#0b0b0b)",border:`0.5px solid #2a2a2a`,boxShadow:`${SH_LG},inset 0 0 60px rgba(255,215,0,0.015)`}}>
+        <div className="scale-in" style={{borderRadius:16,padding:"1.5rem 1rem 0",marginBottom:20,overflow:"hidden",position:"relative",background:`linear-gradient(160deg,${CARD},#141820)`,border:`0.5px solid ${BORDER2}`,boxShadow:`${SH_LG},inset 0 0 60px rgba(255,215,0,0.015)`}}>
           <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,transparent,rgba(255,215,0,0.55),transparent)"}}/>
           <div style={{textAlign:"center",color:"#FFD700",fontSize:9,fontWeight:700,letterSpacing:4,marginBottom:18,textTransform:"uppercase",opacity:0.65}}>Pódio</div>
           <div className="stagger" style={{display:"flex",alignItems:"flex-end",justifyContent:"center",gap:8}}>
@@ -1334,12 +1347,12 @@ function RankingView({ ranking, myId }) {
                   <div style={{fontSize:10,color:isMe?RED:DIM,marginBottom:2,fontWeight:isMe?700:400,letterSpacing:isMe?1.5:0.5,textTransform:"uppercase",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                     {isMe?"Você":c.nome.split(" ")[0]}
                   </div>
-                  <div style={{fontSize:18,fontWeight:400,color:m.cor,marginBottom:7,fontFamily:FD}}>
+                  <div style={{fontSize:22,fontWeight:400,color:m.cor,marginBottom:7,fontFamily:FD,letterSpacing:-0.5}}>
                     {c.pts}<span style={{fontSize:9,opacity:0.6,marginLeft:1}}>pts</span>
                   </div>
                   <div style={{background:m.grad,borderRadius:"8px 8px 0 0",height:m.h,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",boxShadow:m.glow,border:`1px solid ${m.border}`,borderBottom:"none"}}>
                     <div style={{fontSize:32,fontWeight:400,color:"rgba(0,0,0,0.75)",fontFamily:FD,lineHeight:1}}>{m.pos}</div>
-                    <div style={{fontSize:7,fontWeight:800,color:"rgba(0,0,0,0.4)",letterSpacing:1.5,marginTop:2}}>LUGAR</div>
+                    <div style={{fontSize:9,fontWeight:800,color:"rgba(0,0,0,0.4)",letterSpacing:1.5,marginTop:2}}>LUGAR</div>
                   </div>
                 </div>
               );
@@ -1349,14 +1362,14 @@ function RankingView({ ranking, myId }) {
       )}
       {todos.length>0&&(
         <>
-          <div style={{fontSize:9,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"4px 0 10px",textTransform:"uppercase",fontFamily:FD}}>Classificação completa</div>
+          <div style={{fontSize:10,fontWeight:700,color:DIM,letterSpacing:2.5,padding:"4px 0 12px",textTransform:"uppercase",fontFamily:FD}}>Classificação completa</div>
           <div className="stagger">
             {todos.map((c,i)=>{
               const isMe=c.id===myId;
               const MEDAL_COLORS=["#FFD700","#C0C0C0","#CD7F32"];
               const isTop3=i<3;
               return (
-                <div key={c.id} className="card card-glass" style={{borderRadius:11,padding:"12px 15px",marginBottom:7,display:"flex",alignItems:"center",gap:13,background:isMe?"linear-gradient(135deg,#160202,#0c0c0c)":isTop3?"linear-gradient(135deg,#131108,#0c0c0c)":"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${isMe?"rgba(216,9,27,0.4)":isTop3?`${MEDAL_COLORS[i]}22`:BORDER2}`,boxShadow:isMe?`${SH_SM},0 0 10px rgba(216,9,27,0.07)`:SH_SM}}>
+                <div key={c.id} className="card card-glass" style={{borderRadius:11,padding:"12px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12,background:isMe?"linear-gradient(135deg,#160202,#0c0c0c)":isTop3?"linear-gradient(135deg,#131108,#0c0c0c)":"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${isMe?"rgba(216,9,27,0.4)":isTop3?`${MEDAL_COLORS[i]}22`:BORDER2}`,boxShadow:isMe?`${SH_SM},0 0 10px rgba(216,9,27,0.07)`:SH_SM}}>
                   <div style={{minWidth:32,textAlign:"center"}}>
                     {isTop3
                       ?<div style={{width:26,height:26,borderRadius:"50%",background:MEDAL_COLORS[i],display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"rgba(0,0,0,0.7)",fontFamily:FD}}>{i+1}</div>
@@ -1367,10 +1380,10 @@ function RankingView({ ranking, myId }) {
                     <div style={{fontWeight:500,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
                     <div style={{fontSize:10,color:DIM,marginTop:2}}>{c.acertos} acerto(s) exato(s)</div>
                   </div>
-                  {isMe&&<span style={{fontSize:8,color:RED,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase"}}>Você</span>}
+                  {isMe&&<span style={{fontSize:10,color:RED,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase"}}>Você</span>}
                   <div style={{textAlign:"right"}}>
-                    <div style={{fontWeight:400,fontSize:22,color:isTop3?MEDAL_COLORS[i]:"#d0d0d0",fontFamily:FD}}>{c.pts}</div>
-                    <div style={{fontSize:8,color:DIM,letterSpacing:1,textTransform:"uppercase"}}>pts</div>
+                    <div style={{fontWeight:400,fontSize:22,color:isTop3?MEDAL_COLORS[i]:"#d0d0d0",fontFamily:FD,letterSpacing:-0.5}}>{c.pts}</div>
+                    <div style={{fontSize:9,color:DIM,letterSpacing:1,textTransform:"uppercase"}}>pts</div>
                   </div>
                 </div>
               );
@@ -1430,7 +1443,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
         </div>
       )}
       {!loading && <>
-      <div style={{display:"flex",gap:6,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
+      <div style={{display:"flex",gap:8,padding:"0 14px 10px",flexWrap:"wrap",justifyContent:"center"}}>
         {RODADAS.map(r=>(
           <button key={r.id} className="pill btn" onClick={()=>setRodada(r.id)} style={{
             padding:"5px 14px",borderRadius:20,
@@ -1445,7 +1458,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
       </div>
 
       {todosOsDias.length>0&&(
-        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:7,padding:"0 14px 14px",justifyContent:"center"}}>
+        <div ref={calRef} className="cal-scroll" style={{display:"flex",gap:8,padding:"0 14px 14px",justifyContent:"center"}}>
           {todosOsDias.map(dia=>{
             const {sem,num,mes}=formatCalDia(dia);
             const ativo=dia===diaSel;
@@ -1502,12 +1515,12 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
               minHeight:176,
               position:"relative",overflow:"hidden",
               border:isBR?"1px solid rgba(255,209,1,0.2)":`0.5px solid ${BORDER2}`,
-              background:isBR?"linear-gradient(160deg,#161200,#0d0d0d)":"linear-gradient(160deg,#131313,#0c0c0c)",
+              background:isBR?"linear-gradient(160deg,#161200,#0e0c00)":`linear-gradient(160deg,${CARD},#141820)`,
               boxShadow:isBR?`0 4px 20px rgba(0,0,0,0.6),0 0 0 1px rgba(255,209,1,0.08),inset 0 1px 0 rgba(255,255,255,0.04)`:`${SH_MD},inset 0 1px 0 rgba(255,255,255,0.03)`,
             }}>
               {isBR&&<div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${YELLOW},transparent)`,opacity:0.6}}/>}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:13}}>
-                <div style={{background:isBR?"rgba(255,209,1,0.08)":"rgba(255,255,255,0.04)",color:isBR?YELLOW:DIM,fontSize:9,fontWeight:700,padding:"3px 8px",borderRadius:5,letterSpacing:1,border:isBR?"0.5px solid rgba(255,209,1,0.15)":"0.5px solid rgba(255,255,255,0.06)"}}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{background:isBR?"rgba(255,209,1,0.08)":"rgba(255,255,255,0.04)",color:isBR?YELLOW:DIM,fontSize:9,fontWeight:700,padding:"4px 8px",borderRadius:5,letterSpacing:1,border:isBR?"0.5px solid rgba(255,209,1,0.15)":"0.5px solid rgba(255,255,255,0.08)"}}>GRP {j.grupo} · {formatHora(j.data_hora)}</div>
                 {pts!==null&&(
                   <span style={{fontSize:9,borderRadius:6,padding:"3px 9px",fontWeight:700,letterSpacing:0.5,background:pts===ptMax?"rgba(255,209,1,0.12)":pts===ptMid?"rgba(255,255,255,0.06)":"rgba(216,9,27,0.08)",color:pts===ptMax?YELLOW:pts===ptMid?"#bbb":"#444",border:pts===ptMax?"0.5px solid rgba(255,209,1,0.25)":pts===ptMid?"0.5px solid rgba(255,255,255,0.12)":"0.5px solid rgba(216,9,27,0.18)"}}>{pts===ptMax?`+${ptMax} EXATO`:pts===ptMid?`+${ptMid} VENCEDOR`:"ERROU"}</span>
                 )}
@@ -1531,7 +1544,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
                     </div>
                   ):soLeitura?(
                     <div style={{textAlign:"center"}}>
-                      {p?<div style={{fontSize:18,fontWeight:700,color:isBR?YELLOW:RED,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
+                      {p?<div style={{fontSize:22,fontWeight:700,color:isBR?YELLOW:RED,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
                         :<div style={{fontSize:10,color:"#333",fontStyle:"italic"}}>Sem palpite</div>}
                     </div>
                   ):(
@@ -1563,10 +1576,10 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
       <div className="scale-in card glass" style={{borderRadius:13,padding:"1.2rem",marginBottom:14,position:"relative",overflow:"hidden",boxShadow:SH_MD}}>
         <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${RED},transparent)`,opacity:0.45}}/>
         <div style={{fontSize:13,fontWeight:600,color:"#e0e0e0",marginBottom:12,letterSpacing:0.3}}>Novo cadastro</div>
-        <div style={{display:"grid",gap:9}}>
-          <input style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e=>setDoc(e.target.value)}/>
-          <input style={inp} placeholder="Nome / Razão social" value={nome} onChange={e=>setNome(e.target.value)}/>
-          <input style={inp} placeholder="Senha inicial" value={senha} onChange={e=>setSenha(e.target.value)}/>
+        <div style={{display:"grid",gap:8}}>
+          <input className="input-admin" style={inp} placeholder="CPF ou CNPJ (só números)" value={doc} onChange={e=>setDoc(e.target.value)}/>
+          <input className="input-admin" style={inp} placeholder="Nome / Razão social" value={nome} onChange={e=>setNome(e.target.value)}/>
+          <input className="input-admin" style={inp} placeholder="Senha inicial" value={senha} onChange={e=>setSenha(e.target.value)}/>
           <button className="btn" style={{border:"none",borderRadius:8,padding:"12px",fontSize:12,background:`linear-gradient(135deg,${RED},#a30614)`,color:"#fff",fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 4px 16px rgba(216,9,27,0.3)"}}
             onClick={async()=>{await onAdd(doc,nome,senha,"funcionario");setDoc("");setNome("");setSenha("");}}>
             Adicionar
@@ -1578,12 +1591,16 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
       </div>
       <div className="stagger">
         {clientes.filter(c=>c.doc!=="admin").map(c=>(
-          <div key={c.id} className="card" style={{borderRadius:11,padding:"12px 15px",marginBottom:7,display:"flex",alignItems:"center",gap:11,opacity:c.ativo?1:0.35,boxShadow:SH_SM}}>
-            <div style={{flex:1}}>
-              <div style={{fontWeight:500,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
-              <div style={{fontSize:10,color:DIM,marginTop:3,display:"flex",alignItems:"center",gap:7}}>
+          <div key={c.id} className="card" style={{borderRadius:11,padding:"12px 15px",marginBottom:8,display:"flex",alignItems:"center",gap:12,boxShadow:SH_SM}}>
+            <div style={{width:32,height:32,borderRadius:"50%",background:c.ativo?`linear-gradient(135deg,${RED},#a30614)`:"#2a2a2a",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FD,fontSize:13,fontWeight:700,color:"#fff",flexShrink:0}}>
+              {c.nome.charAt(0).toUpperCase()}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:600,fontSize:13,color:"#e0e0e0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.nome}</div>
+              <div style={{fontSize:10,color:DIM,marginTop:3,display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
                 <span>{c.doc}</span>
-                <span style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:c.tipo==="funcionario"?"#60a5fa":YELLOW,background:c.tipo==="funcionario"?"rgba(96,165,250,0.08)":"rgba(255,209,1,0.08)",padding:"2px 6px",borderRadius:4,border:`0.5px solid ${c.tipo==="funcionario"?"rgba(96,165,250,0.2)":"rgba(255,209,1,0.2)"}`}}>{c.tipo==="funcionario"?"FUNC":"CLI"}</span>
+                <span style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:c.tipo==="funcionario"?"#60a5fa":YELLOW,background:c.tipo==="funcionario"?"rgba(96,165,250,0.08)":"rgba(255,209,1,0.08)",padding:"2px 6px",borderRadius:4,border:`0.5px solid ${c.tipo==="funcionario"?"rgba(96,165,250,0.2)":"rgba(255,209,1,0.2)"}`}}>{c.tipo==="funcionario"?"FUNC":"CLI"}</span>
+                <span style={{fontSize:9,fontWeight:700,color:c.ativo?"#4ade80":"#f87171"}}>{c.ativo?"● ATIVO":"● INATIVO"}</span>
               </div>
             </div>
             <button className="btn" style={{border:`0.5px solid ${BORDER2}`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"transparent",color:MUTE,fontWeight:500}}
@@ -1617,7 +1634,7 @@ function AdminPalpites({ clientes, todosPalpites, jogos }) {
           {label:"Apostaram",valor:comPalpite,cor:YELLOW},
           {label:"Campeão",valor:comCampeao,cor:"#4ade80"},
         ].map(({label,valor,cor})=>(
-          <div key={label} style={{borderRadius:10,padding:"12px 10px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
+          <div key={label} style={{borderRadius:10,padding:"12px 10px",textAlign:"center",background:`linear-gradient(160deg,${CARD},#141820)`,border:`0.5px solid ${BORDER2}`,boxShadow:SH_SM}}>
             <div style={{fontSize:22,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
             <div style={{fontSize:9,color:DIM,marginTop:4,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
           </div>
@@ -1632,19 +1649,19 @@ function AdminPalpites({ clientes, todosPalpites, jogos }) {
         {lista.map(c => {
           const pct = totalJogos > 0 ? Math.round((c.qtd / totalJogos) * 100) : 0;
           return (
-            <div key={c.id} className="card" style={{borderRadius:11,padding:"12px 15px",marginBottom:7,boxShadow:SH_SM}}>
+            <div key={c.id} className="card" style={{borderRadius:11,padding:"12px 15px",marginBottom:8,boxShadow:SH_SM}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
                 <div style={{flex:1}}>
-                  <div style={{fontWeight:500,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
-                  <div style={{fontSize:10,color:DIM,marginTop:2}}>
+                  <div style={{fontWeight:c.qtd>0?600:400,fontSize:13,color:"#e0e0e0"}}>{c.nome}</div>
+                  <div style={{fontSize:10,color:DIM,marginTop:2,display:"flex",alignItems:"center",gap:5}}>
                     {c.palpite_campeao
-                      ? <span style={{color:"#4ade80"}}>Campeão: {c.palpite_campeao}</span>
+                      ? <><Flag time={c.palpite_campeao} size={14}/><span style={{color:"#4ade80"}}>{c.palpite_campeao}</span></>
                       : <span style={{color:"#555"}}>Sem palpite de campeão</span>
                     }
                   </div>
                 </div>
                 <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontSize:16,fontWeight:700,color:c.qtd>0?YELLOW:"#333",fontFamily:FD,lineHeight:1}}>{c.qtd}</div>
+                  <div style={{fontSize:18,fontWeight:700,color:c.qtd>0?YELLOW:"#333",fontFamily:FD,lineHeight:1}}>{c.qtd}</div>
                   <div style={{fontSize:9,color:DIM,marginTop:2}}>/ {totalJogos} jogos</div>
                 </div>
               </div>
@@ -1745,7 +1762,7 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
         <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
           <div style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div>
-              <div style={{fontSize:14,fontWeight:700,color:"#e0e0e0"}}>{jogo.time1} × {jogo.time2}</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#e0e0e0",letterSpacing:-0.2}}>{jogo.time1} × {jogo.time2}</div>
               <div style={{fontSize:10,color:DIM,marginTop:1}}>{formatData(jogo.data_hora)}{isMataMata&&isBR?" · 4×pts":isMataMata?" · 2×pts":isBR?" · 2×pts":""}</div>
             </div>
             {isEncerrado
@@ -1763,7 +1780,7 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
               {label:"Com palpite",valor:linhas.filter(l=>l.palpite!==null).length,cor:"#60a5fa"},
               {label:"Sem palpite",valor:linhas.filter(l=>l.palpite===null).length,cor:DIM},
             ]).map(({label,valor,cor})=>(
-              <div key={label} style={{borderRadius:8,padding:"8px 6px",textAlign:"center",background:"linear-gradient(160deg,#131313,#0d0d0d)",border:`0.5px solid ${BORDER2}`}}>
+              <div key={label} style={{borderRadius:8,padding:"8px 6px",textAlign:"center",background:`linear-gradient(160deg,${CARD},#141820)`,border:`0.5px solid ${BORDER2}`}}>
                 <div style={{fontSize:18,fontWeight:700,color:cor,fontFamily:FD,lineHeight:1}}>{valor}</div>
                 <div style={{fontSize:8,color:DIM,marginTop:3,letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>{label}</div>
               </div>
@@ -1771,10 +1788,10 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
           </div>
 
           {linhas.map(({nome,palpite,pts},i)=>(
-            <div key={nome} style={{borderRadius:9,padding:"8px 12px",marginBottom:5,display:"flex",alignItems:"center",gap:8,background:"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${isEncerrado&&pts!=null&&pts>0?COR_PTS(pts)+"22":BORDER2}`}}>
+            <div key={nome} style={{borderRadius:9,padding:"8px 12px",marginBottom:5,display:"flex",alignItems:"center",gap:8,background:isEncerrado&&i===0&&pts!=null&&pts>0?"linear-gradient(160deg,rgba(255,215,0,0.05),#0c0c0c)":"linear-gradient(160deg,#111,#0c0c0c)",border:`0.5px solid ${isEncerrado&&pts!=null&&pts>0?COR_PTS(pts)+"22":BORDER2}`}}>
               <div style={{fontSize:10,color:DIM,fontFamily:FD,minWidth:16,textAlign:"right"}}>{i+1}</div>
-              <div style={{flex:1,fontSize:11,color:"#d0d0d0",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
-              <div style={{fontSize:11,color:palpite?"#aaa":"#2a2a2a",fontFamily:FD,minWidth:30,textAlign:"center"}}>{palpite??"—"}</div>
+              <div style={{flex:1,fontSize:12,color:"#bdc3d0",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
+              <div style={{fontSize:10,color:palpite?"rgba(255,255,255,0.35)":"#2a2a2a",fontFamily:FD,minWidth:30,textAlign:"center",background:palpite?"rgba(255,255,255,0.05)":"transparent",borderRadius:4,padding:palpite?"2px 5px":"0"}}>{palpite??"—"}</div>
               {isEncerrado && (
                 <div style={{minWidth:38,textAlign:"right",fontFamily:FD,fontSize:13,fontWeight:700,color:COR_PTS(pts)}}>
                   {pts===null?"—":`${pts}pts`}
@@ -1817,13 +1834,13 @@ function AdminResultados({ jogos, onSalvar }) {
 function ResultInput({ jogo, onSalvar }) {
   const [g1,setG1]=useState(jogo.resultado_g1!=null?jogo.resultado_g1:"");
   const [g2,setG2]=useState(jogo.resultado_g2!=null?jogo.resultado_g2:"");
-  const num={width:42,textAlign:"center",padding:"6px 2px",borderRadius:6,border:`0.5px solid ${BORDER2}`,fontSize:15,fontWeight:600,background:"#131313",color:"#fff",fontFamily:FD};
+  const num={width:42,textAlign:"center",padding:"6px 2px",borderRadius:6,border:`0.5px solid ${BORDER2}`,fontSize:16,fontWeight:600,background:"#131313",color:"#fff",fontFamily:FD};
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5}}>
       <div style={{display:"flex",alignItems:"center",gap:5}}>
-        <input style={num} type="number" min={0} max={20} value={g1} onChange={e=>setG1(e.target.value)}/>
+        <input className="result-input" style={num} type="number" min={0} max={20} value={g1} onChange={e=>setG1(e.target.value)}/>
         <span style={{color:"#2a2a2a",fontSize:12}}>×</span>
-        <input style={num} type="number" min={0} max={20} value={g2} onChange={e=>setG2(e.target.value)}/>
+        <input className="result-input" style={num} type="number" min={0} max={20} value={g2} onChange={e=>setG2(e.target.value)}/>
       </div>
       <button className="btn" style={{border:"none",borderRadius:6,padding:"4px 12px",fontSize:9,background:RED,color:"#fff",fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}
         onClick={()=>onSalvar(jogo.id,g1,g2)}>
@@ -1839,6 +1856,7 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, onDeletar, isBrasil }) {
   // null = vazio (não preencheu) | número = valor escolhido (0 é válido)
   const [g1, setG1] = useState(palpiteAtual != null ? palpiteAtual.g1 : null);
   const [g2, setG2] = useState(palpiteAtual != null ? palpiteAtual.g2 : null);
+  const [salvoFeedback, setSalvoFeedback] = useState(false);
 
   const pronto = g1 !== null && g2 !== null;
 
@@ -1954,19 +1972,27 @@ function PalpiteInput({ jogoId, palpiteAtual, onSalvar, onDeletar, isBrasil }) {
             fontWeight:700,
             letterSpacing:1.5,
             textTransform:"uppercase",
-            background: palpiteAtual
-              ? "linear-gradient(135deg,#5a020e,#3a0008)"
-              : `linear-gradient(135deg,${RED},#a30614)`,
+            background: salvoFeedback
+              ? "linear-gradient(135deg,#166534,#14532d)"
+              : palpiteAtual
+                ? "linear-gradient(135deg,#5a020e,#3a0008)"
+                : `linear-gradient(135deg,${RED},#a30614)`,
             color:"#fff",
             opacity: pronto ? 1 : 0.35,
             cursor: pronto ? "pointer" : "not-allowed",
-            boxShadow: pronto ? "0 3px 12px rgba(216,9,27,0.35)" : "none",
-            transition:"opacity 180ms ease, box-shadow 180ms ease",
+            boxShadow: pronto ? (salvoFeedback ? "0 3px 12px rgba(22,101,52,0.4)" : "0 3px 12px rgba(216,9,27,0.35)") : "none",
+            transition:"opacity 180ms ease, box-shadow 180ms ease, background 200ms ease",
           }}
-          onClick={() => { if (pronto) onSalvar(jogoId, g1, g2); }}
+          onClick={() => {
+            if (pronto) {
+              onSalvar(jogoId, g1, g2);
+              setSalvoFeedback(true);
+              setTimeout(() => setSalvoFeedback(false), 1500);
+            }
+          }}
           disabled={!pronto}
         >
-          {palpiteAtual ? "Atualizar" : "Salvar"}
+          {salvoFeedback ? "Salvo" : palpiteAtual ? "Atualizar" : "Salvar"}
         </button>
 
         {/* Botão lixeira — só aparece se já tem palpite salvo */}

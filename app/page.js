@@ -106,13 +106,14 @@ function Flag({ time, size = 32 }) {
   );
 }
 
-function calcPontos(g1, g2, rg1, rg2, isBrasil = false) {
+function calcPontos(g1, g2, rg1, rg2, isBrasil = false, isMataMata = false) {
   if (rg1 == null || rg2 == null) return null;
-  const mult = isBrasil ? 2 : 1;
+  const mult = (isBrasil ? 2 : 1) * (isMataMata ? 2 : 1);
   if (g1 === rg1 && g2 === rg2) return 10 * mult;
   const v = (a, b) => a > b ? 1 : b > a ? 2 : 0;
   return v(g1, g2) === v(rg1, rg2) ? 5 * mult : 0;
 }
+const FASES_MATA = ["16avos","oitavas","quartas","semis","terceiro","final"];
 
 function isHorarioComercialBrasilia(iso) {
   // Brasil e permanentemente UTC-3 desde 2019
@@ -333,9 +334,10 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
   function renderCard(j){
     const p=palpites.find(x=>x.jogo_id===j.id);
     const isBR=j.time1==="Brasil"||j.time2==="Brasil";
-    const ptMax=isBR?20:10;
-    const ptMid=isBR?10:5;
-    const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR):null;
+    const isMataMata=FASES_MATA.includes(j.fase);
+    const ptMax=(isBR?2:1)*(isMataMata?2:1)*10;
+    const ptMid=(isBR?2:1)*(isMataMata?2:1)*5;
+    const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR,isMataMata):null;
     const time1=j.time1||j.slot_desc1||"A definir";
     const time2=j.time2||j.slot_desc2||"A definir";
     const definido=!!(j.time1||j.slot_desc1)&&!!(j.time2||j.slot_desc2);
@@ -370,7 +372,7 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
             ):new Date(j.data_hora)<=new Date()?(
               <div style={{fontSize:10,color:DIM,fontStyle:"italic"}}>Em andamento</div>
             ):definido&&!soLeitura?(
-              <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={false}/>
+              <PalpiteInput key={p?.id??`empty-${j.id}`} jogoId={j.id} palpiteAtual={p} onSalvar={onSalvar} onDeletar={()=>onDeletar(p?.id)} isBrasil={isBR}/>
             ):definido?(
               <div style={{textAlign:"center"}}>
                 {p?<div style={{fontSize:18,fontWeight:700,color:YELLOW,fontFamily:FD,letterSpacing:2}}>{p.g1} — {p.g2}</div>
@@ -636,7 +638,8 @@ export default function App() {
         const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
         if (!p||j.resultado_g1==null) return;
         const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
-        const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil);
+        const isMataMata=FASES_MATA.includes(j.fase);
+        const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil,isMataMata);
         pts+=pp;
         const isExact = p.g1===j.resultado_g1 && p.g2===j.resultado_g2;
         if(isExact) acertos++;
@@ -1489,9 +1492,10 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
           const p=palpites.find(x=>x.jogo_id===j.id);
           const passou=j.encerrado||new Date(j.data_hora)<=new Date();
           const isBR=j.time1==="Brasil"||j.time2==="Brasil";
-          const ptMax=isBR?20:10;
-          const ptMid=isBR?10:5;
-          const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR):null;
+          const isMataMata=FASES_MATA.includes(j.fase);
+          const ptMax=(isBR?2:1)*(isMataMata?2:1)*10;
+          const ptMid=(isBR?2:1)*(isMataMata?2:1)*5;
+          const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR,isMataMata):null;
           return (
             <div key={j.id} className={"card card-glass"+(isBR?" card-brasil":"")} style={{
               borderRadius:14,padding:"14px",marginBottom:10,
@@ -1670,6 +1674,8 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
 
   const isEncerrado = jogo?.encerrado;
   const isBR = jogo && (jogo.time1==="Brasil"||jogo.time2==="Brasil");
+  const isMataMata = jogo && FASES_MATA.includes(jogo.fase);
+  const ptMaxAdmin = (isBR?2:1)*(isMataMata?2:1)*10;
   const funcionarios = clientes.filter(c=>c.doc!=="admin"&&c.ativo);
 
   function formatData(iso){
@@ -1679,7 +1685,7 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
 
   const linhas = funcionarios.map(c => {
     const p = todosPalpites.find(x => x.cliente_id===c.id && x.jogo_id===jogo?.id);
-    const pts = (p && isEncerrado) ? calcPontos(p.g1, p.g2, jogo.resultado_g1, jogo.resultado_g2, isBR) : null;
+    const pts = (p && isEncerrado) ? calcPontos(p.g1, p.g2, jogo.resultado_g1, jogo.resultado_g2, isBR, isMataMata) : null;
     return { nome: c.nome, palpite: p ? `${p.g1}×${p.g2}` : null, pts };
   }).sort((a,b) => {
     if (!isEncerrado) {
@@ -1740,7 +1746,7 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
           <div style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div>
               <div style={{fontSize:14,fontWeight:700,color:"#e0e0e0"}}>{jogo.time1} × {jogo.time2}</div>
-              <div style={{fontSize:10,color:DIM,marginTop:1}}>{formatData(jogo.data_hora)}{isBR?" · 2×pts":""}</div>
+              <div style={{fontSize:10,color:DIM,marginTop:1}}>{formatData(jogo.data_hora)}{isMataMata&&isBR?" · 4×pts":isMataMata?" · 2×pts":isBR?" · 2×pts":""}</div>
             </div>
             {isEncerrado
               ? <div style={{fontFamily:FD,fontSize:26,color:YELLOW,letterSpacing:2}}>{jogo.resultado_g1}–{jogo.resultado_g2}</div>
@@ -1750,8 +1756,8 @@ function AdminPontuacao({ clientes, todosPalpites, jogos }) {
 
           <div style={{display:"grid",gridTemplateColumns:isEncerrado?"1fr 1fr 1fr":"1fr 1fr",gap:5,marginBottom:10}}>
             {(isEncerrado ? [
-              {label:"Exatos",valor:linhas.filter(l=>l.pts!=null&&l.pts>=(isBR?20:10)).length,cor:YELLOW},
-              {label:"Resultado",valor:linhas.filter(l=>l.pts!=null&&l.pts>0&&l.pts<(isBR?20:10)).length,cor:"#60a5fa"},
+              {label:"Exatos",valor:linhas.filter(l=>l.pts!=null&&l.pts>=ptMaxAdmin).length,cor:YELLOW},
+              {label:"Resultado",valor:linhas.filter(l=>l.pts!=null&&l.pts>0&&l.pts<ptMaxAdmin).length,cor:"#60a5fa"},
               {label:"Sem palpite",valor:linhas.filter(l=>l.palpite===null).length,cor:DIM},
             ] : [
               {label:"Com palpite",valor:linhas.filter(l=>l.palpite!==null).length,cor:"#60a5fa"},

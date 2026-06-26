@@ -336,9 +336,9 @@ function ListaMataMata({ jogos, palpites, onSalvar, onDeletar, soLeitura }) {
     const ptMax=isBR?20:10;
     const ptMid=isBR?10:5;
     const pts=p&&j.resultado_g1!=null?calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBR):null;
-    const time1=j.time1||"A definir";
-    const time2=j.time2||"A definir";
-    const definido=!!(j.time1&&j.time2);
+    const time1=j.time1||j.slot_desc1||"A definir";
+    const time2=j.time2||j.slot_desc2||"A definir";
+    const definido=!!(j.time1||j.slot_desc1)&&!!(j.time2||j.slot_desc2);
     return (
       <div key={j.id} className="card" style={{
         borderRadius:14,padding:"14px",marginBottom:10,

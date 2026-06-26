@@ -202,11 +202,13 @@ async function resolveKnockoutSlots(supabase: ReturnType<typeof createClient>): 
     .from("jogos").select("*").eq("fase", "16avos");
 
   for (const slot of (slots16 as Jogo[]) ?? []) {
-    const time1 = slot.time1 ?? resolveOrigem(slot.origem1, standings, slotAssign);
-    const time2 = slot.time2 ?? resolveOrigem(slot.origem2, standings, slotAssign);
+    const needsT1 = !slot.time1 || slot.time1 === 'A definir';
+    const needsT2 = !slot.time2 || slot.time2 === 'A definir';
+    const time1 = needsT1 ? resolveOrigem(slot.origem1, standings, slotAssign) : slot.time1;
+    const time2 = needsT2 ? resolveOrigem(slot.origem2, standings, slotAssign) : slot.time2;
     const upd: Record<string, string | null> = {};
-    if (!slot.time1 && time1) upd.time1 = time1;
-    if (!slot.time2 && time2) upd.time2 = time2;
+    if (needsT1 && time1) upd.time1 = time1;
+    if (needsT2 && time2) upd.time2 = time2;
     if (Object.keys(upd).length) {
       await supabase.from("jogos").update(upd).eq("id", slot.id);
       resolved++;
@@ -219,11 +221,13 @@ async function resolveKnockoutSlots(supabase: ReturnType<typeof createClient>): 
       .from("jogos").select("*").eq("fase", fase);
 
     for (const slot of (faseSlots as Jogo[]) ?? []) {
-      const time1 = slot.time1 ?? await resolveVencedorOrigem(slot.origem1, supabase);
-      const time2 = slot.time2 ?? await resolveVencedorOrigem(slot.origem2, supabase);
+      const needsT1 = !slot.time1 || slot.time1 === 'A definir';
+      const needsT2 = !slot.time2 || slot.time2 === 'A definir';
+      const time1 = needsT1 ? await resolveVencedorOrigem(slot.origem1, supabase) : slot.time1;
+      const time2 = needsT2 ? await resolveVencedorOrigem(slot.origem2, supabase) : slot.time2;
       const upd: Record<string, string | null> = {};
-      if (!slot.time1 && time1) upd.time1 = time1;
-      if (!slot.time2 && time2) upd.time2 = time2;
+      if (needsT1 && time1) upd.time1 = time1;
+      if (needsT2 && time2) upd.time2 = time2;
       if (Object.keys(upd).length) {
         await supabase.from("jogos").update(upd).eq("id", slot.id);
         resolved++;

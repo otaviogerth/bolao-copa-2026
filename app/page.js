@@ -294,6 +294,7 @@ function Banner() {
 
 /* ─── UTILITÁRIOS DE DATA ────────────────────────────────────────────────── */
 function diaBR(iso){return new Date(iso).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).split('/').reverse().join('-');}
+function telaPrincipal(){return diaBR(new Date().toISOString())>="2026-06-28"?"matamata":"jogos";}
 function formatDiaLabel(iso){const d=new Date(iso+"T12:00:00-03:00");return d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long"});}
 function formatHora(iso){return new Date(iso).toLocaleTimeString("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit"});}
 function formatCalDia(iso){const d=new Date(iso+"T12:00:00-03:00");return {sem:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"short"}).replace(".","").toUpperCase().slice(0,3),num:String(d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit"})).replace(/^0/,""),mes:d.toLocaleDateString("pt-BR",{timeZone:"America/Sao_Paulo",month:"short"}).replace(".","").toUpperCase().slice(0,3)};}
@@ -489,7 +490,7 @@ export default function App() {
   const bloqueado = horarioComercial && !liberadoManual;
 
   useEffect(()=>{
-    if (tela==="campeao" && user?.palpite_campeao) setTela("jogos");
+    if (tela==="campeao" && user?.palpite_campeao) setTela(telaPrincipal());
   },[tela,user]);
 
   useEffect(()=>{
@@ -533,7 +534,7 @@ export default function App() {
 
   useEffect(()=>{
     if (!bloqueado || !user || user.doc === "admin") return;
-    if (tela==="campeao") setTela("jogos");
+    if (tela==="campeao") setTela(telaPrincipal());
   },[bloqueado, user]); // eslint-disable-line
 
   async function login(doc, senha) {
@@ -770,7 +771,7 @@ export default function App() {
             </div>
           </div>
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
-            <Carrossel slides={slides} onFim={()=>setTela(user.palpite_campeao||bloqueado?"jogos":"campeao")}/>
+            <Carrossel slides={slides} onFim={()=>setTela(user.palpite_campeao||bloqueado?telaPrincipal():"campeao")}/>
           </div>
         </div>
       </>
@@ -789,7 +790,7 @@ export default function App() {
           <div className="fade-up" style={{position:"fixed",inset:0,zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem",background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)"}}>
             <TelaCampeao
               user={user}
-              onConfirmar={(nome)=>{setUser(prev=>({...prev,palpite_campeao:nome}));setTela("jogos");}}
+              onConfirmar={(nome)=>{setUser(prev=>({...prev,palpite_campeao:nome}));setTela(telaPrincipal());}}
             />
           </div>
         </div>

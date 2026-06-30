@@ -637,7 +637,7 @@ export default function App() {
   }
 
   const ranking = useMemo(()=>{
-    return clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario").map(c=>{
+    return clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario" && c.ativo).map(c=>{
       let pts=0,acertos=0,acertosBrasil=0,acertosExatoVencedor=0;
       jogos.forEach(j=>{
         const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);

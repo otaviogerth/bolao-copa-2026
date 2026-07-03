@@ -567,6 +567,7 @@ export default function App() {
       const { data, error } = await supabase
         .from("palpites")
         .select("*")
+        .order("id")
         .range(from, from + tamanho - 1);
       if (error || !data || data.length === 0) break;
       todos = todos.concat(data);
@@ -641,7 +642,7 @@ export default function App() {
       let pts=0,acertos=0,acertosBrasil=0,acertosExatoVencedor=0;
       jogos.forEach(j=>{
         const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
-        if (!p||j.resultado_g1==null) return;
+        if (!p||j.resultado_g1==null||j.resultado_g2==null) return;
         const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
         const isMataMata=FASES_MATA.includes(j.fase);
         const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil,isMataMata);

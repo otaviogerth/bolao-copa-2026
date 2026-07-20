@@ -9,10 +9,13 @@ export function calcPontos(g1, g2, rg1, rg2, isBrasil = false, isMataMata = fals
 }
 
 export function calcRankingAcumulado(jogosConsiderados, todosPalpites, clientesElegiveis) {
+  const palpitesPorChave = new Map();
+  todosPalpites.forEach(p => palpitesPorChave.set(`${p.cliente_id}_${p.jogo_id}`, p));
+
   return clientesElegiveis.map(c => {
     let pts = 0, acertos = 0, acertosBrasil = 0, acertosExatoVencedor = 0;
     jogosConsiderados.forEach(j => {
-      const p = todosPalpites.find(x => x.cliente_id === c.id && x.jogo_id === j.id);
+      const p = palpitesPorChave.get(`${c.id}_${j.id}`);
       if (!p || j.resultado_g1 == null || j.resultado_g2 == null) return;
       const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
       const isMataMata = FASES_MATA.includes(j.fase);

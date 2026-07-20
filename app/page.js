@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { FASES_MATA, calcPontos, calcRankingAcumulado } from "./retrospectiva.mjs";
+import { FASES_MATA, calcPontos, calcRankingAcumulado, calcLinhaDoTempoLideranca, calcRetrospectivaUsuario } from "./retrospectiva.mjs";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -638,6 +638,25 @@ export default function App() {
     [jogos,todosPalpites,clientesElegiveis]
   );
 
+  const [retroAlvoId, setRetroAlvoId] = useState(null);
+
+  async function abrirRetrospectiva(clienteId) {
+    await Promise.all([carregarJogos(), carregarClientes(), carregarTodosPalpites()]);
+    setRetroAlvoId(clienteId);
+    setTela("retrospectiva");
+  }
+
+  const linhaDoTempo = useMemo(
+    () => calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegiveis),
+    [jogos, todosPalpites, clientesElegiveis]
+  );
+
+  const retroAlvo = clientes.find(c => c.id === retroAlvoId) || null;
+  const retrospectivaAtual = useMemo(
+    () => retroAlvoId ? calcRetrospectivaUsuario(retroAlvoId, jogos, todosPalpites) : null,
+    [retroAlvoId, jogos, todosPalpites]
+  );
+
   const rankingDoMeuTipo = user ? ranking.filter(r=>r.tipo===user.tipo) : ranking;
   const meuRank = user ? rankingDoMeuTipo.findIndex(r=>r.id===user.id)+1 : 0;
   const meusPts = user ? (ranking.find(r=>r.id===user.id)||{}).pts||0 : 0;
@@ -831,6 +850,19 @@ export default function App() {
           </div>
         )}
 
+        {!isAdmin&&(
+          <div style={{padding:"10px 14px 0"}}>
+            <button className="btn" onClick={()=>abrirRetrospectiva(user.id)} style={{
+              width:"100%",border:"1px solid rgba(255,209,1,0.35)",borderRadius:12,padding:"14px",
+              background:"linear-gradient(135deg,rgba(255,209,1,0.1),rgba(216,9,27,0.08))",
+              color:YELLOW,fontWeight:700,fontSize:13,letterSpacing:0.5,fontFamily:FB,
+              boxShadow:"inset 0 1px 0 rgba(255,255,255,0.08)",cursor:"pointer",
+            }}>
+              Sua Retrospectiva 2026
+            </button>
+          </div>
+        )}
+
         <div style={{display:"flex",gap:8,padding:"12px 14px 0",flexWrap:"wrap",justifyContent:"center"}}>
           {(isAdmin
             ?[["admin","Início"],["clientes","Funcionários"],["resultados","Resultados"],["ranking","Ranking"],["palpites","Palpites"],["pontuacao","Pontuação"]]
@@ -879,13 +911,27 @@ export default function App() {
             </div>
           </div>
         )}
-        {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente}/></div>}
+        {tela==="clientes"  &&<div className="screen"><AdminClientes clientes={clientes} onAdd={addCliente} onToggle={toggleCliente} onAbrirRetrospectiva={abrirRetrospectiva}/></div>}
         {tela==="palpites"  &&<div className="screen"><AdminPalpites clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
         {tela==="pontuacao" &&<div className="screen"><AdminPontuacao clientes={clientes} todosPalpites={todosPalpites} jogos={jogos}/></div>}
         {tela==="resultados"&&<div className="screen"><AdminResultados jogos={jogos} onSalvar={salvarResultado}/></div>}
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
         {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} soLeitura={bloqueado}/></div>}
         {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading} soLeitura={bloqueado}/></div>}
+        {tela==="retrospectiva" && retroAlvo && retrospectivaAtual && (
+          <RetrospectivaView
+            slides={montarSlides({
+              nome: retroAlvo.nome,
+              meuId: retroAlvo.id,
+              retro: retrospectivaAtual,
+              linha: linhaDoTempo,
+              posicaoFinal: ranking.findIndex(r=>r.id===retroAlvo.id)+1,
+              pontosTotais: (ranking.find(r=>r.id===retroAlvo.id)||{}).pts||0,
+              totalParticipantes: ranking.length,
+            })}
+            onFechar={()=>{setTela(isAdmin?"clientes":telaPrincipal());setRetroAlvoId(null);}}
+          />
+        )}
 
         <div style={{padding:"2rem 1rem 1.5rem",textAlign:"center"}}>
           <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:20,marginBottom:12,opacity:0.3}}>
@@ -1693,7 +1739,7 @@ function ListaJogos({ jogos, palpites, onSalvar, onDeletar, loading, soLeitura }
 }
 
 /* ─── ADMIN CLIENTES ─────────────────────────────────────────────────────── */
-function AdminClientes({ clientes, onAdd, onToggle }) {
+function AdminClientes({ clientes, onAdd, onToggle, onAbrirRetrospectiva }) {
   const [doc,setDoc]   = useState("");
   const [nome,setNome] = useState("");
   const [senha,setSenha]= useState("");
@@ -1730,6 +1776,8 @@ function AdminClientes({ clientes, onAdd, onToggle }) {
                 <span style={{fontSize:9,fontWeight:700,color:c.ativo?"#4ade80":"#f87171"}}>{c.ativo?"● ATIVO":"● INATIVO"}</span>
               </div>
             </div>
+            <button className="btn" style={{border:`0.5px solid rgba(255,209,1,0.35)`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"rgba(255,209,1,0.06)",color:YELLOW,fontWeight:600}}
+              onClick={()=>onAbrirRetrospectiva(c.id)}>Retrospectiva</button>
             <button className="btn" style={{border:`0.5px solid ${BORDER2}`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"transparent",color:MUTE,fontWeight:500}}
               onClick={()=>onToggle(c.id,c.ativo)}>{c.ativo?"Desativar":"Ativar"}</button>
           </div>

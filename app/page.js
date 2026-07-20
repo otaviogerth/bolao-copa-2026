@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { FASES_MATA, calcPontos, calcRankingAcumulado } from "./retrospectiva.mjs";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -105,15 +106,6 @@ function Flag({ time, size = 32 }) {
     />
   );
 }
-
-function calcPontos(g1, g2, rg1, rg2, isBrasil = false, isMataMata = false) {
-  if (rg1 == null || rg2 == null) return null;
-  const mult = (isBrasil ? 2 : 1) * (isMataMata ? 2 : 1);
-  if (g1 === rg1 && g2 === rg2) return 10 * mult;
-  const v = (a, b) => a > b ? 1 : b > a ? 2 : 0;
-  return v(g1, g2) === v(rg1, rg2) ? 5 * mult : 0;
-}
-const FASES_MATA = ["16avos","oitavas","quartas","semis","terceiro","final"];
 
 function isHorarioComercialBrasilia(iso) {
   // Brasil e permanentemente UTC-3 desde 2019
@@ -637,29 +629,14 @@ export default function App() {
     flash("Todos os resultados foram zerados");
   }
 
-  const ranking = useMemo(()=>{
-    return clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario" && c.ativo).map(c=>{
-      let pts=0,acertos=0,acertosBrasil=0,acertosExatoVencedor=0;
-      jogos.forEach(j=>{
-        const p=todosPalpites.find(x=>x.cliente_id===c.id&&x.jogo_id===j.id);
-        if (!p||j.resultado_g1==null||j.resultado_g2==null) return;
-        const isBrasil=j.time1==="Brasil"||j.time2==="Brasil";
-        const isMataMata=FASES_MATA.includes(j.fase);
-        const pp=calcPontos(p.g1,p.g2,j.resultado_g1,j.resultado_g2,isBrasil,isMataMata);
-        pts+=pp;
-        const isExact = p.g1===j.resultado_g1 && p.g2===j.resultado_g2;
-        if(isExact) acertos++;
-        if(isExact && isBrasil) acertosBrasil++;
-        if(isExact && j.resultado_g1!==j.resultado_g2) acertosExatoVencedor++;
-      });
-      return {...c,pts,acertos,acertosBrasil,acertosExatoVencedor};
-    }).sort((a,b)=>
-      b.pts-a.pts ||
-      b.acertosBrasil-a.acertosBrasil ||
-      b.acertosExatoVencedor-a.acertosExatoVencedor ||
-      a.id-b.id
-    );
-  },[clientes,jogos,todosPalpites]);
+  const clientesElegiveis = useMemo(
+    ()=>clientes.filter(c=>c.doc!=="admin" && c.tipo==="funcionario" && c.ativo),
+    [clientes]
+  );
+  const ranking = useMemo(
+    ()=>calcRankingAcumulado(jogos, todosPalpites, clientesElegiveis),
+    [jogos,todosPalpites,clientesElegiveis]
+  );
 
   const rankingDoMeuTipo = user ? ranking.filter(r=>r.tipo===user.tipo) : ranking;
   const meuRank = user ? rankingDoMeuTipo.findIndex(r=>r.id===user.id)+1 : 0;

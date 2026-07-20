@@ -1297,6 +1297,46 @@ function AdminControleHorario({ horarioComercial, liberadoManual, onToggle }) {
   );
 }
 
+/* ─── RETROSPECTIVA ──────────────────────────────────────────────────────── */
+function RetrospectivaView({ slides, onFechar }) {
+  const [indice, setIndice] = useState(0);
+  const slide = slides[indice];
+  const isUltimo = indice === slides.length - 1;
+
+  function avancar() {
+    if (isUltimo) { onFechar(); return; }
+    setIndice(i => Math.min(slides.length - 1, i + 1));
+  }
+  function voltar() {
+    setIndice(i => Math.max(0, i - 1));
+  }
+
+  if (!slide) return null;
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:200,background:"linear-gradient(160deg,#1a0306,#0a0a0f 55%,#120d00)",display:"flex",flexDirection:"column",fontFamily:FB}}>
+      <div style={{display:"flex",gap:4,padding:"12px 12px 0"}}>
+        {slides.map((_,i)=>(
+          <div key={i} style={{flex:1,height:3,borderRadius:2,background:"rgba(255,255,255,0.18)",overflow:"hidden"}}>
+            <div style={{height:"100%",width:i<=indice?"100%":"0%",background:YELLOW,transition:"width 200ms ease"}}/>
+          </div>
+        ))}
+      </div>
+      <button className="btn" onClick={onFechar} style={{position:"absolute",top:20,right:14,background:"rgba(255,255,255,0.08)",border:"none",borderRadius:"50%",width:32,height:32,color:"#fff",fontSize:16,cursor:"pointer",zIndex:2,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+      <div style={{flex:1,position:"relative",display:"flex"}}>
+        <div onClick={voltar} style={{width:"35%",cursor:indice>0?"pointer":"default"}}/>
+        <div key={indice} className="fade-up" style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 28px",textAlign:"center",color:"#fff"}}>
+          {slide}
+        </div>
+        <div onClick={avancar} style={{width:"35%",cursor:"pointer"}}/>
+      </div>
+      <div style={{textAlign:"center",padding:"0 0 22px",fontSize:11,color:"rgba(255,255,255,0.35)"}}>
+        toque nas laterais pra navegar
+      </div>
+    </div>
+  );
+}
+
 /* ─── RANKING ────────────────────────────────────────────────────────────── */
 function RankingView({ ranking, myId }) {
   const podio = ranking.slice(0,3);

@@ -61,3 +61,12 @@ assert.equal(retroAna.totalApostas, 2);
 assert.equal(retroAna.melhorSequencia, 1);
 
 console.log("OK: calcRetrospectivaUsuario (placar/acertos/sequencia)");
+
+assert.deepEqual(retroAna.selecaoDaSorte, { time: "Argentina", tentativas: 1, acertos: 1 });
+assert.deepEqual(retroAna.selecaoAzarada, { time: "Alemanha", tentativas: 1, acertos: 0 });
+assert.equal(retroAna.acertosLendarios.length, 1);
+assert.equal(retroAna.acertosLendarios[0].jogoId, 10);
+assert.equal(retroAna.acertosLendarios[0].time1, "Brasil");
+assert.equal(retroAna.acertosLendarios[0].g1, 2);
+
+console.log("OK: calcRetrospectivaUsuario (selecao/lendario)");

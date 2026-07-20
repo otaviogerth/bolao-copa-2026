@@ -143,13 +143,30 @@ export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites) {
     }
   });
 
+  let selecaoDaSorte = null, selecaoAzarada = null;
+  const times = [...statsPorTime.entries()].map(([time, s]) => ({ time, ...s }));
+  if (times.length > 0) {
+    const porMelhor = times.slice().sort((a, b) =>
+      b.acertos - a.acertos || b.tentativas - a.tentativas || a.time.localeCompare(b.time)
+    );
+    if (porMelhor[0].acertos > 0) selecaoDaSorte = porMelhor[0];
+
+    const porPior = times.slice().sort((a, b) =>
+      a.acertos - b.acertos || b.tentativas - a.tentativas || a.time.localeCompare(b.time)
+    );
+    const candidataAzarada = porPior[0];
+    if (times.length > 1 && (!selecaoDaSorte || candidataAzarada.time !== selecaoDaSorte.time)) {
+      selecaoAzarada = candidataAzarada;
+    }
+  }
+
   return {
     placarDaSorte,
     acertos,
     totalApostas: meusPalpites.length,
     melhorSequencia,
-    selecaoDaSorte: null,
-    selecaoAzarada: null,
+    selecaoDaSorte,
+    selecaoAzarada,
     acertosLendarios,
   };
 }

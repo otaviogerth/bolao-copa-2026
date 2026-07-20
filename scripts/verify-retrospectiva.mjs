@@ -101,3 +101,24 @@ assert.equal(retroAnaComEscopo.acertosLendarios.length, 1);
 assert.equal(retroAnaComEscopo.acertosLendarios[0].jogoId, 10);
 
 console.log("OK: calcRetrospectivaUsuario (acerto lendario escopado aos elegiveis)");
+
+// Fix 2 (regressao): o proprio clienteId pode nao estar em clientesElegiveisIds
+// (ex.: usuario tipo "cliente" abrindo a propria retrospectiva, que nao entra no
+// ranking de funcionarios). O acerto lendario dele nao pode ser descartado so
+// porque ele mesmo ficou de fora do Set de elegiveis usado pro filtro.
+const jogoNovo = { id: 12, time1: "Portugal", time2: "Espanha", grupo: "C", fase: "grupos", data_hora: "2026-06-13T13:00:00Z", resultado_g1: 3, resultado_g2: 2, encerrado: true };
+const jogosComNovoJogo = [...jogos, jogoNovo];
+const palpitesComForaDeEscopoENovoJogo = [
+  ...palpitesComForaDeEscopo,
+  { id: 300, cliente_id: 3, jogo_id: 12, g1: 3, g2: 2 }, // Cliente Externo (id 3): acerto exato unico, ninguem mais palpitou
+];
+
+// Cliente Externo (id 3) nao esta em clientesElegiveisIds ([1, 2]), mas seu acerto
+// exato no jogo 12 e genuinamente unico (ninguem, elegivel ou nao, cravou o mesmo placar).
+const retroClienteExterno = calcRetrospectivaUsuario(3, jogosComNovoJogo, palpitesComForaDeEscopoENovoJogo, clientesElegiveisIds);
+const lendarioJogo12 = retroClienteExterno.acertosLendarios.find(a => a.jogoId === 12);
+assert.ok(lendarioJogo12, "acerto exato unico do proprio usuario (fora do escopo de elegiveis) deve continuar lendario");
+assert.equal(lendarioJogo12.g1, 3);
+assert.equal(lendarioJogo12.g2, 2);
+
+console.log("OK: calcRetrospectivaUsuario (acerto lendario do proprio usuario mesmo fora do escopo de elegiveis)");

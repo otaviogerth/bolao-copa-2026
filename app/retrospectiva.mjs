@@ -83,7 +83,7 @@ export function calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegivei
 }
 
 export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites, clientesElegiveisIds = null) {
-  const elegiveisSet = clientesElegiveisIds ? new Set(clientesElegiveisIds) : null;
+  const elegiveisSet = clientesElegiveisIds ? new Set([...clientesElegiveisIds, clienteId]) : null;
   const meusPalpites = todosPalpites.filter(p => p.cliente_id === clienteId);
 
   let placarDaSorte = null;

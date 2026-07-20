@@ -647,14 +647,14 @@ export default function App() {
   }
 
   const linhaDoTempo = useMemo(
-    () => calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegiveis),
-    [jogos, todosPalpites, clientesElegiveis]
+    () => retroAlvoId ? calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegiveis) : null,
+    [retroAlvoId, jogos, todosPalpites, clientesElegiveis]
   );
 
   const retroAlvo = clientes.find(c => c.id === retroAlvoId) || null;
   const retrospectivaAtual = useMemo(
-    () => retroAlvoId ? calcRetrospectivaUsuario(retroAlvoId, jogos, todosPalpites) : null,
-    [retroAlvoId, jogos, todosPalpites]
+    () => retroAlvoId ? calcRetrospectivaUsuario(retroAlvoId, jogos, todosPalpites, clientesElegiveis.map(c=>c.id)) : null,
+    [retroAlvoId, jogos, todosPalpites, clientesElegiveis]
   );
 
   const rankingDoMeuTipo = user ? ranking.filter(r=>r.tipo===user.tipo) : ranking;
@@ -918,7 +918,7 @@ export default function App() {
         {tela==="ranking"   &&<div className="screen"><RankingView ranking={ranking} myId={user.id}/></div>}
         {tela==="matamata"&&!isAdmin&&<div className="screen"><ListaMataMata jogos={jogos.filter(j=>j.fase&&j.fase!=="grupos")} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} soLeitura={bloqueado}/></div>}
         {tela==="jogos"     &&<div className="screen"><ListaJogos jogos={jogos} palpites={palpites.filter(p=>p.cliente_id===user.id)} onSalvar={salvarPalpite} onDeletar={deletarPalpite} loading={loading} soLeitura={bloqueado}/></div>}
-        {tela==="retrospectiva" && retroAlvo && retrospectivaAtual && (
+        {tela==="retrospectiva" && retroAlvo && retrospectivaAtual && linhaDoTempo && (
           <RetrospectivaView
             slides={montarSlides({
               nome: retroAlvo.nome,
@@ -1383,11 +1383,11 @@ function RetrospectivaView({ slides, onFechar }) {
   );
 }
 
-function SlideBase({ kicker, titulo, valor, valorCor, sub, extra }) {
+function SlideBase({ kicker, titulo, valor, valorCor, tituloCor, sub, extra }) {
   return (
     <div>
       <div style={{fontSize:11,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>{kicker}</div>
-      <div style={{fontSize:19,fontWeight:600,color:"#fff",marginBottom:18,fontFamily:FB,lineHeight:1.4}}>{titulo}</div>
+      <div style={{fontSize:19,fontWeight:600,color:tituloCor||"#fff",marginBottom:18,fontFamily:FB,lineHeight:1.4}}>{titulo}</div>
       {valor!=null && <div style={{fontSize:60,fontWeight:400,color:valorCor||YELLOW,fontFamily:FD,lineHeight:1,marginBottom:14,letterSpacing:-1}}>{valor}</div>}
       {extra}
       {sub && <div style={{fontSize:13,color:"#c8c8c8",lineHeight:1.6,marginTop:extra?14:0}}>{sub}</div>}
@@ -1430,7 +1430,7 @@ function montarSlides({ nome, meuId, retro, linha, posicaoFinal, pontosTotais, t
     slides.push(
       <SlideBase key="selecao-sorte" kicker="Selecao da sorte"
         titulo={retro.selecaoDaSorte.time}
-        valorCor={"#4ade80"}
+        tituloCor={"#4ade80"}
         extra={<div style={{margin:"0 auto 14px",width:64}}><Flag time={retro.selecaoDaSorte.time} size={64}/></div>}
         sub={`voce cravou o placar exato ${retro.selecaoDaSorte.acertos}x com esse time em campo`}/>
     );
@@ -1440,7 +1440,7 @@ function montarSlides({ nome, meuId, retro, linha, posicaoFinal, pontosTotais, t
     slides.push(
       <SlideBase key="selecao-azarada" kicker="Selecao azarada"
         titulo={retro.selecaoAzarada.time}
-        valorCor={RED}
+        tituloCor={RED}
         extra={<div style={{margin:"0 auto 14px",width:64}}><Flag time={retro.selecaoAzarada.time} size={64}/></div>}
         sub="foi o time que menos te trouxe sorte nos placares exatos"/>
     );
@@ -1468,7 +1468,7 @@ function montarSlides({ nome, meuId, retro, linha, posicaoFinal, pontosTotais, t
     slides.push(
       <SlideBase key="lendario" kicker="Acerto lendario"
         titulo={`${l.time1} ${l.g1} x ${l.g2} ${l.time2}`}
-        valorCor={"#4ade80"}
+        tituloCor={"#4ade80"}
         sub={retro.acertosLendarios.length>1
           ?`voce foi a UNICA pessoa a cravar esse placar (e mais ${retro.acertosLendarios.length-1} igual a esse)`
           :"voce foi a UNICA pessoa em todo o bolao a cravar esse placar exato"}/>
@@ -1776,8 +1776,10 @@ function AdminClientes({ clientes, onAdd, onToggle, onAbrirRetrospectiva }) {
                 <span style={{fontSize:9,fontWeight:700,color:c.ativo?"#4ade80":"#f87171"}}>{c.ativo?"● ATIVO":"● INATIVO"}</span>
               </div>
             </div>
-            <button className="btn" style={{border:`0.5px solid rgba(255,209,1,0.35)`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"rgba(255,209,1,0.06)",color:YELLOW,fontWeight:600}}
-              onClick={()=>onAbrirRetrospectiva(c.id)}>Retrospectiva</button>
+            {c.tipo==="funcionario" && c.ativo && (
+              <button className="btn" style={{border:`0.5px solid rgba(255,209,1,0.35)`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"rgba(255,209,1,0.06)",color:YELLOW,fontWeight:600}}
+                onClick={()=>onAbrirRetrospectiva(c.id)}>Retrospectiva</button>
+            )}
             <button className="btn" style={{border:`0.5px solid ${BORDER2}`,borderRadius:6,padding:"5px 12px",fontSize:11,background:"transparent",color:MUTE,fontWeight:500}}
               onClick={()=>onToggle(c.id,c.ativo)}>{c.ativo?"Desativar":"Ativar"}</button>
           </div>

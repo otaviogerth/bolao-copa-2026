@@ -70,3 +70,34 @@ assert.equal(retroAna.acertosLendarios[0].time1, "Brasil");
 assert.equal(retroAna.acertosLendarios[0].g1, 2);
 
 console.log("OK: calcRetrospectivaUsuario (selecao/lendario)");
+
+// Fix 1: acerto lendario deve ser escopado aos clientes elegiveis do ranking.
+// Cenario: um cliente fora do escopo (nao-funcionario ou inativo) tambem cravou
+// o mesmo placar exato de Ana no Brasil x Argentina. Como ele nao conta pro
+// ranking, o acerto de Ana continua "lendario" (unico ENTRE OS ELEGIVEIS).
+const clientesComForaDeEscopo = [
+  ...clientes,
+  { id: 3, nome: "Cliente Externo", doc: "333", tipo: "cliente", ativo: true },   // fora: tipo != funcionario
+  { id: 4, nome: "Ex Funcionario", doc: "444", tipo: "funcionario", ativo: false }, // fora: inativo
+];
+const palpitesComForaDeEscopo = [
+  ...palpites,
+  { id: 200, cliente_id: 3, jogo_id: 10, g1: 2, g2: 1 }, // fora de escopo: mesmo placar exato de Ana
+  { id: 201, cliente_id: 4, jogo_id: 10, g1: 2, g2: 1 }, // fora de escopo: mesmo placar exato de Ana
+];
+const clientesElegiveisIds = clientesComForaDeEscopo
+  .filter(c => c.doc !== "admin" && c.tipo === "funcionario" && c.ativo)
+  .map(c => c.id);
+
+// Sem o escopo (comportamento antigo, sem 4º argumento): acerto deixa de ser lendario
+// porque a filtragem enxerga os 2 palpiteiros fora de escopo como "concorrentes".
+const retroAnaSemEscopo = calcRetrospectivaUsuario(1, jogos, palpitesComForaDeEscopo);
+assert.equal(retroAnaSemEscopo.acertosLendarios.length, 0);
+
+// Com o escopo correto: acerto de Ana continua lendario, pois os 2 "concorrentes"
+// nao sao elegiveis pro ranking.
+const retroAnaComEscopo = calcRetrospectivaUsuario(1, jogos, palpitesComForaDeEscopo, clientesElegiveisIds);
+assert.equal(retroAnaComEscopo.acertosLendarios.length, 1);
+assert.equal(retroAnaComEscopo.acertosLendarios[0].jogoId, 10);
+
+console.log("OK: calcRetrospectivaUsuario (acerto lendario escopado aos elegiveis)");

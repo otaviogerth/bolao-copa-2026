@@ -82,7 +82,8 @@ export function calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegivei
   };
 }
 
-export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites) {
+export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites, clientesElegiveisIds = null) {
+  const elegiveisSet = clientesElegiveisIds ? new Set(clientesElegiveisIds) : null;
   const meusPalpites = todosPalpites.filter(p => p.cliente_id === clienteId);
 
   let placarDaSorte = null;
@@ -135,7 +136,7 @@ export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites) {
     else { sequenciaAtual = 0; }
 
     if (isExato) {
-      const todosDoJogo = todosPalpites.filter(x => x.jogo_id === j.id);
+      const todosDoJogo = todosPalpites.filter(x => x.jogo_id === j.id && (!elegiveisSet || elegiveisSet.has(x.cliente_id)));
       const acertantes = todosDoJogo.filter(x => x.g1 === j.resultado_g1 && x.g2 === j.resultado_g2);
       if (acertantes.length === 1) {
         acertosLendarios.push({ jogoId: j.id, time1: j.time1, time2: j.time2, g1: j.resultado_g1, g2: j.resultado_g2, dataHora: j.data_hora });

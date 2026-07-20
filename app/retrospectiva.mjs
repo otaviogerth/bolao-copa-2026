@@ -31,3 +31,53 @@ export function calcRankingAcumulado(jogosConsiderados, todosPalpites, clientesE
     a.id - b.id
   );
 }
+
+export function calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegiveis) {
+  const decididos = jogos
+    .filter(j => j.resultado_g1 != null && j.resultado_g2 != null)
+    .slice()
+    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
+
+  const diasLiderancaPorId = new Map();
+  const melhorPosicaoPorId = new Map();
+  let trocas = 0;
+  let liderAnterior = null;
+
+  if (decididos.length >= 2 && clientesElegiveis.length > 0) {
+    for (let i = 1; i < decididos.length; i++) {
+      const consideradosAteAqui = decididos.slice(0, i + 1);
+      const rankingAqui = calcRankingAcumulado(consideradosAteAqui, todosPalpites, clientesElegiveis);
+
+      rankingAqui.forEach((c, idx) => {
+        const rank = idx + 1;
+        const atual = melhorPosicaoPorId.get(c.id);
+        if (atual === undefined || rank < atual) melhorPosicaoPorId.set(c.id, rank);
+      });
+
+      const lider = rankingAqui[0];
+      if (liderAnterior !== null && lider.id !== liderAnterior) trocas++;
+      liderAnterior = lider.id;
+
+      const inicio = new Date(decididos[i].data_hora).getTime();
+      // ultimo periodo nao tem "proximo jogo" pra marcar o fim: soma 1 dia simbolico pro dia da final
+      const fim = i + 1 < decididos.length
+        ? new Date(decididos[i + 1].data_hora).getTime()
+        : inicio + 24 * 60 * 60 * 1000;
+      const dias = Math.max(0, (fim - inicio) / (24 * 60 * 60 * 1000));
+
+      diasLiderancaPorId.set(lider.id, (diasLiderancaPorId.get(lider.id) || 0) + dias);
+    }
+  }
+
+  const nomesPorId = new Map(clientesElegiveis.map(c => [c.id, c.nome]));
+  const diasLideranca = [...diasLiderancaPorId.entries()]
+    .map(([id, dias]) => ({ id, nome: nomesPorId.get(id), dias: Math.round(dias) }))
+    .sort((a, b) => b.dias - a.dias || a.id - b.id);
+
+  return {
+    trocas,
+    diasLideranca,
+    top4: diasLideranca.slice(0, 4),
+    melhorPosicaoPorId: Object.fromEntries(melhorPosicaoPorId),
+  };
+}

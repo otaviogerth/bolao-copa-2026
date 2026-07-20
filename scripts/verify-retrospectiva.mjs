@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calcPontos, calcRankingAcumulado } from "../app/retrospectiva.mjs";
+import { calcPontos, calcRankingAcumulado, calcLinhaDoTempoLideranca } from "../app/retrospectiva.mjs";
 
 const clientes = [
   { id: 1, nome: "Ana", doc: "111", tipo: "funcionario", ativo: true },
@@ -36,3 +36,20 @@ assert.equal(ranking[1].pts, 20);
 assert.equal(ranking[1].acertosBrasil, 0);
 
 console.log("OK: calcPontos + calcRankingAcumulado");
+
+// calcLinhaDoTempoLideranca: só 2 jogos decididos -> 1 periodo, sem trocas
+const linha = calcLinhaDoTempoLideranca(jogos, palpites, clientes);
+assert.equal(linha.trocas, 0);
+assert.equal(linha.diasLideranca.length, 1);
+assert.equal(linha.diasLideranca[0].id, 1);
+assert.equal(linha.diasLideranca[0].dias, 1);
+assert.deepEqual(linha.top4, linha.diasLideranca);
+assert.equal(linha.melhorPosicaoPorId[1], 1);
+assert.equal(linha.melhorPosicaoPorId[2], 2);
+
+// sem jogos decididos o suficiente -> sem lideranca calculavel
+const linhaVazia = calcLinhaDoTempoLideranca([jogos[0]], palpites, clientes);
+assert.equal(linhaVazia.trocas, 0);
+assert.deepEqual(linhaVazia.diasLideranca, []);
+
+console.log("OK: calcLinhaDoTempoLideranca");

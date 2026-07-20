@@ -81,3 +81,75 @@ export function calcLinhaDoTempoLideranca(jogos, todosPalpites, clientesElegivei
     melhorPosicaoPorId: Object.fromEntries(melhorPosicaoPorId),
   };
 }
+
+export function calcRetrospectivaUsuario(clienteId, jogos, todosPalpites) {
+  const meusPalpites = todosPalpites.filter(p => p.cliente_id === clienteId);
+
+  let placarDaSorte = null;
+  if (meusPalpites.length > 0) {
+    const contagem = new Map();
+    meusPalpites.forEach(p => {
+      const chave = `${p.g1}-${p.g2}`;
+      contagem.set(chave, (contagem.get(chave) || 0) + 1);
+    });
+    let melhorChave = null, melhorVezes = 0;
+    for (const [chave, vezes] of contagem) {
+      if (vezes > melhorVezes) { melhorChave = chave; melhorVezes = vezes; }
+    }
+    if (melhorChave) {
+      const [g1, g2] = melhorChave.split("-").map(Number);
+      placarDaSorte = { g1, g2, vezes: melhorVezes };
+    }
+  }
+
+  const decididosOrdenados = jogos
+    .filter(j => j.resultado_g1 != null && j.resultado_g2 != null)
+    .slice()
+    .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
+
+  let acertos = 0;
+  let sequenciaAtual = 0;
+  let melhorSequencia = 0;
+  const statsPorTime = new Map();
+  const acertosLendarios = [];
+
+  decididosOrdenados.forEach(j => {
+    const p = meusPalpites.find(x => x.jogo_id === j.id);
+    const isBrasil = j.time1 === "Brasil" || j.time2 === "Brasil";
+    const isMataMata = FASES_MATA.includes(j.fase);
+
+    if (!p) { sequenciaAtual = 0; return; }
+
+    const pontos = calcPontos(p.g1, p.g2, j.resultado_g1, j.resultado_g2, isBrasil, isMataMata);
+    const isExato = p.g1 === j.resultado_g1 && p.g2 === j.resultado_g2;
+    if (isExato) acertos++;
+
+    [j.time1, j.time2].forEach(time => {
+      const s = statsPorTime.get(time) || { tentativas: 0, acertos: 0 };
+      s.tentativas++;
+      if (isExato) s.acertos++;
+      statsPorTime.set(time, s);
+    });
+
+    if (pontos > 0) { sequenciaAtual++; melhorSequencia = Math.max(melhorSequencia, sequenciaAtual); }
+    else { sequenciaAtual = 0; }
+
+    if (isExato) {
+      const todosDoJogo = todosPalpites.filter(x => x.jogo_id === j.id);
+      const acertantes = todosDoJogo.filter(x => x.g1 === j.resultado_g1 && x.g2 === j.resultado_g2);
+      if (acertantes.length === 1) {
+        acertosLendarios.push({ jogoId: j.id, time1: j.time1, time2: j.time2, g1: j.resultado_g1, g2: j.resultado_g2, dataHora: j.data_hora });
+      }
+    }
+  });
+
+  return {
+    placarDaSorte,
+    acertos,
+    totalApostas: meusPalpites.length,
+    melhorSequencia,
+    selecaoDaSorte: null,
+    selecaoAzarada: null,
+    acertosLendarios,
+  };
+}

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calcPontos, calcRankingAcumulado, calcLinhaDoTempoLideranca } from "../app/retrospectiva.mjs";
+import { calcPontos, calcRankingAcumulado, calcLinhaDoTempoLideranca, calcRetrospectivaUsuario } from "../app/retrospectiva.mjs";
 
 const clientes = [
   { id: 1, nome: "Ana", doc: "111", tipo: "funcionario", ativo: true },
@@ -53,3 +53,11 @@ assert.equal(linhaVazia.trocas, 0);
 assert.deepEqual(linhaVazia.diasLideranca, []);
 
 console.log("OK: calcLinhaDoTempoLideranca");
+
+const retroAna = calcRetrospectivaUsuario(1, jogos, palpites);
+assert.deepEqual(retroAna.placarDaSorte, { g1: 2, g2: 1, vezes: 1 });
+assert.equal(retroAna.acertos, 1);
+assert.equal(retroAna.totalApostas, 2);
+assert.equal(retroAna.melhorSequencia, 1);
+
+console.log("OK: calcRetrospectivaUsuario (placar/acertos/sequencia)");

@@ -1337,6 +1337,114 @@ function RetrospectivaView({ slides, onFechar }) {
   );
 }
 
+function SlideBase({ kicker, titulo, valor, valorCor, sub, extra }) {
+  return (
+    <div>
+      <div style={{fontSize:11,fontWeight:700,color:YELLOW,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>{kicker}</div>
+      <div style={{fontSize:19,fontWeight:600,color:"#fff",marginBottom:18,fontFamily:FB,lineHeight:1.4}}>{titulo}</div>
+      {valor!=null && <div style={{fontSize:60,fontWeight:400,color:valorCor||YELLOW,fontFamily:FD,lineHeight:1,marginBottom:14,letterSpacing:-1}}>{valor}</div>}
+      {extra}
+      {sub && <div style={{fontSize:13,color:"#c8c8c8",lineHeight:1.6,marginTop:extra?14:0}}>{sub}</div>}
+    </div>
+  );
+}
+
+function montarSlides({ nome, meuId, retro, linha, posicaoFinal, pontosTotais, totalParticipantes }) {
+  const primeiroNome = (nome||"").split(" ")[0];
+  const slides = [];
+
+  slides.push(
+    <SlideBase key="abertura" kicker="Copa 2026" titulo={`Sua Retrospectiva, ${primeiroNome}`} sub="Vamos relembrar como foi o seu bolao"/>
+  );
+
+  slides.push(
+    <SlideBase key="posicao-final" kicker="No fim das contas"
+      titulo="Voce fechou a copa em"
+      valor={posicaoFinal>0?`${posicaoFinal}º`:"—"}
+      sub={`${pontosTotais} pontos, entre ${totalParticipantes} participantes`}/>
+  );
+
+  slides.push(
+    <SlideBase key="acertos" kicker="Precisao"
+      titulo="Palpites exatos"
+      valor={retro.acertos}
+      sub={`de ${retro.totalApostas} palpite(s) feito(s) na copa toda`}/>
+  );
+
+  if (retro.placarDaSorte) {
+    slides.push(
+      <SlideBase key="placar-sorte" kicker="Placar da sorte"
+        titulo={`Voce apostou ${retro.placarDaSorte.g1} x ${retro.placarDaSorte.g2}`}
+        valor={`${retro.placarDaSorte.vezes}x`}
+        sub="foi o placar que voce mais repetiu nos seus palpites"/>
+    );
+  }
+
+  if (retro.selecaoDaSorte) {
+    slides.push(
+      <SlideBase key="selecao-sorte" kicker="Selecao da sorte"
+        titulo={retro.selecaoDaSorte.time}
+        valorCor={"#4ade80"}
+        extra={<div style={{margin:"0 auto 14px",width:64}}><Flag time={retro.selecaoDaSorte.time} size={64}/></div>}
+        sub={`voce cravou o placar exato ${retro.selecaoDaSorte.acertos}x com esse time em campo`}/>
+    );
+  }
+
+  if (retro.selecaoAzarada) {
+    slides.push(
+      <SlideBase key="selecao-azarada" kicker="Selecao azarada"
+        titulo={retro.selecaoAzarada.time}
+        valorCor={RED}
+        extra={<div style={{margin:"0 auto 14px",width:64}}><Flag time={retro.selecaoAzarada.time} size={64}/></div>}
+        sub="foi o time que menos te trouxe sorte nos placares exatos"/>
+    );
+  }
+
+  slides.push(
+    <SlideBase key="sequencia" kicker="Embalo"
+      titulo="Sua melhor sequencia pontuando foi de"
+      valor={retro.melhorSequencia}
+      sub={retro.melhorSequencia===1?"jogo seguido pontuando":"jogos seguidos pontuando"}/>
+  );
+
+  const meusDiasLideranca = (linha.diasLideranca.find(d=>d.id===meuId)||{}).dias||0;
+  if (meusDiasLideranca > 0) {
+    slides.push(
+      <SlideBase key="lideranca" kicker="No topo"
+        titulo="Sua melhor posicao no bolao foi"
+        valor={`${linha.melhorPosicaoPorId[meuId]}º`}
+        sub={`voce ficou ${meusDiasLideranca} dia(s) na lideranca do bolao`}/>
+    );
+  }
+
+  if (retro.acertosLendarios.length > 0) {
+    const l = retro.acertosLendarios[0];
+    slides.push(
+      <SlideBase key="lendario" kicker="Acerto lendario"
+        titulo={`${l.time1} ${l.g1} x ${l.g2} ${l.time2}`}
+        valorCor={"#4ade80"}
+        sub={retro.acertosLendarios.length>1
+          ?`voce foi a UNICA pessoa a cravar esse placar (e mais ${retro.acertosLendarios.length-1} igual a esse)`
+          :"voce foi a UNICA pessoa em todo o bolao a cravar esse placar exato"}/>
+    );
+  }
+
+  slides.push(
+    <SlideBase key="lideranca-geral" kicker="Enquanto isso, no bolao"
+      titulo="A lideranca trocou de pessoa"
+      valor={linha.trocas}
+      sub={linha.top4.length>0
+        ? "quem mais liderou: "+linha.top4.map(t=>`${t.nome.split(" ")[0]} (${t.dias}d)`).join(", ")
+        : "vezes ao longo da copa"}/>
+  );
+
+  slides.push(
+    <SlideBase key="fim" kicker="Copa 2026" titulo="Obrigado por jogar o bolao com a gente!" sub="Ate a proxima copa"/>
+  );
+
+  return slides;
+}
+
 /* ─── RANKING ────────────────────────────────────────────────────────────── */
 function RankingView({ ranking, myId }) {
   const podio = ranking.slice(0,3);
